@@ -79,6 +79,7 @@
                                     <th>role</th>
                                     <th class="workflow-state">status</th>
                                     <th></th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -108,7 +109,7 @@
                                             -->
                                             <form method="post" class="form-inline" action="{{ url(
                                                     'foh.system_account.user.tasks.proceed',
-                                                    { 'identifier': user.identifier}
+                                                    { 'identifier': user.identifier }
                                             ) }}">
                                                 <input type="hidden" name="revision" value="{{ user.revision }}" />
                                                 <input type="hidden" name="via" value="demote" />
@@ -124,7 +125,7 @@
                                             -->
                                             <form class="form-inline" method="post" action="{{ url(
                                                     'foh.system_account.user.tasks.proceed',
-                                                    { 'identifier': user.identifier}
+                                                    { 'identifier': user.identifier }
                                             ) }}">
                                                 <input type="hidden" name="revision" value="{{ user.revision }}" />
                                                 <input type="hidden" name="via" value="promote" />
@@ -136,6 +137,17 @@
                                             </form>
                                         </div>
                                     </td>
+                                    <td>
+                                        <!--
+                                        history link
+                                        -->
+                                        <a href="{{ url(
+                                            'foh.system_account.user.history',
+                                            { 'identifier': user.identifier }
+                                        ) }}" class="btn btn-primary btn-xs">
+                                            <span class="glyphicon glyphicon-book"></span> history
+                                        </a>
+                                    </td>
                                     <td class="delete-action">
                                         <div class="btn-group btn-group-justified" role="group">
                                             <!--
@@ -143,7 +155,7 @@
                                             -->
                                             <form method="post" action="{{ url(
                                                     'foh.system_account.user.tasks.proceed',
-                                                    { 'identifier': user.identifier}
+                                                    { 'identifier': user.identifier }
                                             ) }}">
                                                 <input type="hidden" name="revision" class="revision-val" value="{{ user.revision }}" />
                                                 <input type="hidden" name="via" value="delete" />

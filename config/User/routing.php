@@ -2,6 +2,7 @@
 
 // everything in here will be mounted below the prefix '/system_account/user'
 
+use Foh\SystemAccount\User\Controller\HistoryController;
 use Foh\SystemAccount\User\Controller\IndexController;
 use Foh\SystemAccount\User\Controller\ListController;
 use Foh\SystemAccount\User\Controller\Task\ModifyController;
@@ -21,4 +22,7 @@ $routing->mount('/user', function ($routing) {
 
     $routing->match('/{identifier}/tasks/proceed', [ ProceedWorkflowController::CLASS, 'write' ])
         ->bind('foh.system_account.user.tasks.proceed');
+
+    $routing->get('/{identifier}/history', [ HistoryController::CLASS, 'read' ])
+        ->bind('foh.system_account.user.history');
 });
