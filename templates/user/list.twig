@@ -27,7 +27,7 @@
                                             <div class="input-group-addon"><span class="glyphicon glyphicon-search"></span></div>
                                             <input type="text" class="form-control" id="search" name="q" value="{{ q }}" placeholder="search terms">
                                             <span class="input-group-btn">
-                                                <button type="submit" class="btn btn-primary">search</button>
+                                                <button type="submit" class="btn btn-primary" title="search users for given term">search</button>
                                             </span>
                                         </div>
                                     </div>
@@ -43,7 +43,7 @@
                                         </span>
                                         {% else %}
                                         <span class="input-group-btn">
-                                            <a class="btn btn-default" href="{{ pager.prev_url }}" type="submit">&laquo; prev</a>
+                                            <a class="btn btn-default" href="{{ pager.prev_url }}" type="submit" title="goto previous page">&laquo; prev</a>
                                         </span>
                                         {% endif %}
                                         <span class="input-group-addon" id="basic-addon1">page </span>
@@ -55,7 +55,7 @@
                                         </span>
                                         {% else %}
                                         <span class="input-group-btn">
-                                            <a class="btn btn-default" href="{{ pager.next_url }}" type="submit">next &raquo;</a>
+                                            <a class="btn btn-default" href="{{ pager.next_url }}" type="submit" title="goto next page">next &raquo;</a>
                                         </span>
                                         {% endif %}
                                     </div>
@@ -93,7 +93,7 @@
                                         <a href="{{ url(
                                             'foh.system_account.user.tasks.modify',
                                             { 'identifier': user.identifier}
-                                        ) }}">{{ user.username }}</a>
+                                        ) }}" title="modify user">{{ user.username }}</a>
                                         {% else %}
                                             {{ user.username }}
                                         {% endif %}
@@ -115,8 +115,8 @@
                                                 <input type="hidden" name="via" value="demote" />
                                                 <input type="hidden" name="from" value="{{ user.workflowState }}" />
                                                 <button type="submit" class="btn btn-warning btn-xs"
-                                                    {% if not user|accepts_event('demote') %}disabled="disabled"{% endif %}>
-                                                    <span class="glyphicon glyphicon-arrow-left"></span>
+                                                    {% if not user|accepts_event('demote') %}disabled="disabled"{% else %}title="deactivate user"{% endif %}>
+                                                    <span class="glyphicon glyphicon-lock"></span>
                                                 </button>
                                             </form>
                                             <div class="user-state">{{ user.workflowState }}</div>
@@ -131,8 +131,8 @@
                                                 <input type="hidden" name="via" value="promote" />
                                                 <input type="hidden" name="from" value="{{ user.workflowState }}" />
                                                 <button type="submit" class="btn btn-success btn-xs"
-                                                    {% if not user|accepts_event('promote') %}disabled="disabled"{% endif %}>
-                                                    <span class="glyphicon glyphicon-arrow-right"></span>
+                                                    {% if not user|accepts_event('promote') %}disabled="disabled"{% else %}title="activate user"{% endif %}>
+                                                    <span class="glyphicon glyphicon-ok"></span>
                                                 </button>
                                             </form>
                                         </div>
@@ -144,7 +144,7 @@
                                         <a href="{{ url(
                                             'foh.system_account.user.history',
                                             { 'identifier': user.identifier }
-                                        ) }}" class="btn btn-primary btn-xs">
+                                        ) }}" class="btn btn-primary btn-xs" title="view user history">
                                             <span class="glyphicon glyphicon-book"></span> history
                                         </a>
                                     </td>
@@ -161,7 +161,7 @@
                                                 <input type="hidden" name="via" value="delete" />
                                                 <input type="hidden" name="from" class="workflow-state-val" value="{{ user.workflowState }}" />
                                                 <button type="button" class="btn btn-danger btn-xs"
-                                                    data-toggle="modal" data-target="#deletePrompt"
+                                                    data-toggle="modal" title="delete user" data-target="#deletePrompt"
                                                     {% if not user|accepts_event('delete') %}disabled="disabled"{% endif %}>
                                                     <span class="glyphicon glyphicon-remove"></span>
                                                 </button>

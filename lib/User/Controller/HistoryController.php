@@ -53,12 +53,12 @@ class HistoryController
                     $sentiment = 'success';
                     $type = 'promote';
                     $title .= 'activated';
-                    $icon = 'glyphicon-arrow-right';
+                    $icon = 'glyphicon-ok';
                 } elseif ($event->getWorkflowState() === 'inactive') {
                     $sentiment = 'warning';
                     $type = 'demote';
                     $title .= 'deactivated';
-                    $icon = 'glyphicon-arrow-left';
+                    $icon = 'glyphicon-lock';
                 } else {
                     $sentiment = 'danger';
                     $title .= 'deleted';
