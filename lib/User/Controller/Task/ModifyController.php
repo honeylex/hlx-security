@@ -49,7 +49,7 @@ class ModifyController
 
         return $this->templateRenderer->render(
             '@SystemAccount/user/task/modify.twig',
-            [ 'form' => $form->createView(), 'user' => $user, 'status' => '' ]
+            [ 'form' => $form->createView(), 'user' => $user ]
         );
     }
 
@@ -62,7 +62,7 @@ class ModifyController
         if (!$form->isValid()) {
             return $this->templateRenderer->render(
                 '@SystemAccount/user/task/modify.twig',
-                [ 'form' => $form->createView(), 'user' => $user, 'status' => 'Form validation error' ]
+                [ 'form' => $form->createView(), 'user' => $user ]
             );
         }
 
@@ -79,7 +79,7 @@ class ModifyController
         $status = 'Failed to modify user: '.var_export($result->get(), true);
         return $this->templateRenderer->render(
             '@SystemAccount/user/task/modify.twig',
-            [ 'form' => $form->createView(), 'user' => $user, 'status' => $status ]
+            [ 'form' => $form->createView(), 'user' => $user ]
         );
     }
 

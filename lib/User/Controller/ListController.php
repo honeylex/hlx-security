@@ -5,17 +5,20 @@ namespace Foh\SystemAccount\User\Controller;
 use Foh\SystemAccount\User\Model\Aggregate\UserType;
 use Foh\SystemAccount\User\Model\Task\CreateUser\CreateUserCommand;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
+use Honeybee\Infrastructure\DataAccess\Finder\FinderResultInterface;
 use Honeybee\Infrastructure\DataAccess\Query\CriteriaList;
 use Honeybee\Infrastructure\DataAccess\Query\Query;
 use Honeybee\Infrastructure\DataAccess\Query\QueryServiceMap;
 use Honeybee\Infrastructure\DataAccess\Query\SearchCriteria;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Honeybee\Model\Command\AggregateRootCommandBuilder;
+use Shrink0r\Monatic\Error;
 use Shrink0r\Monatic\Success;
 use Silex\Application;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -49,6 +52,33 @@ class ListController
     public function read(Request $request, Application $app)
     {
         $form = $this->buildUserForm($app['form.factory']);
+
+        return $this->renderTemplate($request, $app, $form);
+    }
+
+    public function write(Request $request, Application $app)
+    {
+        $form = $this->buildUserForm($app['form.factory']);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            return $this->renderTemplate($request, $app, $form);
+        }
+
+        $result = (new AggregateRootCommandBuilder($this->userType, CreateUserCommand::CLASS))
+            ->withValues($form->getData())
+            ->build();
+
+        if ($result instanceof Error) {
+            return $this->renderTemplate($request, $app, $form);
+        } else {
+            $this->commandBus->post($result->get());
+            return $app->redirect($request->getRequestUri());
+        }
+    }
+
+    protected function getListParams(Request $request, Application $app)
+    {
         $query = $request->query->get('q', '');
         $errors = $app['validator']->validate($query, new Length([ 'max' => 100 ]));
         if (count($errors) > 0) {
@@ -64,65 +94,8 @@ class ListController
         if (count($errors) > 0) {
             $limit = 10;
         }
-        $search = $this->fetchUserList($query, $page, $limit);
 
-        $pager = [
-            'total' => ceil($search->getTotalCount() / $limit),
-            'current' => $page,
-            'next_url' => false,
-            'prev_url' => false
-        ];
-        if (($page + 1) * $limit <= $search->getTotalCount()) {
-            $pager['next_url'] = $app['url_generator']->generate(
-                'foh.system_account.user.list',
-                [ 'page' => $page + 1, 'limit' => $limit, 'q' => $query ]
-            );
-        }
-        if (($page - 1) / $limit > 0) {
-            $pager['prev_url'] = $app['url_generator']->generate(
-                'foh.system_account.user.list',
-                [ 'page' => $page - 1, 'limit' => $limit, 'q' => $query ]
-            );
-        }
-
-        return $this->templateRenderer->render(
-            '@SystemAccount/user/list.twig',
-            [
-                'form' => $form->createView(),
-                'user_list' => $search,
-                'pager' => $pager,
-                'status' => '',
-                'q' => $query
-            ]
-        );
-    }
-
-    public function write(Request $request, Application $app)
-    {
-        $form = $this->buildUserForm($app['form.factory']);
-        $form->handleRequest($request);
-
-        if (!$form->isValid()) {
-            return $this->templateRenderer->render(
-                '@SystemAccount/user/list.twig',
-                [ 'form' => $form->createView(), 'user_list' => $this->fetchUserList('', 1, 10), 'status' => 'Form validation error' ]
-            );
-        }
-
-        $result = (new AggregateRootCommandBuilder($this->userType, CreateUserCommand::CLASS))
-            ->withValues($form->getData())
-            ->build();
-
-        if ($result instanceof Success) {
-            $this->commandBus->post($result->get());
-            return $app->redirect($request->getRequestUri());
-        }
-
-        $status = 'Failed to create user: '.var_export($result->get(), true);
-        return $this->templateRenderer->render(
-            '@SystemAccount/user/list.twig',
-            [ 'form' => $form->createView(), 'user_list' => $this->fetchUserList('', 1, 10), 'status' => $status ]
-        );
+        return [ $query, $page, $limit ];
     }
 
     protected function fetchUserList($searchTerm, $page, $limit)
@@ -153,11 +126,50 @@ class ListController
             ->add('email', TextType::CLASS, [ 'constraints' => new Email ])
             ->add('firstname')
             ->add('lastname')
-            ->add('email')
             ->add('role', ChoiceType::CLASS, [
                 'choices' => [ 'administrator' => 'administrator', 'user' => 'user' ],
                 'constraints' => new Choice([ 'administrator', 'user' ]),
             ])
             ->getForm();
+    }
+
+    protected function renderTemplate(Request $request, Application $app, Form $form)
+    {
+        list($query, $page, $limit) = $this->getListParams($request, $app);
+        $search = $this->fetchUserList($query, $page, $limit);
+
+        return $this->templateRenderer->render(
+            '@SystemAccount/user/list.twig',
+            [
+                'q' => '',
+                'user_list' => $search,
+                'form' => $form->createView(),
+                'pager' => $this->buildPager($search, $page, $limit)
+            ]
+        );
+    }
+
+    protected function buildPager(FinderResultInterface $search, $page, $limit)
+    {
+        $pager = [
+            'total' => ceil($search->getTotalCount() / $limit),
+            'current' => $page,
+            'next_url' => false,
+            'prev_url' => false
+        ];
+        if (($page + 1) * $limit <= $search->getTotalCount()) {
+            $pager['next_url'] = $app['url_generator']->generate(
+                'foh.system_account.user.list',
+                [ 'page' => $page + 1, 'limit' => $limit, 'q' => $query ]
+            );
+        }
+        if (($page - 1) / $limit > 0) {
+            $pager['prev_url'] = $app['url_generator']->generate(
+                'foh.system_account.user.list',
+                [ 'page' => $page - 1, 'limit' => $limit, 'q' => $query ]
+            );
+        }
+
+        return $pager;
     }
 }
