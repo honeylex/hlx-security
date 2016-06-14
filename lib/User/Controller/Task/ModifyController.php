@@ -14,7 +14,9 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactory;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\Length;
@@ -30,22 +32,30 @@ class ModifyController
 
     protected $queryServiceMap;
 
+    protected $formFactory;
+
+    protected $urlGenerator;
+
     public function __construct(
         UserType $userType,
         TemplateRendererInterface $templateRenderer,
         CommandBusInterface $commandBus,
-        FinderMap $finderMap
+        FinderMap $finderMap,
+        FormFactoryInterface $formFactory,
+        UrlGeneratorInterface $urlGenerator
     ) {
         $this->userType = $userType;
         $this->templateRenderer = $templateRenderer;
         $this->commandBus = $commandBus;
         $this->finderMap = $finderMap;
+        $this->formFactory = $formFactory;
+        $this->urlGenerator = $urlGenerator;
     }
 
-    public function read(Request $request, Application $app)
+    public function read(Request $request)
     {
         $user = $this->fetchUser($request->get('identifier'));
-        $form = $this->buildUserForm($app['form.factory'], $user->toArray());
+        $form = $this->buildUserForm($user->toArray());
 
         return $this->templateRenderer->render(
             '@SystemAccount/user/task/modify.twig',
@@ -56,7 +66,7 @@ class ModifyController
     public function write(Request $request, Application $app)
     {
         $user = $this->fetchUser($request->get('identifier'));
-        $form = $this->buildUserForm($app['form.factory']);
+        $form = $this->buildUserForm();
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
@@ -73,7 +83,7 @@ class ModifyController
 
         if ($result instanceof Success) {
             $this->commandBus->post($result->get());
-            return $app->redirect($app['url_generator']->generate('foh.system_account.user.list'));
+            return $app->redirect($this->urlGenerator->generate('foh.system_account.user.list'));
         }
 
         $status = 'Failed to modify user: '.var_export($result->get(), true);
@@ -90,7 +100,7 @@ class ModifyController
         return $results->getFirstResult();
     }
 
-    protected function buildUserForm(FormFactory $formFactory, array $data = [])
+    protected function buildUserForm(array $data = [])
     {
         $data = $data ?: [
             'username' => '',
@@ -100,7 +110,7 @@ class ModifyController
             'role' => ''
         ];
 
-        return $formFactory->createBuilder(FormType::CLASS, $data)
+        return $this->formFactory->createBuilder(FormType::CLASS, $data)
             ->add('username', TextType::CLASS, ['constraints' => [ new NotBlank, new Length([ 'min' => 5 ]) ]])
             ->add('email', TextType::CLASS, [ 'constraints' => new Email ])
             ->add('firstname')

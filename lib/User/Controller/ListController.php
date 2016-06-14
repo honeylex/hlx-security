@@ -20,12 +20,15 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormFactory;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ListController
 {
@@ -37,32 +40,42 @@ class ListController
 
     protected $queryServiceMap;
 
+    protected $urlGenerator;
+
+    protected $formFactory;
+
+    protected $validator;
+
     public function __construct(
         UserType $userType,
         TemplateRendererInterface $templateRenderer,
         CommandBusInterface $commandBus,
-        QueryServiceMap $queryServiceMap
+        QueryServiceMap $queryServiceMap,
+        UrlGeneratorInterface $urlGenerator,
+        FormFactoryInterface $formFactory,
+        ValidatorInterface $validator
     ) {
         $this->userType = $userType;
         $this->templateRenderer = $templateRenderer;
         $this->commandBus = $commandBus;
         $this->queryServiceMap = $queryServiceMap;
+        $this->urlGenerator = $urlGenerator;
+        $this->formFactory = $formFactory;
+        $this->validator = $validator;
     }
 
-    public function read(Request $request, Application $app)
+    public function read(Request $request)
     {
-        $form = $this->buildUserForm($app['form.factory']);
-
-        return $this->renderTemplate($request, $app, $form);
+        return $this->renderTemplate($request, $this->buildUserForm());
     }
 
     public function write(Request $request, Application $app)
     {
-        $form = $this->buildUserForm($app['form.factory']);
+        $form = $this->buildUserForm();
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
-            return $this->renderTemplate($request, $app, $form);
+            return $this->renderTemplate($request, $form);
         }
 
         $result = (new AggregateRootCommandBuilder($this->userType, CreateUserCommand::CLASS))
@@ -70,27 +83,27 @@ class ListController
             ->build();
 
         if ($result instanceof Error) {
-            return $this->renderTemplate($request, $app, $form);
+            return $this->renderTemplate($request, $form);
         } else {
             $this->commandBus->post($result->get());
             return $app->redirect($request->getRequestUri());
         }
     }
 
-    protected function getListParams(Request $request, Application $app)
+    protected function getListParams(Request $request)
     {
         $query = $request->query->get('q', '');
-        $errors = $app['validator']->validate($query, new Length([ 'max' => 100 ]));
+        $errors = $this->validator->validate($query, new Length([ 'max' => 100 ]));
         if (count($errors) > 0) {
             $query = '';
         }
         $page = $request->query->get('page', 1);
-        $errors = $app['validator']->validate($page, new GreaterThan([ 'value' => 0 ]));
+        $errors = $this->validator->validate($page, new GreaterThan([ 'value' => 0 ]));
         if (count($errors) > 0) {
             $page = 1;
         }
         $limit = $request->query->get('limit', 10);
-        $errors = $app['validator']->validate($limit, new GreaterThan([ 'value' => 0 ]));
+        $errors = $this->validator->validate($limit, new GreaterThan([ 'value' => 0 ]));
         if (count($errors) > 0) {
             $limit = 10;
         }
@@ -111,7 +124,7 @@ class ListController
                 ->find($query);
     }
 
-    protected function buildUserForm(FormFactory $formFactory)
+    protected function buildUserForm()
     {
         $data = [
             'username' => '',
@@ -121,7 +134,7 @@ class ListController
             'role' => ''
         ];
 
-        return $formFactory->createBuilder(FormType::CLASS, $data)
+        return $this->formFactory->createBuilder(FormType::CLASS, $data)
             ->add('username', TextType::CLASS, ['constraints' => [ new NotBlank, new Length([ 'min' => 5 ]) ]])
             ->add('email', TextType::CLASS, [ 'constraints' => new Email ])
             ->add('firstname')
@@ -133,9 +146,9 @@ class ListController
             ->getForm();
     }
 
-    protected function renderTemplate(Request $request, Application $app, Form $form)
+    protected function renderTemplate(Request $request, Form $form)
     {
-        list($query, $page, $limit) = $this->getListParams($request, $app);
+        list($query, $page, $limit) = $this->getListParams($request);
         $search = $this->fetchUserList($query, $page, $limit);
 
         return $this->templateRenderer->render(
@@ -144,12 +157,12 @@ class ListController
                 'q' => '',
                 'user_list' => $search,
                 'form' => $form->createView(),
-                'pager' => $this->buildPager($search, $page, $limit)
+                'pager' => $this->buildPager($search, $query, $page, $limit)
             ]
         );
     }
 
-    protected function buildPager(FinderResultInterface $search, $page, $limit)
+    protected function buildPager(FinderResultInterface $search, $query, $page, $limit)
     {
         $pager = [
             'total' => ceil($search->getTotalCount() / $limit),
@@ -158,13 +171,13 @@ class ListController
             'prev_url' => false
         ];
         if (($page + 1) * $limit <= $search->getTotalCount()) {
-            $pager['next_url'] = $app['url_generator']->generate(
+            $pager['next_url'] = $this->urlGenerator->generate(
                 'foh.system_account.user.list',
                 [ 'page' => $page + 1, 'limit' => $limit, 'q' => $query ]
             );
         }
         if (($page - 1) / $limit > 0) {
-            $pager['prev_url'] = $app['url_generator']->generate(
+            $pager['prev_url'] = $this->urlGenerator->generate(
                 'foh.system_account.user.list',
                 [ 'page' => $page - 1, 'limit' => $limit, 'q' => $query ]
             );

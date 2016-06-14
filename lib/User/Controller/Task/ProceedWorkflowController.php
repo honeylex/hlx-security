@@ -7,6 +7,7 @@ use Foh\SystemAccount\User\Model\Task\ProceedUserWorkflow\ProceedUserWorkflowCom
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ProceedWorkflowController
 {
@@ -14,10 +15,16 @@ class ProceedWorkflowController
 
     protected $commandBus;
 
-    public function __construct(UserType $userType, CommandBusInterface $commandBus)
-    {
+    protected $urlGenerator;
+
+    public function __construct(
+        UserType $userType,
+        CommandBusInterface $commandBus,
+        UrlGeneratorInterface $urlGenerator
+    ) {
         $this->userType = $userType;
         $this->commandBus = $commandBus;
+        $this->urlGenerator = $urlGenerator;
     }
 
     public function write(Request $request, Application $app)
@@ -35,6 +42,6 @@ class ProceedWorkflowController
 
         $this->commandBus->post($proceedCommand);
 
-        return $app->redirect($app['url_generator']->generate('foh.system_account.user.list'));
+        return $app->redirect($this->urlGenerator->generate('foh.system_account.user.list'));
     }
 }

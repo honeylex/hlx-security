@@ -9,7 +9,6 @@ use Foh\SystemAccount\User\Model\Task\ModifyUser\UserModifiedEvent;
 use Foh\SystemAccount\User\Model\Task\ProceedUserWorkflow\UserWorkflowProceededEvent;
 use Honeybee\Infrastructure\DataAccess\Storage\StorageReaderMap;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
-use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 
 class HistoryController
@@ -28,7 +27,7 @@ class HistoryController
         $this->storageReaderMap = $storageReaderMap;
     }
 
-    public function read(Request $request, Application $app)
+    public function read(Request $request)
     {
         $eventStream = $this->storageReaderMap
             ->getItem($this->userType->getPrefix().'::event_stream::event_source::reader')
