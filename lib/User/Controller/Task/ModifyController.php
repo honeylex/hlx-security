@@ -66,7 +66,7 @@ class ModifyController
     public function write(Request $request, Application $app)
     {
         $user = $this->fetchUser($request->get('identifier'));
-        $form = $this->buildUserForm();
+        $form = $this->buildUserForm($user->toArray());
         $form->handleRequest($request);
 
         if (!$form->isValid()) {

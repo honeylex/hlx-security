@@ -1,0 +1,28 @@
+{% extends "layout.twig" %}
+
+{% block view_classes %}login{% endblock %}
+
+{% block content %}
+<div>
+    <div class="row">
+        <div class="col-xs-12 col-md-12">
+            <div class="page-header">
+              <h1>Login</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-md-6">
+            <form method="post" class="tab-content" action="{{ path('foh.system_account.login_check') }}">
+                <div class="tab-pane active" id="login">
+                    {{ form_widget(form) }}
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-success" type="submit">login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

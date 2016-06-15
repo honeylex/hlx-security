@@ -5,6 +5,9 @@ namespace Foh\SystemAccount\User\Controller\Task;
 use Foh\SystemAccount\User\Model\Aggregate\UserType;
 use Foh\SystemAccount\User\Model\Task\ProceedUserWorkflow\ProceedUserWorkflowCommand;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
+use Honeybee\Infrastructure\DataAccess\Finder\FinderMap;
+use Honeybee\Model\Command\AggregateRootCommandBuilder;
+use Shrink0r\Monatic\Success;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -13,16 +16,20 @@ class ProceedWorkflowController
 {
     protected $userType;
 
+    protected $finderMap;
+
     protected $commandBus;
 
     protected $urlGenerator;
 
     public function __construct(
         UserType $userType,
+        FinderMap $finderMap,
         CommandBusInterface $commandBus,
         UrlGeneratorInterface $urlGenerator
     ) {
         $this->userType = $userType;
+        $this->finderMap = $finderMap;
         $this->commandBus = $commandBus;
         $this->urlGenerator = $urlGenerator;
     }
@@ -32,16 +39,31 @@ class ProceedWorkflowController
         if ($request->getMethod() !== 'POST') {
             return 'Method not allowed.';
         }
-        $proceedCommand = new ProceedUserWorkflowCommand([
-            'aggregate_root_type' => $this->userType->getPrefix(),
-            'aggregate_root_identifier' => $request->get('identifier'),
-            'known_revision' => (int)$request->get('revision'),
-            'current_state_name' => $request->get('from'),
-            'event_name' => $request->get('via')
-        ]);
 
-        $this->commandBus->post($proceedCommand);
+        $user = $this->fetchUser($request->get('identifier'));
 
-        return $app->redirect($this->urlGenerator->generate('foh.system_account.user.list'));
+        $result = (new AggregateRootCommandBuilder($this->userType, ProceedUserWorkflowCommand::CLASS))
+            ->withProjection($user)
+            ->withCurrentStateName($request->get('from'))
+            ->withEventName($request->get('via'))
+            ->build();
+
+        if ($result instanceof Success) {
+            $this->commandBus->post($result->get());
+            return $app->redirect($this->urlGenerator->generate('foh.system_account.user.list'));
+        }
+
+        $status = 'Failed to proceed workflow: '.var_export($result->get(), true);
+        return $this->templateRenderer->render(
+            '@SystemAccount/user/list.twig',
+            [ 'status' => $result->get() ]
+        );
+    }
+
+    protected function fetchUser($identifier)
+    {
+        $finder = $this->finderMap->getItem($this->userType->getPrefix().'::projection.standard::view_store::finder');
+        $results = $finder->getByIdentifier($identifier);
+        return $results->getFirstResult();
     }
 }

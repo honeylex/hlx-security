@@ -10,19 +10,19 @@ use Foh\SystemAccount\User\Controller\Task\ProceedWorkflowController;
 
 $routing->mount('/user', function ($routing) {
     $routing->get('/', [ IndexController::CLASS, 'read' ])
-        ->bind('foh.system_account.user.index');
+        ->bind($this->getPrefix().'.user.index');
 
     $routing->post('/list', [ ListController::CLASS, 'write' ]);
     $routing->get('/list', [ ListController::CLASS, 'read' ])
-        ->bind('foh.system_account.user.list');
+        ->bind($this->getPrefix().'.user.list');
 
     $routing->post('/{identifier}/tasks/edit', [ ModifyController::CLASS, 'write' ]);
     $routing->get('/{identifier}/tasks/edit', [ ModifyController::CLASS, 'read' ])
-        ->bind('foh.system_account.user.tasks.modify');
+        ->bind($this->getPrefix().'.user.tasks.modify');
 
     $routing->match('/{identifier}/tasks/proceed', [ ProceedWorkflowController::CLASS, 'write' ])
-        ->bind('foh.system_account.user.tasks.proceed');
+        ->bind($this->getPrefix().'.user.tasks.proceed');
 
     $routing->get('/{identifier}/history', [ HistoryController::CLASS, 'read' ])
-        ->bind('foh.system_account.user.history');
+        ->bind($this->getPrefix().'.user.history');
 });
