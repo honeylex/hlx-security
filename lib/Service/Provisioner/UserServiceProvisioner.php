@@ -31,7 +31,8 @@ class UserServiceProvisioner extends SilexServiceProvisioner
             [
                 'security.firewalls' => [
                     'login' => [ 'pattern' => '^/foh/system_account/login$' ],
-                    'default' => [
+                    'registration' => [ 'pattern' => '^/foh/system_account/registration$' ],
+                    'secure' => [
                         'pattern' => '^.*$',
                         'stateless' => $settings->get('stateless', false) === true,
                         'anonymous' => false,

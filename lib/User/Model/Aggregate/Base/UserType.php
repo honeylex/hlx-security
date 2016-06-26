@@ -123,10 +123,10 @@ abstract class UserType extends AggregateRootType
             ],
             new Options(
                 array(
-                'vendor' => 'Foh',
-                'package' => 'SystemAccount',
-                'is_hierarchical' => false,
-            )
+                    'vendor' => 'Foh',
+                    'package' => 'SystemAccount',
+                    'is_hierarchical' => false,
+                )
             )
         );
     }

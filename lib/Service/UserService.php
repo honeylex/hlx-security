@@ -5,7 +5,6 @@ namespace Foh\SystemAccount\Service;
 use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
-use Symfony\Component\Security\Core\User\User;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -20,23 +19,13 @@ class UserService implements UserProviderInterface
 
     public function loadUserByUsername($username)
     {
-        $user = $this->authService->findByUsername($username);
+        $system_account_user = $this->authService->findByUsername($username);
 
-        if (!$user) {
+        if (!$system_account_user) {
             throw new UsernameNotFoundException(sprintf('Username "%s" not found', $username));
         }
 
-        // @todo replace with custom impl
-        return new User(
-            $user->getValue('username'),
-            // replace with known hash until password setting is supported
-            $user->getValue('password_hash'),
-            [ $user->getValue('role') ],
-            true,
-            true,
-            true,
-            true
-        );
+        return new User($system_account_user->toArray());
     }
 
     public function refreshUser(UserInterface $user)
@@ -51,7 +40,6 @@ class UserService implements UserProviderInterface
 
     public function supportsClass($class)
     {
-        // @todo support custom User impl
         return User::CLASS === $class;
     }
 }

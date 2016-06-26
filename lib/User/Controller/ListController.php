@@ -16,6 +16,7 @@ use Shrink0r\Monatic\Error;
 use Shrink0r\Monatic\Success;
 use Silex\Application;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Form;
@@ -24,7 +25,6 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -136,9 +136,9 @@ class ListController
 
         return $this->formFactory->createBuilder(FormType::CLASS, $data)
             ->add('username', TextType::CLASS, ['constraints' => [ new NotBlank, new Length([ 'min' => 5 ]) ]])
-            ->add('email', TextType::CLASS, [ 'constraints' => new Email ])
-            ->add('firstname')
-            ->add('lastname')
+            ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
+            ->add('firstname', TextType::CLASS, [ 'required' => false ])
+            ->add('lastname', TextType::CLASS, [ 'required' => false ])
             ->add('role', ChoiceType::CLASS, [
                 'choices' => [ 'administrator' => 'administrator', 'user' => 'user' ],
                 'constraints' => new Choice([ 'administrator', 'user' ]),

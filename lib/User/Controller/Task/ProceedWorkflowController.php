@@ -48,16 +48,16 @@ class ProceedWorkflowController
             ->withEventName($request->get('via'))
             ->build();
 
-        if ($result instanceof Success) {
-            $this->commandBus->post($result->get());
-            return $app->redirect($this->urlGenerator->generate('foh.system_account.user.list'));
+        if (!$result instanceof Success) {
+            return $this->templateRenderer->render(
+                '@SystemAccount/user/list.twig',
+                [ 'errors' => $result->get() ]
+            );
         }
 
-        $status = 'Failed to proceed workflow: '.var_export($result->get(), true);
-        return $this->templateRenderer->render(
-            '@SystemAccount/user/list.twig',
-            [ 'status' => $result->get() ]
-        );
+        $this->commandBus->post($result->get());
+
+        return $app->redirect($this->urlGenerator->generate('foh.system_account.user.list'));
     }
 
     protected function fetchUser($identifier)

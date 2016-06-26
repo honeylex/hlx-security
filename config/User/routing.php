@@ -1,6 +1,6 @@
 <?php
 
-// everything in here will be mounted below the prefix '/system_account/user'
+// everything in here will be mounted below the prefix '/foh/system_account/user'
 
 use Foh\SystemAccount\User\Controller\HistoryController;
 use Foh\SystemAccount\User\Controller\IndexController;
