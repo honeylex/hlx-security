@@ -39,7 +39,7 @@ storage_readers:
       index: foh-system_account
       type: foh-system_account-user-standard
     dependencies:
-      resource_type: Foh\SystemAccount\User\Projection\Standard\UserType
+      projection_type: Foh\SystemAccount\User\Projection\Standard\UserType
 
 units_of_work:
   foh.system_account.user::domain_event::event_source::unit_of_work:
@@ -58,7 +58,7 @@ finders:
       type: foh-system_account-user-standard
       log_search_query: false
     dependencies:
-      resource_type: Foh\SystemAccount\User\Projection\Standard\UserType
+      projection_type: Foh\SystemAccount\User\Projection\Standard\UserType
 
 query_services:
   foh.system_account.user::query_service:
