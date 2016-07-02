@@ -27,7 +27,6 @@ storage_readers:
 
   foh.system_account.user::domain_event::event_source::reader:
     class: Honeybee\Infrastructure\DataAccess\Storage\CouchDb\DomainEvent\DomainEventReader
-    connection: honeybee.view_store
     connection: foh.system_account.event_source
     settings:
         design_doc: foh-system_account-user
