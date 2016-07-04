@@ -32,6 +32,7 @@ class UserServiceProvisioner extends SilexServiceProvisioner
                 'security.firewalls' => [
                     'login' => [ 'pattern' => '^/foh/system_account/login$' ],
                     'registration' => [ 'pattern' => '^/foh/system_account/registration$' ],
+                    'password' => [ 'pattern' => '^/foh/system_account/password$' ],
                     'secure' => [
                         'pattern' => '^.*$',
                         'stateless' => $settings->get('stateless', false) === true,
@@ -46,7 +47,9 @@ class UserServiceProvisioner extends SilexServiceProvisioner
                             'logout_path' => '/foh/system_account/logout',
                             'invalidate_session' => true
                         ],
-                        'users' => $injector->make($service)
+                        'users' => function ($app) use ($serviceKey) {
+                            return $app[$serviceKey];
+                        }
                     ]
                 ]
             ]
@@ -57,6 +60,9 @@ class UserServiceProvisioner extends SilexServiceProvisioner
             $app->register(new SessionServiceProvider);
             $app->register(new RememberMeServiceProvider);
         }
+
+        // looks like we need to make this upfront for the security provider
+        $app[$serviceKey] = $injector->make($service);
 
         parent::provision($app, $injector, $configProvider, $serviceDefinition, $provisionerSettings);
 

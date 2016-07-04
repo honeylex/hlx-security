@@ -76,7 +76,7 @@ class ModifyController
         }
 
         $result = (new AggregateRootCommandBuilder($this->userType, ModifyUserCommand::CLASS))
-            ->withProjection($user)
+            ->fromEntity($user)
             ->withValues($form->getData())
             ->build();
 

@@ -32,7 +32,7 @@ class LoginController
 
         return $this->templateRenderer->render(
             '@SystemAccount/login.twig',
-            [ 'form' => $form->createView(), 'title' => __METHOD__ ]
+            [ 'form' => $form->createView() ]
         );
     }
 

@@ -2,6 +2,7 @@
 
 namespace Foh\SystemAccount\Service;
 
+use DateTime;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 
 class User implements AdvancedUserInterface
@@ -21,6 +22,11 @@ class User implements AdvancedUserInterface
     public function getIdentifier()
     {
         return $this->state['identifier'];
+    }
+
+    public function getRevision()
+    {
+        return $this->state['revision'];
     }
 
     public function getUsername()
@@ -58,6 +64,25 @@ class User implements AdvancedUserInterface
         return [ $this->getRole() ];
     }
 
+    public function getImages()
+    {
+        return $this->state['images'];
+    }
+
+    public function getTokens()
+    {
+        return $this->state['tokens'];
+    }
+
+    public function getToken($type = 'default_token')
+    {
+        foreach ($this->getTokens() as $token) {
+            if ($type === $token['@type']) {
+                return $token;
+            }
+        }
+    }
+
     public function isAccountNonLocked()
     {
         return $this->isEnabled();
@@ -65,8 +90,7 @@ class User implements AdvancedUserInterface
 
     public function isCredentialsNonExpired()
     {
-        return true;
-        //return new \DateTime('now') < new \DateTime($this->state['token_expire_date']);
+        return new DateTime('now') < new DateTime($this->getToken()['expires_at']);
     }
 
     public function isEnabled()
@@ -80,5 +104,10 @@ class User implements AdvancedUserInterface
 
     public function eraseCredentials()
     {
+    }
+
+    public function toArray()
+    {
+        return $this->state;
     }
 }

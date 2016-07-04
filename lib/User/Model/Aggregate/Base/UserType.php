@@ -100,24 +100,19 @@ abstract class UserType extends AggregateRootType
                     )
                 ),
                 new \Trellis\Runtime\Attribute\ImageList\ImageListAttribute(
-                    'background_images',
+                    'images',
                     $this,
                     array(
                         'max_count' => 5,
                     )
                 ),
-                new \Trellis\Runtime\Attribute\Text\TextAttribute(
-                    'auth_token',
+                new \Trellis\Runtime\Attribute\EmbeddedEntityList\EmbeddedEntityListAttribute(
+                    'tokens',
                     $this,
                     array(
-                        'max_length' => 40,
-                    )
-                ),
-                new \Trellis\Runtime\Attribute\Timestamp\TimestampAttribute(
-                    'token_expire_date',
-                    $this,
-                    array(
-                        'format_native' => 'Y-m-d\\TH:i:s.uP',
+                        'entity_types' => array(
+                            '\\Foh\\SystemAccount\\User\\Model\\Aggregate\\Embed\\DefaultTokenType',
+                        ),
                     )
                 ),
             ],

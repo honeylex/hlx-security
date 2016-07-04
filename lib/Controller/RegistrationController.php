@@ -2,8 +2,11 @@
 
 namespace Foh\SystemAccount\Controller;
 
+use DateTime;
+use DateInterval;
 use Foh\SystemAccount\User\Model\Aggregate\UserType;
 use Foh\SystemAccount\User\Model\Task\CreateUser\CreateUserCommand;
+use Honeybee\Common\Util\StringToolkit;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Honeybee\Model\Command\AggregateRootCommandBuilder;
@@ -52,7 +55,7 @@ class RegistrationController
 
         return $this->templateRenderer->render(
             '@SystemAccount/registration.twig',
-            [ 'form' => $form->createView(), 'title' => __METHOD__ ]
+            [ 'form' => $form->createView() ]
         );
     }
 
@@ -68,8 +71,19 @@ class RegistrationController
             );
         }
 
+        // add a default token to the post data
+        $token = StringToolkit::generateRandomToken();
+        $form_data = $form->getData();
+        $form_data['tokens'] = [
+            [
+                '@type' => 'default_token',
+                'token' => $token,
+                'expires_at' => (new DateTime)->add(new DateInterval('P14D'))
+            ]
+        ];
+
         $result = (new AggregateRootCommandBuilder($this->userType, CreateUserCommand::CLASS))
-            ->withValues($form->getData())
+            ->withValues($form_data)
             ->build();
 
         if (!$result instanceof Success) {
@@ -81,7 +95,7 @@ class RegistrationController
 
         $this->commandBus->post($result->get());
 
-        return $app->redirect($this->urlGenerator->generate('foh.system_account.user.list'));
+        return $app->redirect($this->urlGenerator->generate('foh.system_account.password', [ 'token' => $token ]));
     }
 
     protected function buildRegistrationForm(FormFactoryInterface $formFactory)

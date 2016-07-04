@@ -43,7 +43,7 @@ class ProceedWorkflowController
         $user = $this->fetchUser($request->get('identifier'));
 
         $result = (new AggregateRootCommandBuilder($this->userType, ProceedUserWorkflowCommand::CLASS))
-            ->withProjection($user)
+            ->fromEntity($user)
             ->withCurrentStateName($request->get('from'))
             ->withEventName($request->get('via'))
             ->build();

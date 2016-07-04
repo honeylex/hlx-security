@@ -69,16 +69,21 @@
             "type": "string",
             "index": "not_analyzed"
         },
-        "background_images": {
+        "images": {
             "type": "object",
             "enabled": false
         },
-        "auth_token": {
-            "type": "string",
-            "index": "not_analyzed"
-        },
-        "token_expire_date": {
-            "type": "date"
+        "tokens": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "expires_at": {
+                    "type": "date"
+                }
+            }
         }
     }
 }

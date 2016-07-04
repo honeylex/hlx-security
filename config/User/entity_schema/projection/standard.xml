@@ -18,4 +18,15 @@
             xpointer(/dt:type_schema/dt:type_definition/dt:attributes)">
         </xi:include>
     </type_definition>
+
+    <embed_definitions>
+        <embed_definition name="DefaultToken">
+            <implementor>\Honeybee\Projection\EmbeddedEntityType</implementor>
+            <entity_implementor>\Honeybee\Projection\EmbeddedEntity</entity_implementor>
+            <attributes>
+                <attribute name="token" type="text"/>
+                <attribute name="expires_at" type="timestamp"/>
+            </attributes>
+        </embed_definition>
+    </embed_definitions>
 </type_schema>

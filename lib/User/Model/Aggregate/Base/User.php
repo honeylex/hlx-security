@@ -118,41 +118,28 @@ abstract class User extends AggregateRoot
     }
 
     /**
-     * Returns the current value of the 'background_images' attribute on this
+     * Returns the current value of the 'images' attribute on this
      * 'User' entity. The 'default_value' option set for
      * this attribute is returned if no value was set. If neither a value nor
      * default value was set the 'null_value' option value is returned.
      *
-     * @return mixed Value or default value of attribute 'background_images'. Null value otherwise (defaults to NULL).
+     * @return mixed Value or default value of attribute 'images'. Null value otherwise (defaults to NULL).
      */
-    public function getBackgroundImages()
+    public function getImages()
     {
-        return $this->getValue('background_images');
+        return $this->getValue('images');
     }
 
     /**
-     * Returns the current value of the 'auth_token' attribute on this
+     * Returns the current value of the 'tokens' attribute on this
      * 'User' entity. The 'default_value' option set for
      * this attribute is returned if no value was set. If neither a value nor
      * default value was set the 'null_value' option value is returned.
      *
-     * @return mixed Value or default value of attribute 'auth_token'. Null value otherwise (defaults to NULL).
+     * @return mixed Value or default value of attribute 'tokens'. Null value otherwise (defaults to NULL).
      */
-    public function getAuthToken()
+    public function getTokens()
     {
-        return $this->getValue('auth_token');
-    }
-
-    /**
-     * Returns the current value of the 'token_expire_date' attribute on this
-     * 'User' entity. The 'default_value' option set for
-     * this attribute is returned if no value was set. If neither a value nor
-     * default value was set the 'null_value' option value is returned.
-     *
-     * @return mixed Value or default value of attribute 'token_expire_date'. Null value otherwise (defaults to NULL).
-     */
-    public function getTokenExpireDate()
-    {
-        return $this->getValue('token_expire_date');
+        return $this->getValue('tokens');
     }
 }

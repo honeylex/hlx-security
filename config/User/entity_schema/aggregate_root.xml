@@ -42,15 +42,29 @@
                 <option name="min_length">50</option>
                 <option name="max_length">100</option>
             </attribute>
-            <attribute name="background_images" type="image-list">
+            <attribute name="images" type="image-list">
                 <option name="max_count">5</option>
             </attribute>
-            <attribute name="auth_token" type="text">
-                <option name="max_length">40</option>
-            </attribute>
-            <attribute name="token_expire_date" type="timestamp">
-                <option name="format_native">Y-m-d\TH:i:s.uP</option>
+            <attribute name="tokens" type="embedded-entity-list">
+                <option name="entity_types">
+                    <option>DefaultToken</option>
+                </option>
             </attribute>
         </attributes>
     </type_definition>
+
+    <embed_definitions>
+        <embed_definition name="DefaultToken">
+            <implementor>\Honeybee\Model\Aggregate\EmbeddedEntityType</implementor>
+            <entity_implementor>\Honeybee\Model\Aggregate\EmbeddedEntity</entity_implementor>
+            <attributes>
+                <attribute name="token" type="text">
+                    <option name="mandatory">true</option>
+                </attribute>
+                <attribute name="expires_at" type="timestamp">
+                    <option name="format_native">Y-m-d\TH:i:s.uP</option>
+                </attribute>
+            </attributes>
+        </embed_definition>
+    </embed_definitions>
 </type_schema>

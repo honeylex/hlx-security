@@ -11,7 +11,6 @@ use Honeybee\Infrastructure\DataAccess\Query\Comparison\Equals;
 use Honeybee\Infrastructure\Security\Auth\AuthResponse;
 use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Honeybee\Infrastructure\Security\Auth\CryptedPasswordHandler;
-use Foh\SystemAccount\User\Projection\Standard\UserType;
 
 class StandardAuthService implements AuthServiceInterface
 {
@@ -60,6 +59,29 @@ class StandardAuthService implements AuthServiceInterface
         return $user;
     }
 
+    // @todo nested query
+    public function findByToken($token, $type = 'default_token')
+    {
+        $query_result = $this->getQueryService()->find(
+            new Query(
+                new CriteriaList,
+                new CriteriaList([
+                    new AttributeCriteria('tokens.token', new Equals($token)),
+                ]),
+                new CriteriaList,
+                0,
+                1
+            )
+        );
+
+        $user = null;
+        if (1 === $query_result->getTotalCount()) {
+            $user = $query_result->getFirstResult();
+        }
+
+        return $user;
+    }
+
     /**
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @codingStandardsIgnoreStart
@@ -94,6 +116,11 @@ class StandardAuthService implements AuthServiceInterface
         }
 
         return new AuthResponse(AuthResponse::STATE_UNAUTHORIZED, 'authentication failed');
+    }
+
+    public function encodePassword($password)
+    {
+        return $this->password_handler->hash($password);
     }
 
     protected function getQueryService()

@@ -7,6 +7,7 @@ use Foh\SystemAccount\User\Model\Aggregate\UserType;
 use Foh\SystemAccount\User\Model\Task\CreateUser\UserCreatedEvent;
 use Foh\SystemAccount\User\Model\Task\ModifyUser\UserModifiedEvent;
 use Foh\SystemAccount\User\Model\Task\ProceedUserWorkflow\UserWorkflowProceededEvent;
+use Foh\SystemAccount\User\Model\Task\SetUserPassword\UserPasswordSetEvent;
 use Honeybee\Infrastructure\DataAccess\Storage\StorageReaderMap;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -64,6 +65,11 @@ class HistoryController
                     $type = 'delete';
                     $icon = 'glyphicon-trash';
                 }
+            } elseif ($event instanceof UserPasswordSetEvent) {
+                $type = 'modify';
+                $sentiment = 'success';
+                $title = 'User password set';
+                $icon = 'glyphicon-lock';
             }
             $historyData[] = [
                 'type' => $type,

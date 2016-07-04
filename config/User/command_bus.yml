@@ -7,3 +7,5 @@ subscriptions:
         handler: Foh\SystemAccount\User\Model\Task\ModifyUser\ModifyUserCommandHandler
       foh.system_account.user.proceed_user_workflow:
         handler: Foh\SystemAccount\User\Model\Task\ProceedUserWorkflow\ProceedUserWorkflowCommandHandler
+      foh.system_account.user.set_user_password:
+        handler: Foh\SystemAccount\User\Model\Task\SetUserPassword\SetUserPasswordCommandHandler

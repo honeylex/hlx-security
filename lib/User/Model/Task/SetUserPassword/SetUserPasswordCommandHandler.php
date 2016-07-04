@@ -3,11 +3,11 @@
 namespace Foh\SystemAccount\User\Model\Task\SetUserPassword;
 
 use Foh\SystemAccount\User\Model\Aggregate\UserType;
-use Honeybee\Model\Aggregate\AggregateRootInterface;
-use Honeybee\Infrastructure\Event\Bus\EventBusInterface;
-use Honeybee\Model\Command\AggregateRootCommandHandler;
 use Honeybee\Infrastructure\Command\CommandInterface;
 use Honeybee\Infrastructure\DataAccess\DataAccessServiceInterface;
+use Honeybee\Infrastructure\Event\Bus\EventBusInterface;
+use Honeybee\Model\Aggregate\AggregateRootInterface;
+use Honeybee\Model\Command\AggregateRootCommandHandler;
 use Psr\Log\LoggerInterface;
 
 class SetUserPasswordCommandHandler extends AggregateRootCommandHandler

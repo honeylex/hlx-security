@@ -4,6 +4,7 @@
 
 use Foh\SystemAccount\Controller\IndexController;
 use Foh\SystemAccount\Controller\LoginController;
+use Foh\SystemAccount\Controller\PasswordController;
 use Foh\SystemAccount\Controller\RegistrationController;
 
 require __DIR__.'/User/routing.php';
@@ -15,3 +16,5 @@ $routing->match('/login_check', function () {})->bind($this->getPrefix().'.login
 
 $routing->get('/registration', [ RegistrationController::CLASS, 'read' ])->bind($this->getPrefix().'.registration');
 $routing->post('/registration', [ RegistrationController::CLASS, 'write' ]);
+$routing->get('/password', [ PasswordController::CLASS, 'read' ])->bind($this->getPrefix().'.password');
+$routing->post('/password', [ PasswordController::CLASS, 'write' ]);

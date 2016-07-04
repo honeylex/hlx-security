@@ -1,16 +1,14 @@
 <?php
 
-namespace Foh\SystemAccount\User\Model\Aggregate;
+namespace Foh\SystemAccount\User\Model\Aggregate\Embed;
 
-use Foh\SystemAccount\User\Model\Aggregate\Base\User as BaseUser;
-use Foh\SystemAccount\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
+use Foh\SystemAccount\User\Model\Aggregate\Embed\Base\DefaultToken as BaseDefaultToken;
 
 /**
  * This class may be used to customize the behaviour of the
- * 'User' entities and has built-in validation and
+ * 'DefaultToken' entities and has built-in validation and
  * change tracking.
  *
- * Defines a set of attributes that are used to manage a user aggregate-root&#039;s internal state.
  *
  * To get all changes since the last call to 'markClean()' use
  * the 'getChanges()' method. Call 'isClean()' to get a summary.
@@ -28,12 +26,7 @@ use Foh\SystemAccount\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
  *
  * For more information and hooks have a look at the base classes.
  */
-class User extends BaseUser
+class DefaultToken extends BaseDefaultToken
 {
-    public function changePassword(SetUserPasswordCommand $command)
-    {
-        $attribute_changes = [ 'password_hash' => $command->getPasswordHash() ];
 
-        $this->modifyAttributesThrough($command, $attribute_changes);
-    }
 }
