@@ -25,26 +25,32 @@ class UserServiceProvisioner extends SilexServiceProvisioner
         $settings = $serviceDefinition->getConfig();
         $serviceKey = $provisionerSettings->get('app_key');
 
-        // @todo support override configuration and mount points
+        // allow override of routing prefix from crate settings
+        $routing_prefix = $configProvider->getCrateMap()->getItem('foh.system_account')->getRoutingPrefix();
+        if ($routing_prefix === '/') {
+            $routing_prefix = '';
+        }
+
+        // @todo support override security configuration
         $app->register(
             new SecurityServiceProvider,
             [
                 'security.firewalls' => [
-                    'login' => [ 'pattern' => '^/foh/system_account/login$' ],
-                    'registration' => [ 'pattern' => '^/foh/system_account/registration$' ],
-                    'password' => [ 'pattern' => '^/foh/system_account/password$' ],
+                    'login' => [ 'pattern' => "^$routing_prefix/login$" ],
+                    'registration' => [ 'pattern' => "^$routing_prefix/registration$" ],
+                    'password' => [ 'pattern' => "^$routing_prefix/password$" ],
                     'secure' => [
                         'pattern' => '^.*$',
                         'stateless' => $settings->get('stateless', false) === true,
                         'anonymous' => false,
                         'remember_me' => [],
                         'form' => [
-                            'login_path' => '/foh/system_account/login',
-                            'check_path' => '/foh/system_account/login_check',
-                            'default_target_path' => '/foh/system_account/user/list'
+                            'login_path' => "$routing_prefix/login",
+                            'check_path' => "$routing_prefix/login_check",
+                            'default_target_path' => "$routing_prefix/user/list"
                         ],
                         'logout' => [
-                            'logout_path' => '/foh/system_account/logout',
+                            'logout_path' => "^$routing_prefix/logout",
                             'invalidate_session' => true
                         ],
                         'users' => function ($app) use ($serviceKey) {
