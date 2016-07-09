@@ -50,7 +50,7 @@ class UserServiceProvisioner extends SilexServiceProvisioner
                             'default_target_path' => "$routing_prefix/user/list"
                         ],
                         'logout' => [
-                            'logout_path' => "^$routing_prefix/logout",
+                            'logout_path' => "$routing_prefix/logout",
                             'invalidate_session' => true
                         ],
                         'users' => function ($app) use ($serviceKey) {
