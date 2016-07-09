@@ -1,5 +1,5 @@
 {
-    "name": "shrink0r/foh-system_account",
+    "name": "honeylex/foh-system_account",
     "description": "System account crate for Honeylex.",
     "license": "MIT",
     "type": "library",
