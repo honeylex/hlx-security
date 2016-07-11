@@ -8,54 +8,57 @@
  * class generation.
  *
  * If you are looking for a place to alter the behaviour of
- * the 'DefaultToken' type please see the skeleton
- * class 'DefaultTokenType'. Modifications to the skeleton
+ * the 'Verification' type please see the skeleton
+ * class 'VerificationType'. Modifications to the skeleton
  * file will prevail any subsequent class generation runs.
  *
  * To define new attributes or adjust existing attributes and their
  * default options modify the schema definition file of
- * the 'DefaultToken' type.
+ * the 'Verification' type.
  *
  * @see https://github.com/honeybee/trellis
  */
 
-namespace Foh\SystemAccount\User\Projection\Standard\Embed\Base;
+namespace Foh\SystemAccount\User\Model\Aggregate\Embed\Base;
 
-use Honeybee\Projection\EmbeddedEntityType;
+use Honeybee\Model\Aggregate\EmbeddedEntityType;
 use Trellis\Common\Options;
 use Trellis\Runtime\EntityTypeInterface;
 use Trellis\Runtime\Attribute\AttributeInterface;
 
 /**
- * Serves as the base class to the 'DefaultToken' type skeleton.
+ * Serves as the base class to the 'Verification' type skeleton.
  */
-abstract class DefaultTokenType extends EmbeddedEntityType
+abstract class VerificationType extends EmbeddedEntityType
 {
     /**
-     * Creates a new 'DefaultTokenType' instance.
+     * Creates a new 'VerificationType' instance.
      */
     public function __construct(EntityTypeInterface $parent = null, AttributeInterface $parent_attribute = null)
     {
         parent::__construct(
-            'DefaultToken',
+            'Verification',
             [
                 new \Trellis\Runtime\Attribute\Text\TextAttribute(
                     'token',
                     $this,
-                    [],
+                    array(
+                        'mandatory' => true,
+                    ),
                     $parent_attribute
                 ),
                 new \Trellis\Runtime\Attribute\Timestamp\TimestampAttribute(
                     'expires_at',
                     $this,
-                    [],
+                    array(
+                        'format_native' => 'Y-m-d\\TH:i:s.uP',
+                    ),
                     $parent_attribute
                 ),
             ],
             new Options(
                 []
-            ),
-            $parent,
+            ),            $parent,
             $parent_attribute
         );
     }
@@ -67,6 +70,6 @@ abstract class DefaultTokenType extends EmbeddedEntityType
      */
     public static function getEntityImplementor()
     {
-        return '\\Foh\\SystemAccount\\User\\Projection\\Standard\\Embed\\DefaultToken';
+        return '\\Foh\\SystemAccount\\User\\Model\\Aggregate\\Embed\\Verification';
     }
 }

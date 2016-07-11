@@ -74,7 +74,7 @@ class User implements AdvancedUserInterface
         return $this->state['tokens'];
     }
 
-    public function getToken($type = 'default_token')
+    public function getToken($type)
     {
         foreach ($this->getTokens() as $token) {
             if ($type === $token['@type']) {
@@ -90,7 +90,10 @@ class User implements AdvancedUserInterface
 
     public function isCredentialsNonExpired()
     {
-        return new DateTime('now') < new DateTime($this->getToken()['expires_at']);
+        $auth_token = $this->getToken('authentication');
+        return isset($auth_token['expires_at'])
+            ? new DateTime('now') < new DateTime($auth_token['expires_at'])
+            : true;
     }
 
     public function isEnabled()

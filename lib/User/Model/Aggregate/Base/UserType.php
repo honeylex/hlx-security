@@ -111,17 +111,17 @@ abstract class UserType extends AggregateRootType
                     $this,
                     array(
                         'entity_types' => array(
-                            '\\Foh\\SystemAccount\\User\\Model\\Aggregate\\Embed\\DefaultTokenType',
+                            '\\Foh\\SystemAccount\\User\\Model\\Aggregate\\Embed\\VerificationType',
                         ),
                     )
                 ),
             ],
             new Options(
                 array(
-                    'vendor' => 'Foh',
-                    'package' => 'SystemAccount',
-                    'is_hierarchical' => false,
-                )
+                'vendor' => 'Foh',
+                'package' => 'SystemAccount',
+                'is_hierarchical' => false,
+            )
             )
         );
     }

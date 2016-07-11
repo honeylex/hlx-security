@@ -111,17 +111,17 @@ abstract class UserType extends ProjectionType
                     $this,
                     array(
                         'entity_types' => array(
-                            '\\Foh\\SystemAccount\\User\\Projection\\Standard\\Embed\\DefaultTokenType',
+                            '\\Foh\\SystemAccount\\User\\Projection\\Standard\\Embed\\VerificationType',
                         ),
                     )
                 ),
             ],
             new Options(
                 array(
-                    'vendor' => 'Foh',
-                    'package' => 'SystemAccount',
-                    'is_hierarchical' => false,
-                )
+                'vendor' => 'Foh',
+                'package' => 'SystemAccount',
+                'is_hierarchical' => false,
+            )
             )
         );
     }

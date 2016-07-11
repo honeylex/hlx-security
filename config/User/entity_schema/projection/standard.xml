@@ -20,7 +20,7 @@
     </type_definition>
 
     <embed_definitions>
-        <embed_definition name="DefaultToken">
+        <embed_definition name="Verification">
             <implementor>\Honeybee\Projection\EmbeddedEntityType</implementor>
             <entity_implementor>\Honeybee\Projection\EmbeddedEntity</entity_implementor>
             <attributes>

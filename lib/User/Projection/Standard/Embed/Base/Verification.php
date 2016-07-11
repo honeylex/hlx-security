@@ -8,13 +8,13 @@
  * class generation.
  *
  * If you are looking for a place to alter the behaviour of
- * 'DefaultToken' entities please see the skeleton
- * class 'DefaultToken'. Modifications to the skeleton
+ * 'Verification' entities please see the skeleton
+ * class 'Verification'. Modifications to the skeleton
  * file will prevail any subsequent class generation runs.
  *
  * To define new attributes or adjust existing attributes and their
  * default options modify the schema definition file of
- * the 'DefaultToken' type.
+ * the 'Verification' type.
  *
  * @see https://github.com/honeybee/trellis
  */
@@ -24,12 +24,12 @@ namespace Foh\SystemAccount\User\Projection\Standard\Embed\Base;
 use Honeybee\Projection\EmbeddedEntity;
 
 /**
- * Serves as the base class to the 'DefaultToken' entity skeleton.
+ * Serves as the base class to the 'Verification' entity skeleton.
  *
  * This class contains definitions for attributes and their options available
- * on 'DefaultToken' instances. Modifications to getters and setters
+ * on 'Verification' instances. Modifications to getters and setters
  * as well as new additional helper methods should not be placed in here,
- * but be implemented within the skeleton class 'DefaultToken'.
+ * but be implemented within the skeleton class 'Verification'.
  *
  * Attributes can have default and null values set via their options. The keys
  * are named 'default_value' and 'null_value' respectively.
@@ -37,11 +37,11 @@ use Honeybee\Projection\EmbeddedEntity;
  * This class extends the 'EmbeddedEntity' class to get the change events and
  * validation handling behaviour of that class.
  */
-abstract class DefaultToken extends EmbeddedEntity
+abstract class Verification extends EmbeddedEntity
 {
     /**
      * Returns the current value of the 'token' attribute on this
-     * 'DefaultToken' entity. The 'default_value' option set for
+     * 'Verification' entity. The 'default_value' option set for
      * this attribute is returned if no value was set. If neither a value nor
      * default value was set the 'null_value' option value is returned.
      *
@@ -54,7 +54,7 @@ abstract class DefaultToken extends EmbeddedEntity
 
     /**
      * Returns the current value of the 'expires_at' attribute on this
-     * 'DefaultToken' entity. The 'default_value' option set for
+     * 'Verification' entity. The 'default_value' option set for
      * this attribute is returned if no value was set. If neither a value nor
      * default value was set the 'null_value' option value is returned.
      *

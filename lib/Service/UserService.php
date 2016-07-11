@@ -29,7 +29,7 @@ class UserService implements UserProviderInterface
         return new User($system_account_user->toArray());
     }
 
-    public function loadUserByToken($token, $type = 'default_token')
+    public function loadUserByToken($token, $type)
     {
         $system_account_user = $this->authService->findByToken($token, $type);
 

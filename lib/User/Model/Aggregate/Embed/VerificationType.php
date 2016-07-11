@@ -1,20 +1,20 @@
 <?php
 
-namespace Foh\SystemAccount\User\Projection\Standard\Embed;
+namespace Foh\SystemAccount\User\Model\Aggregate\Embed;
 
-use Foh\SystemAccount\User\Projection\Standard\Embed\Base\DefaultTokenType as BaseDefaultTokenType;
+use Foh\SystemAccount\User\Model\Aggregate\Embed\Base\VerificationType as BaseVerificationType;
 
 /**
  *
- * This class reflects the declared structure of the 'DefaultToken'
+ * This class reflects the declared structure of the 'Verification'
  * entity. It contains the metadata necessary to initiate and manage the
- * lifecycle of 'DefaultTokenEntity' instances. Most importantly
+ * lifecycle of 'VerificationEntity' instances. Most importantly
  * it holds a collection of attributes (and default attributes) that each of the
  * entities of this type supports.
  *
  * For more information and hooks have a look at the base classes.
  */
-class DefaultTokenType extends BaseDefaultTokenType
+class VerificationType extends BaseVerificationType
 {
     //public function getDefaultAttributes()
     //{

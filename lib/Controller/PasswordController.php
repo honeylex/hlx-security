@@ -75,8 +75,8 @@ class PasswordController
         }
 
         $form_data = $form->getData();
-        $user = $this->userService->loadUserByToken($form_data['token']);
-        // @todo check credential expiry
+        $user = $this->userService->loadUserByToken($form_data['token'], 'verification');
+        // @todo check token expiry
 
         $result = (new AggregateRootCommandBuilder($this->userType, SetUserPasswordCommand::CLASS))
             ->withAggregateRootIdentifier($user->getIdentifier())

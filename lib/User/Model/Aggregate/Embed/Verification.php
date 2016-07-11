@@ -2,11 +2,11 @@
 
 namespace Foh\SystemAccount\User\Model\Aggregate\Embed;
 
-use Foh\SystemAccount\User\Model\Aggregate\Embed\Base\DefaultToken as BaseDefaultToken;
+use Foh\SystemAccount\User\Model\Aggregate\Embed\Base\Verification as BaseVerification;
 
 /**
  * This class may be used to customize the behaviour of the
- * 'DefaultToken' entities and has built-in validation and
+ * 'Verification' entities and has built-in validation and
  * change tracking.
  *
  *
@@ -26,7 +26,7 @@ use Foh\SystemAccount\User\Model\Aggregate\Embed\Base\DefaultToken as BaseDefaul
  *
  * For more information and hooks have a look at the base classes.
  */
-class DefaultToken extends BaseDefaultToken
+class Verification extends BaseVerification
 {
 
 }

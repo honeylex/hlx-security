@@ -47,14 +47,14 @@
             </attribute>
             <attribute name="tokens" type="embedded-entity-list">
                 <option name="entity_types">
-                    <option>DefaultToken</option>
+                    <option>Verification</option>
                 </option>
             </attribute>
         </attributes>
     </type_definition>
 
     <embed_definitions>
-        <embed_definition name="DefaultToken">
+        <embed_definition name="Verification">
             <implementor>\Honeybee\Model\Aggregate\EmbeddedEntityType</implementor>
             <entity_implementor>\Honeybee\Model\Aggregate\EmbeddedEntity</entity_implementor>
             <attributes>

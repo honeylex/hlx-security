@@ -60,7 +60,7 @@ class StandardAuthService implements AuthServiceInterface
     }
 
     // @todo nested query
-    public function findByToken($token, $type = 'default_token')
+    public function findByToken($token, $type)
     {
         $query_result = $this->getQueryService()->find(
             new Query(

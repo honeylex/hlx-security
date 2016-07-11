@@ -76,9 +76,9 @@ class RegistrationController
         $form_data = $form->getData();
         $form_data['tokens'] = [
             [
-                '@type' => 'default_token',
+                '@type' => 'verification',
                 'token' => $token,
-                'expires_at' => (new DateTime)->add(new DateInterval('P14D'))
+                'expires_at' => (new DateTime)->add(new DateInterval('P7D'))
             ]
         ];
 
