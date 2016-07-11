@@ -7,6 +7,7 @@ use DateInterval;
 use Foh\SystemAccount\User\Model\Aggregate\UserType;
 use Foh\SystemAccount\User\Model\Task\CreateUser\CreateUserCommand;
 use Honeybee\Common\Util\StringToolkit;
+use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Honeybee\Model\Command\AggregateRootCommandBuilder;
@@ -35,18 +36,22 @@ class RegistrationController
 
     protected $urlGenerator;
 
+    protected $configProvider;
+
     public function __construct(
         UserType $userType,
         CommandBusInterface $commandBus,
         FormFactoryInterface $formFactory,
         TemplateRendererInterface $templateRenderer,
-        UrlGeneratorInterface $urlGenerator
+        UrlGeneratorInterface $urlGenerator,
+        ConfigProviderInterface $configProvider
     ) {
         $this->userType = $userType;
         $this->commandBus = $commandBus;
         $this->formFactory = $formFactory;
         $this->templateRenderer = $templateRenderer;
         $this->urlGenerator = $urlGenerator;
+        $this->configProvider = $configProvider;
     }
 
     public function read(Request $request, Application $app)
@@ -71,14 +76,19 @@ class RegistrationController
             );
         }
 
-        // add a default token to the post data
+        // add a verification token to the post data
         $token = StringToolkit::generateRandomToken();
+        $interval = $this->configProvider
+            ->getCrateMap()
+            ->getItem('foh.system_account')
+            ->getSettings()
+            ->get('verification_expiry', '7 days');
         $form_data = $form->getData();
         $form_data['tokens'] = [
             [
                 '@type' => 'verification',
                 'token' => $token,
-                'expires_at' => (new DateTime)->add(new DateInterval('P7D'))
+                'expires_at' => (new DateTime)->add(DateInterval::createFromDateString($interval))
             ]
         ];
 

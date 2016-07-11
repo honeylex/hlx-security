@@ -24,9 +24,10 @@ class UserServiceProvisioner extends SilexServiceProvisioner
         $service = $serviceDefinition->getClass();
         $settings = $serviceDefinition->getConfig();
         $serviceKey = $provisionerSettings->get('app_key');
+        $crate = $configProvider->getCrateMap()->getItem('foh.system_account');
 
         // allow override of routing prefix from crate settings
-        $routing_prefix = $configProvider->getCrateMap()->getItem('foh.system_account')->getRoutingPrefix();
+        $routing_prefix = $crate->getRoutingPrefix();
         if ($routing_prefix === '/') {
             $routing_prefix = '';
         }
