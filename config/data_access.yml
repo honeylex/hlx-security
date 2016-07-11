@@ -10,7 +10,7 @@ storage_writers:
     class: Honeybee\Infrastructure\DataAccess\Storage\Elasticsearch\StructureVersionList\StructureVersionListWriter
     connection: honeybee.view_store
     settings:
-      index: foh-system_account
+      index: ${project.database.prefix}.foh-system_account
       type: version_list
 
 storage_readers:
@@ -22,5 +22,5 @@ storage_readers:
     class: Honeybee\Infrastructure\DataAccess\Storage\Elasticsearch\StructureVersionList\StructureVersionListReader
     connection: honeybee.view_store
     settings:
-      index: foh-system_account
+      index: ${project.database.prefix}.foh-system_account
       type: version_list

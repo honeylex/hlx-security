@@ -7,5 +7,5 @@ foh.system_account.event_source:
     host: 127.0.0.1
     port: 5984
     transport: http
-    database: foh-system_account
+    database: ${project.database.prefix}%2Bfoh-system_account
     status_test: /
