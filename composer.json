@@ -1,5 +1,5 @@
 {
-    "name": "honeylex/foh-system_account",
+    "name": "honeylex/hlx-security",
     "description": "System account crate for Honeylex.",
     "license": "MIT",
     "type": "library",
