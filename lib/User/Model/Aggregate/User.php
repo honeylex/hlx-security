@@ -1,9 +1,9 @@
 <?php
 
-namespace Foh\SystemAccount\User\Model\Aggregate;
+namespace Hlx\Security\User\Model\Aggregate;
 
-use Foh\SystemAccount\User\Model\Aggregate\Base\User as BaseUser;
-use Foh\SystemAccount\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
+use Hlx\Security\User\Model\Aggregate\Base\User as BaseUser;
+use Hlx\Security\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
 
 /**
  * This class may be used to customize the behaviour of the

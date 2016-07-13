@@ -19,11 +19,11 @@
  * @see https://github.com/honeybee/trellis
  */
 
-namespace Foh\SystemAccount\User\Model\Aggregate\Base;
+namespace Hlx\Security\User\Model\Aggregate\Base;
 
 use Trellis\Common\Options;
 use Workflux\StateMachine\StateMachineInterface;
-use Foh\SystemAccount\User\Model\Aggregate\Base;
+use Hlx\Security\User\Model\Aggregate\Base;
 use Honeybee\Model\Aggregate\AggregateRootType;
 
 /**
@@ -111,15 +111,15 @@ abstract class UserType extends AggregateRootType
                     $this,
                     array(
                         'entity_types' => array(
-                            '\\Foh\\SystemAccount\\User\\Model\\Aggregate\\Embed\\VerificationType',
+                            '\\Hlx\\Security\\User\\Model\\Aggregate\\Embed\\VerificationType',
                         ),
                     )
                 ),
             ],
             new Options(
                 array(
-                'vendor' => 'Foh',
-                'package' => 'SystemAccount',
+                'vendor' => 'Hlx',
+                'package' => 'Security',
                 'is_hierarchical' => false,
             )
             )
@@ -143,6 +143,6 @@ abstract class UserType extends AggregateRootType
      */
     public static function getEntityImplementor()
     {
-        return '\\Foh\\SystemAccount\\User\\Model\\Aggregate\\User';
+        return '\\Hlx\\Security\\User\\Model\\Aggregate\\User';
     }
 }

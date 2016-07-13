@@ -1,26 +1,26 @@
 #
-# Connections that are used within the SystemAccount crate.
+# Connections that are used within the Security crate.
 ---
 storage_writers:
-  foh.system_account::version_list::event_source::writer:
+  hlx.security::version_list::event_source::writer:
     class: Honeybee\Infrastructure\DataAccess\Storage\CouchDb\StructureVersionList\StructureVersionListWriter
-    connection: foh.system_account.event_source
+    connection: hlx.security.event_source
 
-  foh.system_account::version_list::view_store::writer:
+  hlx.security::version_list::view_store::writer:
     class: Honeybee\Infrastructure\DataAccess\Storage\Elasticsearch\StructureVersionList\StructureVersionListWriter
     connection: honeybee.view_store
     settings:
-      index: ${project.database.prefix}.foh-system_account
+      index: ${project.database.prefix}.hlx-security
       type: version_list
 
 storage_readers:
-  foh.system_account::version_list::event_source::reader:
+  hlx.security::version_list::event_source::reader:
     class: Honeybee\Infrastructure\DataAccess\Storage\CouchDb\StructureVersionList\StructureVersionListReader
-    connection: foh.system_account.event_source
+    connection: hlx.security.event_source
 
-  foh.system_account::version_list::view_store::reader:
+  hlx.security::version_list::view_store::reader:
     class: Honeybee\Infrastructure\DataAccess\Storage\Elasticsearch\StructureVersionList\StructureVersionListReader
     connection: honeybee.view_store
     settings:
-      index: ${project.database.prefix}.foh-system_account
+      index: ${project.database.prefix}.hlx-security
       type: version_list

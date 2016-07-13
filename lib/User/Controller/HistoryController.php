@@ -1,13 +1,13 @@
 <?php
 
-namespace Foh\SystemAccount\User\Controller;
+namespace Hlx\Security\User\Controller;
 
 use Carbon\Carbon;
-use Foh\SystemAccount\User\Model\Aggregate\UserType;
-use Foh\SystemAccount\User\Model\Task\CreateUser\UserCreatedEvent;
-use Foh\SystemAccount\User\Model\Task\ModifyUser\UserModifiedEvent;
-use Foh\SystemAccount\User\Model\Task\ProceedUserWorkflow\UserWorkflowProceededEvent;
-use Foh\SystemAccount\User\Model\Task\SetUserPassword\UserPasswordSetEvent;
+use Hlx\Security\User\Model\Aggregate\UserType;
+use Hlx\Security\User\Model\Task\CreateUser\UserCreatedEvent;
+use Hlx\Security\User\Model\Task\ModifyUser\UserModifiedEvent;
+use Hlx\Security\User\Model\Task\ProceedUserWorkflow\UserWorkflowProceededEvent;
+use Hlx\Security\User\Model\Task\SetUserPassword\UserPasswordSetEvent;
 use Honeybee\Infrastructure\DataAccess\Storage\StorageReaderMap;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -83,7 +83,7 @@ class HistoryController
         }
 
         return $this->templateRenderer->render(
-            '@SystemAccount/user/history.twig',
+            '@Security/user/history.twig',
             [ 'history' => $historyData ]
         );
     }

@@ -1,17 +1,17 @@
 #
-# Connections that are used for the SystemAccount crate's UserType.
+# Connections that are used for the Security crate's UserType.
 ---
 storage_writers:
-  foh.system_account.user::domain_event::event_source::writer:
+  hlx.security.user::domain_event::event_source::writer:
     class: Honeybee\Infrastructure\DataAccess\Storage\CouchDb\EventStream\EventStreamAppender
-    connection: foh.system_account.event_source
+    connection: hlx.security.event_source
 
-  foh.system_account.user::projection.standard::view_store::writer:
+  hlx.security.user::projection.standard::view_store::writer:
     class: Honeybee\Infrastructure\DataAccess\Storage\Elasticsearch\Projection\ProjectionWriter
     connection: honeybee.view_store
     settings:
-      index: ${project.database.prefix}.foh-system_account
-      type: foh-system_account-user-standard
+      index: ${project.database.prefix}.hlx-security
+      type: hlx-security-user-standard
       parameters:
         index:
             refresh: true
@@ -19,54 +19,54 @@ storage_writers:
             refresh: true
 
 storage_readers:
-  foh.system_account.user::event_stream::event_source::reader:
+  hlx.security.user::event_stream::event_source::reader:
     class: Honeybee\Infrastructure\DataAccess\Storage\CouchDb\EventStream\EventStreamReader
-    connection: foh.system_account.event_source
+    connection: hlx.security.event_source
     settings:
-        design_doc: foh-system_account-user
+        design_doc: hlx-security-user
 
-  foh.system_account.user::domain_event::event_source::reader:
+  hlx.security.user::domain_event::event_source::reader:
     class: Honeybee\Infrastructure\DataAccess\Storage\CouchDb\DomainEvent\DomainEventReader
-    connection: foh.system_account.event_source
+    connection: hlx.security.event_source
     settings:
-        design_doc: foh-system_account-user
+        design_doc: hlx-security-user
 
-  foh.system_account.user::projection.standard::view_store::reader:
+  hlx.security.user::projection.standard::view_store::reader:
     class: Honeybee\Infrastructure\DataAccess\Storage\Elasticsearch\Projection\ProjectionReader
     connection: honeybee.view_store
     settings:
-      index: ${project.database.prefix}.foh-system_account
-      type: foh-system_account-user-standard
+      index: ${project.database.prefix}.hlx-security
+      type: hlx-security-user-standard
     dependencies:
-      projection_type: Foh\SystemAccount\User\Projection\Standard\UserType
+      projection_type: Hlx\Security\User\Projection\Standard\UserType
 
 units_of_work:
-  foh.system_account.user::domain_event::event_source::unit_of_work:
+  hlx.security.user::domain_event::event_source::unit_of_work:
     class: Honeybee\Infrastructure\DataAccess\UnitOfWork\UnitOfWork
-    event_reader: foh.system_account.user::event_stream::event_source::reader
-    event_writer: foh.system_account.user::domain_event::event_source::writer
+    event_reader: hlx.security.user::event_stream::event_source::reader
+    event_writer: hlx.security.user::domain_event::event_source::writer
     dependencies:
-      aggregate_root_type: Foh\SystemAccount\User\Model\Aggregate\UserType
+      aggregate_root_type: Hlx\Security\User\Model\Aggregate\UserType
 
 finders:
-  foh.system_account.user::projection.standard::view_store::finder:
+  hlx.security.user::projection.standard::view_store::finder:
     class: Honeybee\Infrastructure\DataAccess\Finder\Elasticsearch\Projection\ProjectionFinder
     connection: honeybee.view_store
     settings:
-      index: ${project.database.prefix}.foh-system_account
-      type: foh-system_account-user-standard
+      index: ${project.database.prefix}.hlx-security
+      type: hlx-security-user-standard
       log_search_query: false
     dependencies:
-      projection_type: Foh\SystemAccount\User\Projection\Standard\UserType
+      projection_type: Hlx\Security\User\Projection\Standard\UserType
 
 query_services:
-  foh.system_account.user::query_service:
+  hlx.security.user::query_service:
     class: Honeybee\Infrastructure\DataAccess\Query\QueryService
     settings:
       default_mapping: user.standard
     finder_mappings:
       user.standard:
-        finder: foh.system_account.user::projection.standard::view_store::finder
+        finder: hlx.security.user::projection.standard::view_store::finder
         query_translation:
           class: Honeybee\Infrastructure\DataAccess\Finder\Elasticsearch\ElasticsearchQueryTranslation
           settings:

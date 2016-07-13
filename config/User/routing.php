@@ -1,9 +1,9 @@
 <?php
 
-use Foh\SystemAccount\User\Controller\HistoryController;
-use Foh\SystemAccount\User\Controller\ListController;
-use Foh\SystemAccount\User\Controller\Task\ModifyController;
-use Foh\SystemAccount\User\Controller\Task\ProceedWorkflowController;
+use Hlx\Security\User\Controller\HistoryController;
+use Hlx\Security\User\Controller\ListController;
+use Hlx\Security\User\Controller\Task\ModifyController;
+use Hlx\Security\User\Controller\Task\ProceedWorkflowController;
 
 $routing->mount('/user', function ($routing) {
     $routing->post('/list', [ ListController::CLASS, 'write' ]);

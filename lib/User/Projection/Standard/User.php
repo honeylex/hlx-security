@@ -1,8 +1,8 @@
 <?php
 
-namespace Foh\SystemAccount\User\Projection\Standard;
+namespace Hlx\Security\User\Projection\Standard;
 
-use Foh\SystemAccount\User\Projection\Standard\Base\User as BaseUser;
+use Hlx\Security\User\Projection\Standard\Base\User as BaseUser;
 
 /**
  * This class may be used to customize the behaviour of the

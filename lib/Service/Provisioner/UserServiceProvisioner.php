@@ -1,6 +1,6 @@
 <?php
 
-namespace Foh\SystemAccount\Service\Provisioner;
+namespace Hlx\Security\Service\Provisioner;
 
 use Auryn\Injector;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
@@ -24,7 +24,7 @@ class UserServiceProvisioner extends SilexServiceProvisioner
         $service = $serviceDefinition->getClass();
         $settings = $serviceDefinition->getConfig();
         $serviceKey = $provisionerSettings->get('app_key');
-        $crate = $configProvider->getCrateMap()->getItem('foh.system_account');
+        $crate = $configProvider->getCrateMap()->getItem('hlx.security');
 
         // allow override of routing prefix from crate settings
         $routing_prefix = $crate->getRoutingPrefix();

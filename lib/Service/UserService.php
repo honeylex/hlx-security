@@ -1,6 +1,6 @@
 <?php
 
-namespace Foh\SystemAccount\Service;
+namespace Hlx\Security\Service;
 
 use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
@@ -20,24 +20,24 @@ class UserService implements UserProviderInterface
 
     public function loadUserByUsername($username)
     {
-        $system_account_user = $this->authService->findByUsername($username);
+        $security_user = $this->authService->findByUsername($username);
 
-        if (!$system_account_user) {
+        if (!$security_user) {
             throw new UsernameNotFoundException(sprintf('Username "%s" not found.', $username));
         }
 
-        return new User($system_account_user->toArray());
+        return new User($security_user->toArray());
     }
 
     public function loadUserByToken($token, $type)
     {
-        $system_account_user = $this->authService->findByToken($token, $type);
+        $security_user = $this->authService->findByToken($token, $type);
 
-        if (!$system_account_user) {
+        if (!$security_user) {
             throw new TokenNotFoundException;
         }
 
-        return new User($system_account_user->toArray());
+        return new User($security_user->toArray());
     }
 
     public function refreshUser(UserInterface $user)

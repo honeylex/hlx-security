@@ -19,7 +19,7 @@
  * @see https://github.com/honeybee/trellis
  */
 
-namespace Foh\SystemAccount\User\Model\Aggregate\Base;
+namespace Hlx\Security\User\Model\Aggregate\Base;
 
 use Honeybee\Model\Aggregate\AggregateRoot;
 

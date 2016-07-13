@@ -19,7 +19,7 @@
  * @see https://github.com/honeybee/trellis
  */
 
-namespace Foh\SystemAccount\User\Projection\Standard\Base;
+namespace Hlx\Security\User\Projection\Standard\Base;
 
 use Honeybee\Projection\Projection;
 

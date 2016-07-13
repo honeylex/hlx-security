@@ -1,6 +1,6 @@
 <?php
 
-namespace Foh\SystemAccount\Service;
+namespace Hlx\Security\Service;
 
 use Honeybee\Infrastructure\Config\ConfigInterface;
 use Honeybee\Infrastructure\DataAccess\Query\AttributeCriteria;
@@ -125,7 +125,7 @@ class StandardAuthService implements AuthServiceInterface
 
     protected function getQueryService()
     {
-        $query_service_key = $this->config->get('query_service', 'foh.system_account.user::query_service');
+        $query_service_key = $this->config->get('query_service', 'hlx.security.user::query_service');
         return $this->query_service_map->getItem($query_service_key);
     }
 }

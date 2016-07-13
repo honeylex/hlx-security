@@ -92,7 +92,7 @@
                                 -->
                                 {% if user|accepts_event('edit') %}
                                 <a href="{{ url(
-                                    'foh.system_account.user.tasks.modify',
+                                    'hlx.security.user.tasks.modify',
                                     { 'identifier': user.identifier}
                                 ) }}" title="modify user">{{ user.username }}</a>
                                 {% else %}
@@ -109,7 +109,7 @@
                                     demote action
                                     -->
                                     <form method="post" class="form-inline" action="{{ url(
-                                            'foh.system_account.user.tasks.proceed',
+                                            'hlx.security.user.tasks.proceed',
                                             { 'identifier': user.identifier }
                                     ) }}">
                                         <input type="hidden" name="revision" value="{{ user.revision }}" />
@@ -125,7 +125,7 @@
                                     promote action
                                     -->
                                     <form class="form-inline" method="post" action="{{ url(
-                                            'foh.system_account.user.tasks.proceed',
+                                            'hlx.security.user.tasks.proceed',
                                             { 'identifier': user.identifier }
                                     ) }}">
                                         <input type="hidden" name="revision" value="{{ user.revision }}" />
@@ -143,7 +143,7 @@
                                 history link
                                 -->
                                 <a href="{{ url(
-                                    'foh.system_account.user.history',
+                                    'hlx.security.user.history',
                                     { 'identifier': user.identifier }
                                 ) }}" class="btn btn-primary btn-xs" title="view user history">
                                     <span class="glyphicon glyphicon-book"></span> history
@@ -155,7 +155,7 @@
                                     delete action
                                     -->
                                     <form method="post" action="{{ url(
-                                            'foh.system_account.user.tasks.proceed',
+                                            'hlx.security.user.tasks.proceed',
                                             { 'identifier': user.identifier }
                                     ) }}">
                                         <input type="hidden" name="revision" class="revision-val" value="{{ user.revision }}" />

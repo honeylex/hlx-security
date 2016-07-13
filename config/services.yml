@@ -1,19 +1,19 @@
 #
-# service configuration for the SystemAccount crate
+# service configuration for the Security crate
 ---
-foh.system_account.user.auth_service:
-  class: Foh\SystemAccount\Service\StandardAuthService
+hlx.security.user.auth_service:
+  class: Hlx\Security\Service\StandardAuthService
   provisioner:
     class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\DefaultProvisioner
     settings:
       alias: Honeybee\Infrastructure\Security\Auth\AuthServiceInterface
 
-foh.system_account.user.user_service:
-  class: Foh\SystemAccount\Service\UserService
+hlx.security.user.user_service:
+  class: Hlx\Security\Service\UserService
   settings:
     stateless: false
   provisioner:
-    class: Foh\SystemAccount\Service\Provisioner\UserServiceProvisioner
+    class: Hlx\Security\Service\Provisioner\UserServiceProvisioner
     settings:
       app_key: user.service
       share: true

@@ -19,7 +19,7 @@
  * @see https://github.com/honeybee/trellis
  */
 
-namespace Foh\SystemAccount\User\Projection\Standard\Embed\Base;
+namespace Hlx\Security\User\Projection\Standard\Embed\Base;
 
 use Honeybee\Projection\EmbeddedEntityType;
 use Trellis\Common\Options;
@@ -66,6 +66,6 @@ abstract class VerificationType extends EmbeddedEntityType
      */
     public static function getEntityImplementor()
     {
-        return '\\Foh\\SystemAccount\\User\\Projection\\Standard\\Embed\\Verification';
+        return '\\Hlx\\Security\\User\\Projection\\Standard\\Embed\\Verification';
     }
 }

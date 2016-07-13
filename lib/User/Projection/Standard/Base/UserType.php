@@ -19,11 +19,11 @@
  * @see https://github.com/honeybee/trellis
  */
 
-namespace Foh\SystemAccount\User\Projection\Standard\Base;
+namespace Hlx\Security\User\Projection\Standard\Base;
 
 use Trellis\Common\Options;
 use Workflux\StateMachine\StateMachineInterface;
-use Foh\SystemAccount\User\Projection\Standard\Base;
+use Hlx\Security\User\Projection\Standard\Base;
 use Honeybee\Projection\ProjectionType;
 
 /**
@@ -111,15 +111,15 @@ abstract class UserType extends ProjectionType
                     $this,
                     array(
                         'entity_types' => array(
-                            '\\Foh\\SystemAccount\\User\\Projection\\Standard\\Embed\\VerificationType',
+                            '\\Hlx\\Security\\User\\Projection\\Standard\\Embed\\VerificationType',
                         ),
                     )
                 ),
             ],
             new Options(
                 array(
-                'vendor' => 'Foh',
-                'package' => 'SystemAccount',
+                'vendor' => 'Hlx',
+                'package' => 'Security',
                 'is_hierarchical' => false,
             )
             )
@@ -143,6 +143,6 @@ abstract class UserType extends ProjectionType
      */
     public static function getEntityImplementor()
     {
-        return '\\Foh\\SystemAccount\\User\\Projection\\Standard\\User';
+        return '\\Hlx\\Security\\User\\Projection\\Standard\\User';
     }
 }

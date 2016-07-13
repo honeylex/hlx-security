@@ -1,4 +1,4 @@
 ---
-vendor: Foh
-name: SystemAccount
-description: Standard crate for managing system-accounts, users and roles.
+vendor: Hlx
+name: Security
+description: Honeylex create for managing security, users and roles.

@@ -1,8 +1,8 @@
 <?php
 
-use Foh\SystemAccount\Controller\LoginController;
-use Foh\SystemAccount\Controller\PasswordController;
-use Foh\SystemAccount\Controller\RegistrationController;
+use Hlx\Security\Controller\LoginController;
+use Hlx\Security\Controller\PasswordController;
+use Hlx\Security\Controller\RegistrationController;
 
 require __DIR__.'/User/routing.php';
 

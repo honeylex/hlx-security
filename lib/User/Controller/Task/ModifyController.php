@@ -1,9 +1,9 @@
 <?php
 
-namespace Foh\SystemAccount\User\Controller\Task;
+namespace Hlx\Security\User\Controller\Task;
 
-use Foh\SystemAccount\User\Model\Aggregate\UserType;
-use Foh\SystemAccount\User\Model\Task\ModifyUser\ModifyUserCommand;
+use Hlx\Security\User\Model\Aggregate\UserType;
+use Hlx\Security\User\Model\Task\ModifyUser\ModifyUserCommand;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
 use Honeybee\Infrastructure\DataAccess\Finder\FinderMap;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
@@ -57,7 +57,7 @@ class ModifyController
         $form = $this->buildUserForm($user->toArray());
 
         return $this->templateRenderer->render(
-            '@SystemAccount/user/task/modify.twig',
+            '@Security/user/task/modify.twig',
             [ 'form' => $form->createView(), 'user' => $user ]
         );
     }
@@ -70,7 +70,7 @@ class ModifyController
 
         if (!$form->isValid()) {
             return $this->templateRenderer->render(
-                '@SystemAccount/user/task/modify.twig',
+                '@Security/user/task/modify.twig',
                 [ 'form' => $form->createView(), 'user' => $user ]
             );
         }
@@ -82,14 +82,14 @@ class ModifyController
 
         if (!$result instanceof Success) {
             return $this->templateRenderer->render(
-                '@SystemAccount/user/task/modify.twig',
-                [ 'form' => $form->createView(), 'errors' => $result->get() ]
+                '@Security/user/task/modify.twig',
+                [ 'form' => $form->createView(), 'user' => $user, 'errors' => $result->get() ]
             );
         }
 
         $this->commandBus->post($result->get());
 
-        return $app->redirect($this->urlGenerator->generate('foh.system_account.user.list'));
+        return $app->redirect($this->urlGenerator->generate('hlx.security.user.list'));
     }
 
     protected function fetchUser($identifier)

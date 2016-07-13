@@ -1,11 +1,11 @@
 #
-# SystemAccount specific connections.
+# Security specific connections.
 ---
-foh.system_account.event_source:
+hlx.security.event_source:
   class: Honeybee\Infrastructure\DataAccess\Connector\GuzzleConnector
   settings:
     host: 127.0.0.1
     port: 5984
     transport: http
-    database: ${project.database.prefix}%2Bfoh-system_account
+    database: ${project.database.prefix}%2Bhlx-security
     status_test: /

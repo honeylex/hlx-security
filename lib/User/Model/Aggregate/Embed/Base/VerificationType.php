@@ -19,7 +19,7 @@
  * @see https://github.com/honeybee/trellis
  */
 
-namespace Foh\SystemAccount\User\Model\Aggregate\Embed\Base;
+namespace Hlx\Security\User\Model\Aggregate\Embed\Base;
 
 use Honeybee\Model\Aggregate\EmbeddedEntityType;
 use Trellis\Common\Options;
@@ -70,6 +70,6 @@ abstract class VerificationType extends EmbeddedEntityType
      */
     public static function getEntityImplementor()
     {
-        return '\\Foh\\SystemAccount\\User\\Model\\Aggregate\\Embed\\Verification';
+        return '\\Hlx\\Security\\User\\Model\\Aggregate\\Embed\\Verification';
     }
 }

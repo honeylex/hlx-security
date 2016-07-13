@@ -1,6 +1,6 @@
 {
     "name": "honeylex/hlx-security",
-    "description": "System account crate for Honeylex.",
+    "description": "Honeylex create for managing security, users and roles.",
     "license": "MIT",
     "type": "library",
     "require": {
@@ -14,7 +14,7 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "Foh\\SystemAccount\\": "lib/"
+            "Hlx\\Security\\": "lib/"
         }
     },
     "scripts": {

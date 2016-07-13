@@ -1,9 +1,9 @@
 <?php
 
-namespace Foh\SystemAccount\Controller;
+namespace Hlx\Security\Controller;
 
-use Foh\SystemAccount\User\Model\Aggregate\UserType;
-use Foh\SystemAccount\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
+use Hlx\Security\User\Model\Aggregate\UserType;
+use Hlx\Security\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Honeybee\Model\Command\AggregateRootCommandBuilder;
@@ -57,7 +57,7 @@ class PasswordController
         $form = $this->buildForm($this->formFactory, [ 'token' => $token ]);
 
         return $this->templateRenderer->render(
-            '@SystemAccount/password.twig',
+            '@Security/password.twig',
             [ 'form' => $form->createView() ]
         );
     }
@@ -69,7 +69,7 @@ class PasswordController
 
         if (!$form->isValid()) {
             return $this->templateRenderer->render(
-                '@SystemAccount/password.twig',
+                '@Security/password.twig',
                 [ 'form' => $form->createView() ]
             );
         }
@@ -86,7 +86,7 @@ class PasswordController
 
         if (!$result instanceof Success) {
             return $this->templateRenderer->render(
-                '@SystemAccount/password.twig',
+                '@Security/password.twig',
                 [ 'form' => $form->createView(), 'errors' => $result->get() ]
             );
         }
@@ -95,7 +95,7 @@ class PasswordController
 
         // @todo autologin
 
-        return $app->redirect($this->urlGenerator->generate('foh.system_account.login'));
+        return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
     }
 
     protected function buildForm(FormFactoryInterface $formFactory, array $data = [])

@@ -1,6 +1,6 @@
 <?php
 
-namespace Foh\SystemAccount\Service;
+namespace Hlx\Security\Service;
 
 use DateTime;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;

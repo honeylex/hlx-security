@@ -1,8 +1,8 @@
 <?php
 
-namespace Foh\SystemAccount\User\Model\Aggregate;
+namespace Hlx\Security\User\Model\Aggregate;
 
-use Foh\SystemAccount\User\Model\Aggregate\Base\UserType as BaseUserType;
+use Hlx\Security\User\Model\Aggregate\Base\UserType as BaseUserType;
 
 /**
  * Defines a set of attributes that are used to manage a user aggregate-root&#039;s internal state.

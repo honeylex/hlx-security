@@ -1,8 +1,8 @@
 <?php
 
-namespace Foh\SystemAccount\User\Model\Task\ProceedUserWorkflow;
+namespace Hlx\Security\User\Model\Task\ProceedUserWorkflow;
 
-use Foh\SystemAccount\User\Model\Aggregate\UserType;
+use Hlx\Security\User\Model\Aggregate\UserType;
 use Honeybee\Infrastructure\Event\Bus\EventBusInterface;
 use Honeybee\Model\Task\ProceedWorkflow\ProceedWorkflowCommandHandler;
 use Honeybee\Infrastructure\DataAccess\DataAccessServiceInterface;

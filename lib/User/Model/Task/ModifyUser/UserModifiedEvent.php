@@ -1,6 +1,6 @@
 <?php
 
-namespace Foh\SystemAccount\User\Model\Task\ModifyUser;
+namespace Hlx\Security\User\Model\Task\ModifyUser;
 
 use Honeybee\Model\Task\ModifyAggregateRoot\AggregateRootModifiedEvent;
 

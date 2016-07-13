@@ -1,11 +1,11 @@
 subscriptions:
   - transport: sync
     commands:
-      foh.system_account.user.create_user:
-        handler: Foh\SystemAccount\User\Model\Task\CreateUser\CreateUserCommandHandler
-      foh.system_account.user.modify_user:
-        handler: Foh\SystemAccount\User\Model\Task\ModifyUser\ModifyUserCommandHandler
-      foh.system_account.user.proceed_user_workflow:
-        handler: Foh\SystemAccount\User\Model\Task\ProceedUserWorkflow\ProceedUserWorkflowCommandHandler
-      foh.system_account.user.set_user_password:
-        handler: Foh\SystemAccount\User\Model\Task\SetUserPassword\SetUserPasswordCommandHandler
+      hlx.security.user.create_user:
+        handler: Hlx\Security\User\Model\Task\CreateUser\CreateUserCommandHandler
+      hlx.security.user.modify_user:
+        handler: Hlx\Security\User\Model\Task\ModifyUser\ModifyUserCommandHandler
+      hlx.security.user.proceed_user_workflow:
+        handler: Hlx\Security\User\Model\Task\ProceedUserWorkflow\ProceedUserWorkflowCommandHandler
+      hlx.security.user.set_user_password:
+        handler: Hlx\Security\User\Model\Task\SetUserPassword\SetUserPasswordCommandHandler

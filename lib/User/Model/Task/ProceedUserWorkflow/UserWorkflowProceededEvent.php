@@ -1,6 +1,6 @@
 <?php
 
-namespace Foh\SystemAccount\User\Model\Task\ProceedUserWorkflow;
+namespace Hlx\Security\User\Model\Task\ProceedUserWorkflow;
 
 use Honeybee\Model\Task\ProceedWorkflow\WorkflowProceededEvent;
 

@@ -1,9 +1,9 @@
 <?php
 
-namespace Foh\SystemAccount\User\Controller\Task;
+namespace Hlx\Security\User\Controller\Task;
 
-use Foh\SystemAccount\User\Model\Aggregate\UserType;
-use Foh\SystemAccount\User\Model\Task\ProceedUserWorkflow\ProceedUserWorkflowCommand;
+use Hlx\Security\User\Model\Aggregate\UserType;
+use Hlx\Security\User\Model\Task\ProceedUserWorkflow\ProceedUserWorkflowCommand;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
 use Honeybee\Infrastructure\DataAccess\Finder\FinderMap;
 use Honeybee\Model\Command\AggregateRootCommandBuilder;
@@ -50,14 +50,14 @@ class ProceedWorkflowController
 
         if (!$result instanceof Success) {
             return $this->templateRenderer->render(
-                '@SystemAccount/user/list.twig',
+                '@Security/user/list.twig',
                 [ 'errors' => $result->get() ]
             );
         }
 
         $this->commandBus->post($result->get());
 
-        return $app->redirect($this->urlGenerator->generate('foh.system_account.user.list'));
+        return $app->redirect($this->urlGenerator->generate('hlx.security.user.list'));
     }
 
     protected function fetchUser($identifier)

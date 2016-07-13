@@ -1,8 +1,8 @@
 <?php
 
-namespace Foh\SystemAccount\User\Projection\Standard\Embed;
+namespace Hlx\Security\User\Projection\Standard\Embed;
 
-use Foh\SystemAccount\User\Projection\Standard\Embed\Base\VerificationType as BaseVerificationType;
+use Hlx\Security\User\Projection\Standard\Embed\Base\VerificationType as BaseVerificationType;
 
 /**
  *

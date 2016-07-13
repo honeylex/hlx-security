@@ -1,11 +1,11 @@
 <?php
 
-namespace Foh\SystemAccount\Controller;
+namespace Hlx\Security\Controller;
 
 use DateTime;
 use DateInterval;
-use Foh\SystemAccount\User\Model\Aggregate\UserType;
-use Foh\SystemAccount\User\Model\Task\CreateUser\CreateUserCommand;
+use Hlx\Security\User\Model\Aggregate\UserType;
+use Hlx\Security\User\Model\Task\CreateUser\CreateUserCommand;
 use Honeybee\Common\Util\StringToolkit;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
@@ -59,7 +59,7 @@ class RegistrationController
         $form = $this->buildRegistrationForm($this->formFactory);
 
         return $this->templateRenderer->render(
-            '@SystemAccount/registration.twig',
+            '@Security/registration.twig',
             [ 'form' => $form->createView() ]
         );
     }
@@ -71,7 +71,7 @@ class RegistrationController
 
         if (!$form->isValid()) {
             return $this->templateRenderer->render(
-                '@SystemAccount/registration.twig',
+                '@Security/registration.twig',
                 [ 'form' => $form->createView() ]
             );
         }
@@ -80,7 +80,7 @@ class RegistrationController
         $token = StringToolkit::generateRandomToken();
         $interval = $this->configProvider
             ->getCrateMap()
-            ->getItem('foh.system_account')
+            ->getItem('hlx.security')
             ->getSettings()
             ->get('verification_expiry', '7 days');
         $form_data = $form->getData();
@@ -98,14 +98,14 @@ class RegistrationController
 
         if (!$result instanceof Success) {
             return $this->templateRenderer->render(
-                '@SystemAccount/registration.twig',
+                '@Security/registration.twig',
                 [ 'form' => $form->createView(), 'errors' => $result->get() ]
             );
         }
 
         $this->commandBus->post($result->get());
 
-        return $app->redirect($this->urlGenerator->generate('foh.system_account.password', [ 'token' => $token ]));
+        return $app->redirect($this->urlGenerator->generate('hlx.security.password', [ 'token' => $token ]));
     }
 
     protected function buildRegistrationForm(FormFactoryInterface $formFactory)

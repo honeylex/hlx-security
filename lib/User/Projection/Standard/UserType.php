@@ -1,8 +1,8 @@
 <?php
 
-namespace Foh\SystemAccount\User\Projection\Standard;
+namespace Hlx\Security\User\Projection\Standard;
 
-use Foh\SystemAccount\User\Projection\Standard\Base\UserType as BaseUserType;
+use Hlx\Security\User\Projection\Standard\Base\UserType as BaseUserType;
 
 /**
  * Defines the (normalized) strucuture of a default user projection.

@@ -1,8 +1,8 @@
 <?php
 
-namespace Foh\SystemAccount\User\Model\Aggregate\Embed;
+namespace Hlx\Security\User\Model\Aggregate\Embed;
 
-use Foh\SystemAccount\User\Model\Aggregate\Embed\Base\Verification as BaseVerification;
+use Hlx\Security\User\Model\Aggregate\Embed\Base\Verification as BaseVerification;
 
 /**
  * This class may be used to customize the behaviour of the

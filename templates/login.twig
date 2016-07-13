@@ -14,13 +14,13 @@
 
     <div class="row">
         <div class="col-xs-12 col-md-6">
-            <form method="post" class="tab-content" action="{{ path('foh.system_account.login_check') }}">
+            <form method="post" class="tab-content" action="{{ path('hlx.security.login_check') }}">
                 <div class="tab-pane active" id="login">
                     {{ form_widget(form) }}
                 </div>
                 <div class="form-actions">
                     <button class="btn btn-success" type="submit">login</button>
-                    <a href="{{ url('foh.system_account.registration') }}" class="btn btn-primary">register</a>
+                    <a href="{{ url('hlx.security.registration') }}" class="btn btn-primary">register</a>
                 </div>
             </form>
         </div>

@@ -1,6 +1,6 @@
 <?php
 
-namespace Foh\SystemAccount\Controller;
+namespace Hlx\Security\Controller;
 
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Silex\Application;
@@ -31,7 +31,7 @@ class LoginController
         $form = $this->buildLoginForm($this->formFactory);
 
         return $this->templateRenderer->render(
-            '@SystemAccount/login.twig',
+            '@Security/login.twig',
             [ 'form' => $form->createView() ]
         );
     }

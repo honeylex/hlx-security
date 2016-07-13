@@ -1,8 +1,8 @@
 <?php
 
-namespace Foh\SystemAccount\User\Model\Task\ModifyUser;
+namespace Hlx\Security\User\Model\Task\ModifyUser;
 
-use Foh\SystemAccount\User\Model\Aggregate\UserType;
+use Hlx\Security\User\Model\Aggregate\UserType;
 use Honeybee\Infrastructure\Event\Bus\EventBusInterface;
 use Honeybee\Model\Task\ModifyAggregateRoot\ModifyAggregateRootCommandHandler;
 use Honeybee\Infrastructure\DataAccess\DataAccessServiceInterface;

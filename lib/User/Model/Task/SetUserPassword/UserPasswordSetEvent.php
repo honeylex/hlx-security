@@ -1,6 +1,6 @@
 <?php
 
-namespace Foh\SystemAccount\User\Model\Task\SetUserPassword;
+namespace Hlx\Security\User\Model\Task\SetUserPassword;
 
 use Honeybee\Model\Task\ModifyAggregateRoot\AggregateRootModifiedEvent;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace Foh\SystemAccount\User\Model\Task\CreateUser;
+namespace Hlx\Security\User\Model\Task\CreateUser;
 
-use Foh\SystemAccount\User\Model\Aggregate\UserType;
+use Hlx\Security\User\Model\Aggregate\UserType;
 use Honeybee\Infrastructure\Event\Bus\EventBusInterface;
 use Honeybee\Model\Task\CreateAggregateRoot\CreateAggregateRootCommandHandler;
 use Honeybee\Infrastructure\DataAccess\DataAccessServiceInterface;

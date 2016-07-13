@@ -1,6 +1,6 @@
 <?php
 
-namespace Foh\SystemAccount\Migration\Elasticsearch;
+namespace Hlx\Security\Migration\Elasticsearch;
 
 use Honeybee\Infrastructure\Migration\ElasticsearchMigration;
 use Honeybee\Infrastructure\Migration\MigrationTargetInterface;
@@ -20,7 +20,7 @@ class Migration_20150720165555_CreateUserResource extends ElasticsearchMigration
     public function getDescription($direction = MigrationInterface::MIGRATE_UP)
     {
         if ($direction === MigrationInterface::MIGRATE_UP) {
-            return 'Will create the elasticsearch index for the SystemAccount/User context\'s view data.';
+            return 'Will create the elasticsearch index for the Security/User context\'s view data.';
         }
     }
 
@@ -36,7 +36,7 @@ class Migration_20150720165555_CreateUserResource extends ElasticsearchMigration
     protected function getTypeMappingPaths(MigrationTargetInterface $migration_target)
     {
         return [
-            'foh-system_account-user-standard' => __DIR__ . DIRECTORY_SEPARATOR . 'user-standard-20150720165555-mapping.json'
+            'hlx-security-user-standard' => __DIR__ . DIRECTORY_SEPARATOR . 'user-standard-20150720165555-mapping.json'
         ];
     }
 }

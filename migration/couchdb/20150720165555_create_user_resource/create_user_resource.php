@@ -1,6 +1,6 @@
 <?php
 
-namespace Foh\SystemAccount\Migration\CouchDb;
+namespace Hlx\Security\Migration\CouchDb;
 
 use Honeybee\Infrastructure\Migration\CouchDbMigration;
 use Honeybee\Infrastructure\Migration\MigrationTargetInterface;
@@ -23,7 +23,7 @@ class Migration_20150720165555_CreateUserResource extends CouchDbMigration
         if ($direction === MigrationInterface::MIGRATE_UP) {
             return 'Will add design docs to the couchdb database for the Testing context.';
         }
-        return 'Will delete the design system_account.user docs.';
+        return 'Will delete the design security.user docs.';
     }
 
     public function isReversible()
@@ -38,6 +38,6 @@ class Migration_20150720165555_CreateUserResource extends CouchDbMigration
 
     protected function getDesignDocName()
     {
-        return 'foh-system_account-user';
+        return 'hlx-security-user';
     }
 }

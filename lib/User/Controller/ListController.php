@@ -1,9 +1,9 @@
 <?php
 
-namespace Foh\SystemAccount\User\Controller;
+namespace Hlx\Security\User\Controller;
 
-use Foh\SystemAccount\User\Model\Aggregate\UserType;
-use Foh\SystemAccount\User\Model\Task\CreateUser\CreateUserCommand;
+use Hlx\Security\User\Model\Aggregate\UserType;
+use Hlx\Security\User\Model\Task\CreateUser\CreateUserCommand;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
 use Honeybee\Infrastructure\DataAccess\Finder\FinderResultInterface;
 use Honeybee\Infrastructure\DataAccess\Query\CriteriaList;
@@ -152,7 +152,7 @@ class ListController
         $search = $this->fetchUserList($query, $page, $limit);
 
         return $this->templateRenderer->render(
-            '@SystemAccount/user/list.twig',
+            '@Security/user/list.twig',
             [
                 'q' => '',
                 'user_list' => $search,
@@ -172,13 +172,13 @@ class ListController
         ];
         if (($page + 1) * $limit <= $search->getTotalCount()) {
             $pager['next_url'] = $this->urlGenerator->generate(
-                'foh.system_account.user.list',
+                'hlx.security.user.list',
                 [ 'page' => $page + 1, 'limit' => $limit, 'q' => $query ]
             );
         }
         if (($page - 1) / $limit > 0) {
             $pager['prev_url'] = $this->urlGenerator->generate(
-                'foh.system_account.user.list',
+                'hlx.security.user.list',
                 [ 'page' => $page - 1, 'limit' => $limit, 'q' => $query ]
             );
         }
