@@ -47,8 +47,8 @@
                                         </span>
                                         {% endif %}
                                         <span class="input-group-addon" id="basic-addon1">page </span>
-                                        <input class="form-control cur-offset" name="page" type="number" min="1" max="{{ pager.total }}" value="{{ pager.current }}">
-                                        <span class="input-group-addon">of {{ pager.total }}</span>
+                                        <input class="form-control cur-offset" name="page" type="number" min="1" max="{{ max(pager.total,1) }}" value="{{ pager.current }}">
+                                        <span class="input-group-addon">of {{ max(pager.total,1) }}</span>
                                         {% if pager.next_url == false %}
                                         <span class="input-group-btn">
                                             <a class="btn btn-default disabled" href="#" type="submit">next &raquo;</a>
