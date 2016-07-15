@@ -2,8 +2,6 @@
 
 namespace Hlx\Security\Controller;
 
-use DateTime;
-use DateInterval;
 use Hlx\Security\User\Model\Aggregate\UserType;
 use Hlx\Security\User\Model\Task\CreateUser\CreateUserCommand;
 use Honeybee\Common\Util\StringToolkit;
@@ -66,6 +64,7 @@ class RegistrationController
 
     public function write(Request $request, Application $app)
     {
+        // validate the from data
         $form = $this->buildRegistrationForm($this->formFactory);
         $form->handleRequest($request);
 
@@ -76,24 +75,11 @@ class RegistrationController
             );
         }
 
-        // add a verification token to the post data
+        // build and check command
         $token = StringToolkit::generateRandomToken();
-        $interval = $this->configProvider
-            ->getCrateMap()
-            ->getItem('hlx.security')
-            ->getSettings()
-            ->get('verification_expiry', '7 days');
-        $form_data = $form->getData();
-        $form_data['tokens'] = [
-            [
-                '@type' => 'verification',
-                'token' => $token,
-                'expires_at' => (new DateTime)->add(DateInterval::createFromDateString($interval))
-            ]
-        ];
-
         $result = (new AggregateRootCommandBuilder($this->userType, CreateUserCommand::CLASS))
-            ->withValues($form_data)
+            ->withValues($form->getData())
+            ->withVerificationToken($token)
             ->build();
 
         if (!$result instanceof Success) {

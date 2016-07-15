@@ -4,8 +4,8 @@ namespace Hlx\Security\User\Model\Task\CreateUser;
 
 use Hlx\Security\User\Model\Aggregate\UserType;
 use Honeybee\Infrastructure\Event\Bus\EventBusInterface;
-use Honeybee\Model\Task\CreateAggregateRoot\CreateAggregateRootCommandHandler;
 use Honeybee\Infrastructure\DataAccess\DataAccessServiceInterface;
+use Honeybee\Model\Task\CreateAggregateRoot\CreateAggregateRootCommandHandler;
 use Psr\Log\LoggerInterface;
 
 class CreateUserCommandHandler extends CreateAggregateRootCommandHandler

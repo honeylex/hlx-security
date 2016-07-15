@@ -58,7 +58,8 @@ abstract class VerificationType extends EmbeddedEntityType
             ],
             new Options(
                 []
-            ),            $parent,
+            ),
+            $parent,
             $parent_attribute
         );
     }

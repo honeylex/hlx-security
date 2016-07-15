@@ -4,10 +4,10 @@ namespace Hlx\Security\Service;
 
 use Honeybee\Infrastructure\Config\ConfigInterface;
 use Honeybee\Infrastructure\DataAccess\Query\AttributeCriteria;
+use Honeybee\Infrastructure\DataAccess\Query\Comparison\Equals;
 use Honeybee\Infrastructure\DataAccess\Query\CriteriaList;
 use Honeybee\Infrastructure\DataAccess\Query\Query;
 use Honeybee\Infrastructure\DataAccess\Query\QueryServiceMap;
-use Honeybee\Infrastructure\DataAccess\Query\Comparison\Equals;
 use Honeybee\Infrastructure\Security\Auth\AuthResponse;
 use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Honeybee\Infrastructure\Security\Auth\CryptedPasswordHandler;
@@ -20,9 +20,9 @@ class StandardAuthService implements AuthServiceInterface
 
     protected $config;
 
-    protected $password_handler;
-
     protected $query_service_map;
+
+    protected $password_handler;
 
     public function __construct(
         ConfigInterface $config,
@@ -82,23 +82,15 @@ class StandardAuthService implements AuthServiceInterface
         return $user;
     }
 
-    /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     * @codingStandardsIgnoreStart
-     */
-    public function authenticate($username, $password, $options = []) // @codingStandardsIgnoreEnd
+    public function authenticate($username, $password, $options = [])
     {
         $user = $this->findByUsername($username);
 
         if (!$user) {
             return new AuthResponse(AuthResponse::STATE_UNAUTHORIZED, 'authentication failed');
         }
-        /*if ($user->getWorkflowState() !== $this->config->get('active_state', self::ACTIVE_STATE)) {
-            return new AuthResponse(
-                AuthResponse::STATE_UNAUTHORIZED,
-                "user inactive"
-            );
-        }*/
+
+        // @todo check that user is verified
 
         if ($this->password_handler->verify($password, $user->getPasswordHash())) {
             return new AuthResponse(

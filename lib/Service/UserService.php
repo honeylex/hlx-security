@@ -2,6 +2,7 @@
 
 namespace Hlx\Security\Service;
 
+use Hlx\Security\User\User;
 use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;

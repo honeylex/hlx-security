@@ -22,9 +22,16 @@ class UserServiceProvisioner extends SilexServiceProvisioner
         SettingsInterface $provisionerSettings
     ) {
         $service = $serviceDefinition->getClass();
-        $settings = $serviceDefinition->getConfig();
         $serviceKey = $provisionerSettings->get('app_key');
         $crate = $configProvider->getCrateMap()->getItem('hlx.security');
+
+        // looks like we need to make this upfront for the security provider
+        $app[$serviceKey] = $injector->make($service);
+
+        // logout handler registration
+        $app['security.authentication.logout_handler.secure'] = function () use ($injector, $provisionerSettings) {
+            return $injector->make($provisionerSettings->get('logout_handler'));
+        };
 
         // allow override of routing prefix from crate settings
         $routing_prefix = $crate->getRoutingPrefix();
@@ -42,7 +49,7 @@ class UserServiceProvisioner extends SilexServiceProvisioner
                     'password' => [ 'pattern' => "^$routing_prefix/password$" ],
                     'secure' => [
                         'pattern' => '^.*$',
-                        'stateless' => $settings->get('stateless', false) === true,
+                        'stateless' => $provisionerSettings->get('stateless', false) === true,
                         'anonymous' => false,
                         'remember_me' => [],
                         'form' => [
@@ -63,13 +70,10 @@ class UserServiceProvisioner extends SilexServiceProvisioner
         );
 
         // register after SecurityServiceProvider
-        if ($settings->get('stateless', false) !== true) {
+        if ($provisionerSettings->get('stateless', false) !== true) {
             $app->register(new SessionServiceProvider);
             $app->register(new RememberMeServiceProvider);
         }
-
-        // looks like we need to make this upfront for the security provider
-        $app[$serviceKey] = $injector->make($service);
 
         parent::provision($app, $injector, $configProvider, $serviceDefinition, $provisionerSettings);
 

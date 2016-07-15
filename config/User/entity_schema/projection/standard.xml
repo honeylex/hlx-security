@@ -13,7 +13,6 @@
             <option name="package">Security</option>
             <option name="is_hierarchical">false</option>
         </options>
-        <!-- attribute definitions -->
         <xi:include href="../aggregate_root.xml" xpointer="xmlns(dt=http://berlinonline.net/trellis/1.0/schema)
             xpointer(/dt:type_schema/dt:type_definition/dt:attributes)">
         </xi:include>
@@ -24,8 +23,16 @@
             <implementor>\Honeybee\Projection\EmbeddedEntityType</implementor>
             <entity_implementor>\Honeybee\Projection\EmbeddedEntity</entity_implementor>
             <attributes>
-                <attribute name="token" type="text"/>
-                <attribute name="expires_at" type="timestamp"/>
+                <attribute name="token" type="text" />
+                <attribute name="expires_at" type="timestamp" />
+            </attributes>
+        </embed_definition>
+        <embed_definition name="Authentication">
+            <implementor>\Honeybee\Projection\EmbeddedEntityType</implementor>
+            <entity_implementor>\Honeybee\Projection\EmbeddedEntity</entity_implementor>
+            <attributes>
+                <attribute name="token" type="text" />
+                <attribute name="expires_at" type="timestamp" />
             </attributes>
         </embed_definition>
     </embed_definitions>

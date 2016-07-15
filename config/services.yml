@@ -10,11 +10,20 @@ hlx.security.user.auth_service:
 
 hlx.security.user.user_service:
   class: Hlx\Security\Service\UserService
-  settings:
-    stateless: false
   provisioner:
     class: Hlx\Security\Service\Provisioner\UserServiceProvisioner
     settings:
       app_key: user.service
       share: true
+      stateless: false
+      logout_handler: Hlx\Security\Controller\LoginController
       alias: Symfony\Component\Security\Core\User\UserProviderInterface
+
+hlx.security.user.token_storage:
+  class: Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage
+  provisioner:
+    class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\SilexServiceProvisioner
+    settings:
+      app_key: security.token_storage
+      share: true
+      alias: Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface

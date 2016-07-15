@@ -1,6 +1,6 @@
 <?php
 
-namespace Hlx\Security\User\Model\Task\SetUserPassword;
+namespace Hlx\Security\User\Model\Task\LogoutUser;
 
 use Hlx\Security\User\Model\Aggregate\UserType;
 use Honeybee\Infrastructure\Command\CommandInterface;
@@ -10,19 +10,19 @@ use Honeybee\Model\Aggregate\AggregateRootInterface;
 use Honeybee\Model\Command\AggregateRootCommandHandler;
 use Psr\Log\LoggerInterface;
 
-class SetUserPasswordCommandHandler extends AggregateRootCommandHandler
+class LogoutUserCommandHandler extends AggregateRootCommandHandler
 {
     public function __construct(
-        UserType $user_type,
-        DataAccessServiceInterface $data_access_service,
-        EventBusInterface $event_bus,
+        UserType $userType,
+        DataAccessServiceInterface $dataAccessService,
+        EventBusInterface $eventBus,
         LoggerInterface $logger
     ) {
-        parent::__construct($user_type, $data_access_service, $event_bus, $logger);
+        parent::__construct($userType, $dataAccessService, $eventBus, $logger);
     }
 
     protected function doExecute(CommandInterface $command, AggregateRootInterface $user)
     {
-        $user->changePassword($command);
+        $user->resetAuthenticationToken($command);
     }
 }

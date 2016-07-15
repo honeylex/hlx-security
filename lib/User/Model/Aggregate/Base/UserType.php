@@ -112,16 +112,17 @@ abstract class UserType extends AggregateRootType
                     array(
                         'entity_types' => array(
                             '\\Hlx\\Security\\User\\Model\\Aggregate\\Embed\\VerificationType',
+                            '\\Hlx\\Security\\User\\Model\\Aggregate\\Embed\\AuthenticationType',
                         ),
                     )
                 ),
             ],
             new Options(
                 array(
-                'vendor' => 'Hlx',
-                'package' => 'Security',
-                'is_hierarchical' => false,
-            )
+                    'vendor' => 'Hlx',
+                    'package' => 'Security',
+                    'is_hierarchical' => false,
+                )
             )
         );
     }
