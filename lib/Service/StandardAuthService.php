@@ -41,7 +41,7 @@ class StandardAuthService implements AuthServiceInterface
 
     public function findByUsername($username)
     {
-        $query_result = $this->getQueryService()->find(
+        $query_result = $this->getProjectionQueryService()->find(
             new Query(
                 new CriteriaList,
                 new CriteriaList([ new AttributeCriteria('username', new Equals($username)) ]),
@@ -115,9 +115,12 @@ class StandardAuthService implements AuthServiceInterface
         return $this->password_handler->hash($password);
     }
 
-    protected function getQueryService()
+    protected function getProjectionQueryService()
     {
-        $query_service_key = $this->config->get('query_service', 'hlx.security.user::query_service');
+        $query_service_key = $this->config->get(
+            'query_service',
+            'hlx.security.user::projection.standard::query_service'
+        );
         return $this->query_service_map->getItem($query_service_key);
     }
 }

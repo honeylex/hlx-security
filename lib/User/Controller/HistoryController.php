@@ -5,6 +5,7 @@ namespace Hlx\Security\User\Controller;
 use Carbon\Carbon;
 use Hlx\Security\User\Model\Aggregate\UserType;
 use Hlx\Security\User\Model\Task\CreateUser\UserCreatedEvent;
+use Hlx\Security\User\Model\Task\LogoutUser\UserLoggedOutEvent;
 use Hlx\Security\User\Model\Task\ModifyUser\UserModifiedEvent;
 use Hlx\Security\User\Model\Task\ProceedUserWorkflow\UserWorkflowProceededEvent;
 use Hlx\Security\User\Model\Task\SetUserPassword\UserPasswordSetEvent;
@@ -32,7 +33,7 @@ class HistoryController
     {
         $eventStream = $this->storageReaderMap
             ->getItem($this->userType->getPrefix().'::event_stream::event_source::reader')
-                ->read($request->get('identifier'));
+            ->read($request->get('identifier'));
 
         $historyData = [];
         foreach ($eventStream->getEvents()->reverse() as $event) {
@@ -69,6 +70,11 @@ class HistoryController
                 $type = 'modify';
                 $sentiment = 'success';
                 $title = 'User password set';
+                $icon = 'glyphicon-lock';
+            } elseif ($event instanceof UserLoggedOutEvent) {
+                $type = 'modify';
+                $sentiment = 'success';
+                $title = 'User logged out';
                 $icon = 'glyphicon-lock';
             }
             $historyData[] = [

@@ -120,8 +120,8 @@ class ListController
         $query = new Query($searchCriteria, new CriteriaList, new CriteriaList, ($page - 1) * $limit, $limit);
 
         return $this->queryServiceMap
-            ->getItem($this->userType->getPrefix().'::query_service')
-                ->find($query);
+            ->getItem($this->userType->getPrefix().'::projection.standard::query_service')
+            ->find($query);
     }
 
     protected function buildUserForm()

@@ -60,12 +60,10 @@ finders:
       projection_type: Hlx\Security\User\Projection\Standard\UserType
 
 query_services:
-  hlx.security.user::query_service:
-    class: Honeybee\Infrastructure\DataAccess\Query\QueryService
-    settings:
-      default_mapping: user.standard
+  hlx.security.user::projection.standard::query_service:
+    class: Honeybee\Infrastructure\DataAccess\Query\ProjectionQueryService
     finder_mappings:
-      user.standard:
+      default:
         finder: hlx.security.user::projection.standard::view_store::finder
         query_translation:
           class: Honeybee\Infrastructure\DataAccess\Finder\Elasticsearch\ElasticsearchQueryTranslation
@@ -76,7 +74,3 @@ query_services:
               - lastname
             query_filters:
               workflow_state: "!deleted"
-      domain.event:
-        finder: honeybee::domain_event::view_store::finder
-        query_translation:
-          class: Honeybee\Infrastructure\DataAccess\Finder\Elasticsearch\ElasticsearchQueryTranslation
