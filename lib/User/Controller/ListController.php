@@ -4,6 +4,7 @@ namespace Hlx\Security\User\Controller;
 
 use Hlx\Security\User\Model\Aggregate\UserType;
 use Hlx\Security\User\Model\Task\CreateUser\CreateUserCommand;
+use Honeybee\Common\Util\StringToolkit;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
 use Honeybee\Infrastructure\DataAccess\Finder\FinderResultInterface;
 use Honeybee\Infrastructure\DataAccess\Query\CriteriaList;
@@ -78,8 +79,10 @@ class ListController
             return $this->renderTemplate($request, $form);
         }
 
+        $token = StringToolkit::generateRandomToken();
         $result = (new AggregateRootCommandBuilder($this->userType, CreateUserCommand::CLASS))
             ->withValues($form->getData())
+            ->withVerificationToken($token)
             ->build();
 
         if ($result instanceof Error) {
