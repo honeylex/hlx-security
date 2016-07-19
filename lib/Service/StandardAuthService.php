@@ -62,7 +62,7 @@ class StandardAuthService implements AuthServiceInterface
     // @todo nested query
     public function findByToken($token, $type)
     {
-        $query_result = $this->getQueryService()->find(
+        $query_result = $this->getProjectionQueryService()->find(
             new Query(
                 new CriteriaList,
                 new CriteriaList([
