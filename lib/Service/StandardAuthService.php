@@ -14,9 +14,7 @@ use Honeybee\Infrastructure\Security\Auth\CryptedPasswordHandler;
 
 class StandardAuthService implements AuthServiceInterface
 {
-    const ACTIVE_STATE = 'active';
-
-    const TYPE_KEY = 'standard-auth';
+    const TYPE_KEY = 'hlx.security.standard';
 
     protected $config;
 
@@ -84,30 +82,13 @@ class StandardAuthService implements AuthServiceInterface
 
     public function authenticate($username, $password, $options = [])
     {
-        $user = $this->findByUsername($username);
+        // not currently implemented since the registered SecurityProvider
+        // proxies user look up and password verification through the UserService
+    }
 
-        if (!$user) {
-            return new AuthResponse(AuthResponse::STATE_UNAUTHORIZED, 'authentication failed');
-        }
-
-        // @todo check that user is verified
-
-        if ($this->password_handler->verify($password, $user->getPasswordHash())) {
-            return new AuthResponse(
-                AuthResponse::STATE_AUTHORIZED,
-                'authenticaton success',
-                [
-                    'login' => $user->getUsername(),
-                    'email' => $user->getEmail(),
-                    'acl_role' => $user->getRole(),
-                    'name' => $user->getFirstname() . ' ' . $user->getLastname(),
-                    'identifier' => $user->getIdentifier(),
-                    'background_images' => $user->getBackgroundImages()
-                ]
-            );
-        }
-
-        return new AuthResponse(AuthResponse::STATE_UNAUTHORIZED, 'authentication failed');
+    public function verifyPassword($password, $password_hash)
+    {
+        return $this->password_handler->verify($password, $password_hash);
     }
 
     public function encodePassword($password)

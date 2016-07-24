@@ -4,13 +4,14 @@ namespace Hlx\Security\Service;
 
 use Hlx\Security\User\User;
 use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class UserService implements UserProviderInterface
+class UserService implements UserProviderInterface, PasswordEncoderInterface
 {
     protected $authService;
 
@@ -51,13 +52,18 @@ class UserService implements UserProviderInterface
         return $this->loadUserByUsername($user->getUsername());
     }
 
-    public function encodePassword($password)
-    {
-        return $this->authService->encodePassword($password);
-    }
-
     public function supportsClass($class)
     {
         return User::CLASS === $class;
+    }
+
+    public function encodePassword($raw, $salt)
+    {
+        return $this->authService->encodePassword($raw);
+    }
+
+    public function isPasswordValid($encoded, $raw, $salt)
+    {
+        return $this->authService->verifyPassword($raw, $encoded);
     }
 }

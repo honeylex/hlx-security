@@ -11,6 +11,7 @@ use Pimple\Container;
 use Silex\Provider\RememberMeServiceProvider;
 use Silex\Provider\SecurityServiceProvider;
 use Silex\Provider\SessionServiceProvider;
+use Symfony\Component\Security\Core\Encoder\EncoderFactory;
 
 class UserServiceProvisioner extends SilexServiceProvisioner
 {
@@ -43,6 +44,11 @@ class UserServiceProvisioner extends SilexServiceProvisioner
         $app->register(
             new SecurityServiceProvider,
             [
+                'security.encoder_factory' => function ($app) use ($serviceKey) {
+                    return new EncoderFactory([
+                        'hlx.security.encoder' => $app[$serviceKey]
+                    ]);
+                },
                 'security.firewalls' => [
                     'login' => [ 'pattern' => "^$routing_prefix/login$" ],
                     'registration' => [ 'pattern' => "^$routing_prefix/registration$" ],

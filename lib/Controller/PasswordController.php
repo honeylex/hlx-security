@@ -79,7 +79,7 @@ class PasswordController
         $result = (new AggregateRootCommandBuilder($this->userType, SetUserPasswordCommand::CLASS))
             ->withAggregateRootIdentifier($user->getIdentifier())
             ->withKnownRevision($user->getRevision())
-            ->withPasswordHash($this->userService->encodePassword($form_data['password']))
+            ->withPasswordHash($this->userService->encodePassword($form_data['password'], null))
             ->build();
 
         if (!$result instanceof Success) {

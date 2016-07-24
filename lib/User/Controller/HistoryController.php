@@ -50,12 +50,12 @@ class HistoryController
                 $icon = 'glyphicon-pencil';
             } elseif ($event instanceof UserWorkflowProceededEvent) {
                 $title = 'User was ';
-                if ($event->getWorkflowState() === 'active') {
+                if ($event->getWorkflowState() === 'verified') {
                     $sentiment = 'success';
                     $type = 'promote';
-                    $title .= 'activated';
+                    $title .= 'verified';
                     $icon = 'glyphicon-ok';
-                } elseif ($event->getWorkflowState() === 'inactive') {
+                } elseif ($event->getWorkflowState() === 'deactivated') {
                     $sentiment = 'warning';
                     $type = 'demote';
                     $title .= 'deactivated';
