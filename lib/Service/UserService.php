@@ -25,7 +25,7 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface
         $security_user = $this->authService->findByUsername($username);
 
         if (!$security_user) {
-            throw new UsernameNotFoundException(sprintf('Username "%s" not found.', $username));
+            throw new UsernameNotFoundException;
         }
 
         return new User($security_user->toArray());
@@ -45,7 +45,7 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface
     public function refreshUser(UserInterface $user)
     {
         if (!$this->supportsClass(get_class($user))) {
-            throw new UnsupportedUserException(sprintf('User class "%s" is not supported.', get_class($user)));
+            throw new UnsupportedUserException;
         }
 
         // @todo called after loadUserByUsername so no need to load user twice?

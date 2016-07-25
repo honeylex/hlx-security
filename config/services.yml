@@ -15,7 +15,6 @@ hlx.security.user.user_service:
     settings:
       app_key: user.service
       share: true
-      stateless: false
       logout_handler: Hlx\Security\Controller\LoginController
       alias: Symfony\Component\Security\Core\User\UserProviderInterface
 

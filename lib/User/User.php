@@ -3,10 +3,9 @@
 namespace Hlx\Security\User;
 
 use DateTime;
-use Symfony\Component\Security\Core\Encoder\EncoderAwareInterface;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 
-class User implements AdvancedUserInterface, EncoderAwareInterface
+class User implements AdvancedUserInterface
 {
     protected $state;
 
@@ -18,11 +17,6 @@ class User implements AdvancedUserInterface, EncoderAwareInterface
     public function __toString()
     {
         return $this->getIdentifier();
-    }
-
-    public function getEncoderName()
-    {
-        return 'hlx.security.encoder';
     }
 
     public function getIdentifier()
@@ -91,6 +85,7 @@ class User implements AdvancedUserInterface, EncoderAwareInterface
 
     public function isAccountNonLocked()
     {
+        // @todo deactivated state check
         return $this->isEnabled();
     }
 

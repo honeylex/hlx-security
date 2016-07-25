@@ -9,6 +9,7 @@ use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Honeybee\Model\Command\AggregateRootCommandBuilder;
 use Shrink0r\Monatic\Success;
 use Silex\Application;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -90,6 +91,7 @@ class LoginController implements LogoutSuccessHandlerInterface
         return $formFactory->createNamedBuilder(null, FormType::CLASS)
             ->add('_username', TextType::CLASS, ['constraints' => [ new NotBlank, new Length([ 'min' => 5 ]) ]])
             ->add('_password', PasswordType::CLASS, [ 'constraints' => new NotBlank ])
+            ->add('_remember_me', CheckboxType::CLASS, [ 'data' => true ])
             ->getForm();
     }
 }
