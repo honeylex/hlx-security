@@ -6,39 +6,18 @@ storage_writers:
     class: Honeybee\Infrastructure\DataAccess\Storage\CouchDb\EventStream\EventStreamAppender
     connection: hlx.security.event_source
 
-  hlx.security.user::projection.standard::view_store::writer:
-    class: Honeybee\Infrastructure\DataAccess\Storage\Elasticsearch\Projection\ProjectionWriter
-    connection: honeybee.view_store
-    settings:
-      index: ${project.database.prefix}.hlx-security
-      type: hlx-security-user-standard
-      parameters:
-        index:
-            refresh: true
-        delete:
-            refresh: true
-
 storage_readers:
   hlx.security.user::event_stream::event_source::reader:
     class: Honeybee\Infrastructure\DataAccess\Storage\CouchDb\EventStream\EventStreamReader
     connection: hlx.security.event_source
     settings:
-        design_doc: hlx-security-user
+      design_doc: hlx-security-user
 
   hlx.security.user::domain_event::event_source::reader:
     class: Honeybee\Infrastructure\DataAccess\Storage\CouchDb\DomainEvent\DomainEventReader
     connection: hlx.security.event_source
     settings:
-        design_doc: hlx-security-user
-
-  hlx.security.user::projection.standard::view_store::reader:
-    class: Honeybee\Infrastructure\DataAccess\Storage\Elasticsearch\Projection\ProjectionReader
-    connection: honeybee.view_store
-    settings:
-      index: ${project.database.prefix}.hlx-security
-      type: hlx-security-user-standard
-    dependencies:
-      projection_type: Hlx\Security\User\Projection\Standard\UserType
+      design_doc: hlx-security-user
 
 units_of_work:
   hlx.security.user::domain_event::event_source::unit_of_work:
@@ -47,30 +26,3 @@ units_of_work:
     event_writer: hlx.security.user::domain_event::event_source::writer
     dependencies:
       aggregate_root_type: Hlx\Security\User\Model\Aggregate\UserType
-
-finders:
-  hlx.security.user::projection.standard::view_store::finder:
-    class: Honeybee\Infrastructure\DataAccess\Finder\Elasticsearch\Projection\ProjectionFinder
-    connection: honeybee.view_store
-    settings:
-      index: ${project.database.prefix}.hlx-security
-      type: hlx-security-user-standard
-      log_search_query: false
-    dependencies:
-      projection_type: Hlx\Security\User\Projection\Standard\UserType
-
-query_services:
-  hlx.security.user::projection.standard::query_service:
-    class: Honeybee\Infrastructure\DataAccess\Query\ProjectionQueryService
-    finder_mappings:
-      default:
-        finder: hlx.security.user::projection.standard::view_store::finder
-        query_translation:
-          class: Honeybee\Infrastructure\DataAccess\Finder\Elasticsearch\ElasticsearchQueryTranslation
-          settings:
-            multi_fields:
-              - username
-              - firstname
-              - lastname
-            query_filters:
-              workflow_state: "!deleted"

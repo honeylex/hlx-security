@@ -1,0 +1,52 @@
+#
+# Connections that are used for the Security crate's UserType.
+---
+storage_writers:
+  hlx.security.user::projection.standard::view_store::writer:
+    class: Honeybee\Infrastructure\DataAccess\Storage\Elasticsearch\Projection\ProjectionWriter
+    connection: honeybee.view_store
+    settings:
+      index: ${project.database.prefix}.hlx-security
+      type: hlx-security-user-standard
+      parameters:
+        index:
+          refresh: true
+        delete:
+          refresh: true
+
+storage_readers:
+  hlx.security.user::projection.standard::view_store::reader:
+    class: Honeybee\Infrastructure\DataAccess\Storage\Elasticsearch\Projection\ProjectionReader
+    connection: honeybee.view_store
+    settings:
+      index: ${project.database.prefix}.hlx-security
+      type: hlx-security-user-standard
+    dependencies:
+      projection_type: Hlx\Security\User\Projection\Standard\UserType
+
+finders:
+  hlx.security.user::projection.standard::view_store::finder:
+    class: Honeybee\Infrastructure\DataAccess\Finder\Elasticsearch\Projection\ProjectionFinder
+    connection: honeybee.view_store
+    settings:
+      index: ${project.database.prefix}.hlx-security
+      type: hlx-security-user-standard
+      log_search_query: false
+    dependencies:
+      projection_type: Hlx\Security\User\Projection\Standard\UserType
+
+query_services:
+  hlx.security.user::projection.standard::query_service:
+    class: Honeybee\Infrastructure\DataAccess\Query\ProjectionQueryService
+    finder_mappings:
+      default:
+        finder: hlx.security.user::projection.standard::view_store::finder
+        query_translation:
+          class: Honeybee\Infrastructure\DataAccess\Finder\Elasticsearch\CriteriaQueryTranslation
+          settings:
+            multi_fields:
+              - username
+              - firstname
+              - lastname
+            query_filters:
+              workflow_state: "!deleted"

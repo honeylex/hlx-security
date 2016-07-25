@@ -8,7 +8,7 @@ use Honeybee\Common\Util\StringToolkit;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
 use Honeybee\Infrastructure\DataAccess\Finder\FinderResultInterface;
 use Honeybee\Infrastructure\DataAccess\Query\CriteriaList;
-use Honeybee\Infrastructure\DataAccess\Query\Query;
+use Honeybee\Infrastructure\DataAccess\Query\CriteriaQuery;
 use Honeybee\Infrastructure\DataAccess\Query\QueryServiceMap;
 use Honeybee\Infrastructure\DataAccess\Query\SearchCriteria;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
@@ -120,7 +120,7 @@ class ListController
         if (!empty($searchTerm)) {
             $searchCriteria->addItem(new SearchCriteria($searchTerm));
         }
-        $query = new Query($searchCriteria, new CriteriaList, new CriteriaList, ($page - 1) * $limit, $limit);
+        $query = new CriteriaQuery($searchCriteria, new CriteriaList, new CriteriaList, ($page - 1) * $limit, $limit);
 
         return $this->queryServiceMap
             ->getItem($this->userType->getPrefix().'::projection.standard::query_service')
