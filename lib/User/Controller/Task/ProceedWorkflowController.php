@@ -50,7 +50,7 @@ class ProceedWorkflowController
 
         if (!$result instanceof Success) {
             return $this->templateRenderer->render(
-                '@Security/user/list.twig',
+                '@Security/user/list.html.twig',
                 [ 'errors' => $result->get() ]
             );
         }

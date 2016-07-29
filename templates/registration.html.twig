@@ -1,25 +1,25 @@
-{% extends "layout.twig" %}
+{% extends "layout.html.twig" %}
 
-{% block view_classes %}login{% endblock %}
+{% block view_classes %}registration{% endblock %}
 
 {% block content %}
 <div>
     <div class="row">
         <div class="col-xs-12 col-md-12">
             <div class="page-header">
-              <h1>Set Password</h1>
+              <h1>Registration</h1>
             </div>
         </div>
     </div>
 
     <div class="row">
         <div class="col-xs-12 col-md-6">
-            <form method="post" class="tab-content" action="{{ path('hlx.security.password') }}">
-                <div class="tab-pane active" id="login">
+            <form method="post" class="tab-content">
+                <div class="tab-pane active" id="registration">
                     {{ form_widget(form) }}
                 </div>
                 <div class="form-actions">
-                    <button class="btn btn-success" type="submit">Set Password</button>
+                    <button class="btn btn-success" type="submit">register</button>
                 </div>
             </form>
         </div>

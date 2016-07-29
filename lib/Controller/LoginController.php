@@ -58,7 +58,7 @@ class LoginController implements LogoutSuccessHandlerInterface
         $form = $this->buildLoginForm($this->formFactory);
 
         return $this->templateRenderer->render(
-            '@Security/login.twig',
+            '@Security/login.html.twig',
             [ 'form' => $form->createView() ]
         );
     }
