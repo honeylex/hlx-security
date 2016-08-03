@@ -23,14 +23,10 @@
             <attribute name="email" type="email">
                 <option name="mandatory">true</option>
             </attribute>
-            <attribute name="role" type="choice">
+            <attribute name="role" type="text">
                 <option name="mandatory">true</option>
                 <option name="min_length">1</option>
                 <option name="max_length">255</option>
-                <option name="allowed_values">
-                    <option name="administrator">administrator</option>
-                    <option name="user">user</option>
-                </option>
             </attribute>
             <attribute name="firstname" type="text">
                 <option name="max_length">100</option>

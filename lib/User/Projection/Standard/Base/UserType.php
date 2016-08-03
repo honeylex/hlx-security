@@ -64,17 +64,13 @@ abstract class UserType extends ProjectionType
                         'mandatory' => true,
                     )
                 ),
-                new \Trellis\Runtime\Attribute\Choice\ChoiceAttribute(
+                new \Trellis\Runtime\Attribute\Text\TextAttribute(
                     'role',
                     $this,
                     array(
                         'mandatory' => true,
                         'min_length' => 1,
                         'max_length' => 255,
-                        'allowed_values' => array(
-                            'administrator' => 'administrator',
-                            'user' => 'user',
-                        ),
                     )
                 ),
                 new \Trellis\Runtime\Attribute\Text\TextAttribute(

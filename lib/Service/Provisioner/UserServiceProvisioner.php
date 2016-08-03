@@ -40,8 +40,8 @@ class UserServiceProvisioner extends SilexServiceProvisioner
         // Make the user service upfront for the security provider
         $app[$serviceKey] = $injector->make($service);
 
-        // logout handler registration
-        $app['security.authentication.logout_handler.secure'] = function () use ($injector, $provisionerSettings) {
+        // logout handler registration - 'default' matching firewall name
+        $app['security.authentication.logout_handler.default'] = function () use ($injector, $provisionerSettings) {
             return $injector->make($provisionerSettings->get('logout_handler'));
         };
 
@@ -80,7 +80,8 @@ class UserServiceProvisioner extends SilexServiceProvisioner
                             ],
                             'logout' => [
                                 'logout_path' => "$routing_prefix/logout",
-                                'invalidate_session' => true
+                                'invalidate_session' => true,
+                                'with_csrf' => true
                             ],
                             'remember_me' => array_merge(
                                 [ 'name' => 'HLX_SECURITY' ],
@@ -89,7 +90,14 @@ class UserServiceProvisioner extends SilexServiceProvisioner
                             'users' => $app[$serviceKey]
                         ]
                     ]
-                )
+                ),
+                'security.access_rules' => [
+                    [ '^/user', 'ROLE_ADMIN' ]
+                ],
+                'security.role_hierarchy' => [
+                    'administrator' => [ 'ROLE_ADMIN' ],
+                    'user' => [ 'ROLE_USER' ]
+                ]
             ]
         );
 

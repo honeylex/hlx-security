@@ -102,7 +102,7 @@ class RegistrationController
             ->add('firstname', TextType::CLASS, [ 'required' => false ])
             ->add('lastname', TextType::CLASS, [ 'required' => false ])
             ->add('role', ChoiceType::CLASS, [
-                'choices' => [ 'administrator' => 'administrator', 'user' => 'user' ],
+                'choices' => [ 'Administrator' => 'administrator', 'User' => 'user' ],
                 'constraints' => new Choice([ 'administrator', 'user' ]),
             ])
             ->getForm();
