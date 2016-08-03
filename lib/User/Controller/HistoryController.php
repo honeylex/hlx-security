@@ -89,7 +89,7 @@ class HistoryController
         }
 
         return $this->templateRenderer->render(
-            '@Security/user/history.html.twig',
+            '@hlx-security/user/history.html.twig',
             [ 'history' => $historyData ]
         );
     }

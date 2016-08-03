@@ -155,7 +155,7 @@ class ListController
         $search = $this->fetchUserList($query, $page, $limit);
 
         return $this->templateRenderer->render(
-            '@Security/user/list.html.twig',
+            '@hlx-security/user/list.html.twig',
             [
                 'q' => '',
                 'user_list' => $search,

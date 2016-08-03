@@ -57,7 +57,7 @@ class PasswordController
         $form = $this->buildForm($this->formFactory, [ 'token' => $token ]);
 
         return $this->templateRenderer->render(
-            '@Security/password.html.twig',
+            '@hlx-security/password.html.twig',
             [ 'form' => $form->createView() ]
         );
     }
@@ -69,7 +69,7 @@ class PasswordController
 
         if (!$form->isValid()) {
             return $this->templateRenderer->render(
-                '@Security/password.html.twig',
+                '@hlx-security/password.html.twig',
                 [ 'form' => $form->createView() ]
             );
         }
@@ -84,7 +84,7 @@ class PasswordController
 
         if (!$result instanceof Success) {
             return $this->templateRenderer->render(
-                '@Security/password.html.twig',
+                '@hlx-security/password.html.twig',
                 [ 'form' => $form->createView(), 'errors' => $result->get() ]
             );
         }

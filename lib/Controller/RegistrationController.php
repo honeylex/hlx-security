@@ -57,7 +57,7 @@ class RegistrationController
         $form = $this->buildRegistrationForm($this->formFactory);
 
         return $this->templateRenderer->render(
-            '@Security/registration.html.twig',
+            '@hlx-security/registration.html.twig',
             [ 'form' => $form->createView() ]
         );
     }
@@ -70,7 +70,7 @@ class RegistrationController
 
         if (!$form->isValid()) {
             return $this->templateRenderer->render(
-                '@Security/registration.html.twig',
+                '@hlx-security/registration.html.twig',
                 [ 'form' => $form->createView() ]
             );
         }
@@ -84,7 +84,7 @@ class RegistrationController
 
         if (!$result instanceof Success) {
             return $this->templateRenderer->render(
-                '@Security/registration.html.twig',
+                '@hlx-security/registration.html.twig',
                 [ 'form' => $form->createView(), 'errors' => $result->get() ]
             );
         }

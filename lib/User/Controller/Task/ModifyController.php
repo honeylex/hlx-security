@@ -57,7 +57,7 @@ class ModifyController
         $form = $this->buildUserForm($user->toArray());
 
         return $this->templateRenderer->render(
-            '@Security/user/task/modify.html.twig',
+            '@hlx-security/user/task/modify.html.twig',
             [ 'form' => $form->createView(), 'user' => $user ]
         );
     }
@@ -70,7 +70,7 @@ class ModifyController
 
         if (!$form->isValid()) {
             return $this->templateRenderer->render(
-                '@Security/user/task/modify.html.twig',
+                '@hlx-security/user/task/modify.html.twig',
                 [ 'form' => $form->createView(), 'user' => $user ]
             );
         }
@@ -82,7 +82,7 @@ class ModifyController
 
         if (!$result instanceof Success) {
             return $this->templateRenderer->render(
-                '@Security/user/task/modify.html.twig',
+                '@hlx-security/user/task/modify.html.twig',
                 [ 'form' => $form->createView(), 'user' => $user, 'errors' => $result->get() ]
             );
         }
