@@ -29,5 +29,4 @@ use Hlx\Security\User\Projection\Standard\Base\User as BaseUser;
  */
 class User extends BaseUser
 {
-
 }

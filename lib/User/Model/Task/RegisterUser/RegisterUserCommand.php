@@ -1,11 +1,11 @@
 <?php
 
-namespace Hlx\Security\User\Model\Task\CreateUser;
+namespace Hlx\Security\User\Model\Task\RegisterUser;
 
 use Assert\Assertion;
 use Honeybee\Model\Task\CreateAggregateRoot\CreateAggregateRootCommand;
 
-class CreateUserCommand extends CreateAggregateRootCommand
+class RegisterUserCommand extends CreateAggregateRootCommand
 {
     const DATE_ISO8601_WITH_MICROS = 'Y-m-d\TH:i:s.uP';
 
@@ -15,7 +15,7 @@ class CreateUserCommand extends CreateAggregateRootCommand
 
     public function getEventClass()
     {
-        return UserCreatedEvent::CLASS;
+        return UserRegisteredEvent::CLASS;
     }
 
     public function getVerificationExpiresAt()
@@ -32,9 +32,7 @@ class CreateUserCommand extends CreateAggregateRootCommand
     {
         parent::guardRequiredState();
 
-        if (!is_null($this->verification_expires_at)) {
-            Assertion::date($this->verification_expires_at, self::DATE_ISO8601_WITH_MICROS);
-        }
+        Assertion::nullOrDate($this->verification_expires_at, self::DATE_ISO8601_WITH_MICROS);
         Assertion::regex($this->verification_token, '#\w{16,64}#i');
     }
 }

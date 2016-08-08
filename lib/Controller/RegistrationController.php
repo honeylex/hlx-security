@@ -3,7 +3,7 @@
 namespace Hlx\Security\Controller;
 
 use Hlx\Security\User\Model\Aggregate\UserType;
-use Hlx\Security\User\Model\Task\CreateUser\CreateUserCommand;
+use Hlx\Security\User\Model\Task\RegisterUser\RegisterUserCommand;
 use Honeybee\Common\Util\StringToolkit;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
@@ -77,7 +77,7 @@ class RegistrationController
 
         // build and check command
         $token = StringToolkit::generateRandomToken();
-        $result = (new AggregateRootCommandBuilder($this->userType, CreateUserCommand::CLASS))
+        $result = (new AggregateRootCommandBuilder($this->userType, RegisterUserCommand::CLASS))
             ->withValues($form->getData())
             ->withVerificationToken($token)
             ->build();

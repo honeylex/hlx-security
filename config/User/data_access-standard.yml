@@ -21,8 +21,6 @@ storage_readers:
     settings:
       index: ${project.database.prefix}.hlx-security
       type: hlx-security-user-standard
-    dependencies:
-      projection_type: Hlx\Security\User\Projection\Standard\UserType
 
 finders:
   hlx.security.user::projection.standard::view_store::finder:
@@ -32,8 +30,6 @@ finders:
       index: ${project.database.prefix}.hlx-security
       type: hlx-security-user-standard
       log_search_query: false
-    dependencies:
-      projection_type: Hlx\Security\User\Projection\Standard\UserType
 
 query_services:
   hlx.security.user::projection.standard::query_service:

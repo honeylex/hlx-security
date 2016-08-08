@@ -4,11 +4,13 @@ namespace Hlx\Security\User\Controller;
 
 use Carbon\Carbon;
 use Hlx\Security\User\Model\Aggregate\UserType;
-use Hlx\Security\User\Model\Task\CreateUser\UserCreatedEvent;
 use Hlx\Security\User\Model\Task\LogoutUser\UserLoggedOutEvent;
 use Hlx\Security\User\Model\Task\ModifyUser\UserModifiedEvent;
 use Hlx\Security\User\Model\Task\ProceedUserWorkflow\UserWorkflowProceededEvent;
+use Hlx\Security\User\Model\Task\RegisterOauthUser\OauthUserRegisteredEvent;
+use Hlx\Security\User\Model\Task\RegisterUser\UserRegisteredEvent;
 use Hlx\Security\User\Model\Task\SetUserPassword\UserPasswordSetEvent;
+use Hlx\Security\User\Model\Task\UpdateOauthUser\OauthUserUpdatedEvent;
 use Honeybee\Infrastructure\DataAccess\Storage\StorageReaderMap;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,15 +40,25 @@ class HistoryController
         $historyData = [];
         foreach ($eventStream->getEvents()->reverse() as $event) {
             $sentiment = '';
-            if ($event instanceof UserCreatedEvent) {
+            if ($event instanceof UserRegisteredEvent) {
                 $type = 'create';
                 $sentiment = 'success';
-                $title = 'User created';
+                $title = 'User registered';
+                $icon = 'glyphicon-plus';
+            } elseif ($event instanceof OauthUserRegisteredEvent) {
+                $type = 'create';
+                $sentiment = 'success';
+                $title = 'Oauth user registered';
                 $icon = 'glyphicon-plus';
             } elseif ($event instanceof UserModifiedEvent) {
                 $type = 'modify';
                 $sentiment = 'success';
                 $title = 'User data was modified';
+                $icon = 'glyphicon-pencil';
+            } elseif ($event instanceof OauthUserUpdatedEvent) {
+                $type = 'modify';
+                $sentiment = 'success';
+                $title = 'User was modified via Oauth';
                 $icon = 'glyphicon-pencil';
             } elseif ($event instanceof UserWorkflowProceededEvent) {
                 $title = 'User was ';

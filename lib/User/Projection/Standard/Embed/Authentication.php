@@ -28,5 +28,4 @@ use Hlx\Security\User\Projection\Standard\Embed\Base\Authentication as BaseAuthe
  */
 class Authentication extends BaseAuthentication
 {
-
 }

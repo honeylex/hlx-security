@@ -76,6 +76,14 @@
         "tokens": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "service": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
                 "token": {
                     "type": "string",
                     "index": "not_analyzed"

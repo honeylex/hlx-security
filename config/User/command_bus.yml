@@ -1,8 +1,12 @@
 subscriptions:
   - transport: sync
     commands:
-      hlx.security.user.create_user:
-        handler: Hlx\Security\User\Model\Task\CreateUser\CreateUserCommandHandler
+      hlx.security.user.register_user:
+        handler: Hlx\Security\User\Model\Task\RegisterUser\RegisterUserCommandHandler
+      hlx.security.user.register_oauth_user:
+        handler: Hlx\Security\User\Model\Task\RegisterOauthUser\RegisterOauthUserCommandHandler
+      hlx.security.user.update_oauth_user:
+        handler: Hlx\Security\User\Model\Task\UpdateOauthUser\UpdateOauthUserCommandHandler
       hlx.security.user.modify_user:
         handler: Hlx\Security\User\Model\Task\ModifyUser\ModifyUserCommandHandler
       hlx.security.user.proceed_user_workflow:

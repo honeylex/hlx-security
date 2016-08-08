@@ -1,6 +1,6 @@
 <?php
 
-namespace Hlx\Security\User\Model\Task\CreateUser;
+namespace Hlx\Security\User\Model\Task\RegisterUser;
 
 use Hlx\Security\User\Model\Aggregate\UserType;
 use Honeybee\Infrastructure\Event\Bus\EventBusInterface;
@@ -8,7 +8,7 @@ use Honeybee\Infrastructure\DataAccess\DataAccessServiceInterface;
 use Honeybee\Model\Task\CreateAggregateRoot\CreateAggregateRootCommandHandler;
 use Psr\Log\LoggerInterface;
 
-class CreateUserCommandHandler extends CreateAggregateRootCommandHandler
+class RegisterUserCommandHandler extends CreateAggregateRootCommandHandler
 {
     public function __construct(
         UserType $user_type,

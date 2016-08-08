@@ -16,16 +16,4 @@ use Hlx\Security\User\Projection\Standard\Embed\Base\AuthenticationType as BaseA
  */
 class AuthenticationType extends BaseAuthenticationType
 {
-    //public function getDefaultAttributes()
-    //{
-    //    $attributes = parent::getDefaultAttributes();
-    //    $attributes['language'] = new Your\Custom\LanguageAttribute('language', array('default' => 'en_UK'));
-    //    $attributes['foobar'] = new Your\Custom\FooBarAttribute('foobar');
-    //    return $attributes;
-    //}
-    //
-    //protected function getEntityImplementor()
-    //{
-    //    return '\\Your\\Custom\\Entity';
-    //}
 }

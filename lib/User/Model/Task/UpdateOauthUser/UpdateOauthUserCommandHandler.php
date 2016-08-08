@@ -1,6 +1,6 @@
 <?php
 
-namespace Hlx\Security\User\Model\Task\SetUserPassword;
+namespace Hlx\Security\User\Model\Task\UpdateOauthUser;
 
 use Hlx\Security\User\Model\Aggregate\UserType;
 use Honeybee\Infrastructure\Command\CommandInterface;
@@ -10,7 +10,7 @@ use Honeybee\Model\Aggregate\AggregateRootInterface;
 use Honeybee\Model\Command\AggregateRootCommandHandler;
 use Psr\Log\LoggerInterface;
 
-class SetUserPasswordCommandHandler extends AggregateRootCommandHandler
+class UpdateOauthUserCommandHandler extends AggregateRootCommandHandler
 {
     public function __construct(
         UserType $user_type,
@@ -23,6 +23,6 @@ class SetUserPasswordCommandHandler extends AggregateRootCommandHandler
 
     protected function doExecute(CommandInterface $command, AggregateRootInterface $user)
     {
-        $user->setPassword($command);
+        $user->updateOauthUser($command);
     }
 }

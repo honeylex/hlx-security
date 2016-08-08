@@ -28,5 +28,4 @@ use Hlx\Security\User\Model\Aggregate\Embed\Base\Verification as BaseVerificatio
  */
 class Verification extends BaseVerification
 {
-
 }

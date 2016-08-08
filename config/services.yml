@@ -8,6 +8,13 @@ hlx.security.user.auth_service:
     settings:
       alias: Honeybee\Infrastructure\Security\Auth\AuthServiceInterface
 
+hlx.security.user.registration_service:
+  class: Hlx\Security\Service\StandardRegistrationService
+  provisioner:
+    class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\DefaultProvisioner
+    settings:
+      alias: Hlx\Security\Service\RegistrationServiceInterface
+
 hlx.security.user.user_service:
   class: Hlx\Security\Service\UserService
   provisioner:

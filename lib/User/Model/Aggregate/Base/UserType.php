@@ -51,56 +51,37 @@ abstract class UserType extends AggregateRootType
                 new \Trellis\Runtime\Attribute\Text\TextAttribute(
                     'username',
                     $this,
-                    array(
-                        'mandatory' => true,
-                        'min_length' => 1,
-                        'max_length' => 50,
-                    )
+                    []
                 ),
                 new \Trellis\Runtime\Attribute\Email\EmailAttribute(
                     'email',
                     $this,
-                    array(
-                        'mandatory' => true,
-                    )
+                    []
                 ),
                 new \Trellis\Runtime\Attribute\Text\TextAttribute(
                     'role',
                     $this,
-                    array(
-                        'mandatory' => true,
-                        'min_length' => 1,
-                        'max_length' => 255,
-                    )
+                    []
                 ),
                 new \Trellis\Runtime\Attribute\Text\TextAttribute(
                     'firstname',
                     $this,
-                    array(
-                        'max_length' => 100,
-                    )
+                    []
                 ),
                 new \Trellis\Runtime\Attribute\Text\TextAttribute(
                     'lastname',
                     $this,
-                    array(
-                        'max_length' => 100,
-                    )
+                    []
                 ),
                 new \Trellis\Runtime\Attribute\Text\TextAttribute(
                     'password_hash',
                     $this,
-                    array(
-                        'min_length' => 50,
-                        'max_length' => 100,
-                    )
+                    []
                 ),
                 new \Trellis\Runtime\Attribute\ImageList\ImageListAttribute(
                     'images',
                     $this,
-                    array(
-                        'max_count' => 5,
-                    )
+                    []
                 ),
                 new \Trellis\Runtime\Attribute\EmbeddedEntityList\EmbeddedEntityListAttribute(
                     'tokens',
@@ -109,6 +90,7 @@ abstract class UserType extends AggregateRootType
                         'entity_types' => array(
                             '\\Hlx\\Security\\User\\Model\\Aggregate\\Embed\\VerificationType',
                             '\\Hlx\\Security\\User\\Model\\Aggregate\\Embed\\AuthenticationType',
+                            '\\Hlx\\Security\\User\\Model\\Aggregate\\Embed\\OauthType',
                         ),
                     )
                 ),

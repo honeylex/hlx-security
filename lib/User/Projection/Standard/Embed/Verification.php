@@ -28,5 +28,4 @@ use Hlx\Security\User\Projection\Standard\Embed\Base\Verification as BaseVerific
  */
 class Verification extends BaseVerification
 {
-
 }

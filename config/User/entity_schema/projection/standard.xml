@@ -35,5 +35,15 @@
                 <attribute name="expires_at" type="timestamp" />
             </attributes>
         </embed_definition>
+        <embed_definition name="Oauth">
+            <implementor>\Honeybee\Projection\EmbeddedEntityType</implementor>
+            <entity_implementor>\Honeybee\Projection\EmbeddedEntity</entity_implementor>
+            <attributes>
+                <attribute name="id" type="text" />
+                <attribute name="service" type="text" />
+                <attribute name="token" type="text" />
+                <attribute name="expires_at" type="timestamp" />
+            </attributes>
+        </embed_definition>
     </embed_definitions>
 </type_schema>

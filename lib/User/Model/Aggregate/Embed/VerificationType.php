@@ -16,16 +16,4 @@ use Hlx\Security\User\Model\Aggregate\Embed\Base\VerificationType as BaseVerific
  */
 class VerificationType extends BaseVerificationType
 {
-    //public function getDefaultAttributes()
-    //{
-    //    $attributes = parent::getDefaultAttributes();
-    //    $attributes['language'] = new Your\Custom\LanguageAttribute('language', array('default' => 'en_UK'));
-    //    $attributes['foobar'] = new Your\Custom\FooBarAttribute('foobar');
-    //    return $attributes;
-    //}
-    //
-    //protected function getEntityImplementor()
-    //{
-    //    return '\\Your\\Custom\\Entity';
-    //}
 }

@@ -2,6 +2,7 @@
 
 namespace Hlx\Security\Service;
 
+use Hlx\Security\User\Projection\Standard\User;
 use Honeybee\Infrastructure\Config\ConfigInterface;
 use Honeybee\Infrastructure\DataAccess\Query\AttributeCriteria;
 use Honeybee\Infrastructure\DataAccess\Query\Comparison\Equals;
@@ -18,18 +19,18 @@ class StandardAuthService implements AuthServiceInterface
 
     protected $config;
 
-    protected $query_service_map;
+    protected $queryServiceMap;
 
-    protected $password_handler;
+    protected $passwordHandler;
 
     public function __construct(
         ConfigInterface $config,
-        QueryServiceMap $query_service_map,
-        CryptedPasswordHandler $password_handler
+        QueryServiceMap $queryServiceMap,
+        CryptedPasswordHandler $passwordHandler
     ) {
         $this->config = $config;
-        $this->query_service_map = $query_service_map;
-        $this->password_handler = $password_handler;
+        $this->queryServiceMap = $queryServiceMap;
+        $this->passwordHandler = $passwordHandler;
     }
 
     public function getTypeKey()
@@ -39,7 +40,7 @@ class StandardAuthService implements AuthServiceInterface
 
     public function findByUsername($username)
     {
-        $query_result = $this->getProjectionQueryService()->find(
+        $queryResult = $this->getProjectionQueryService()->find(
             new CriteriaQuery(
                 new CriteriaList,
                 new CriteriaList([ new AttributeCriteria('username', new Equals($username)) ]),
@@ -50,17 +51,17 @@ class StandardAuthService implements AuthServiceInterface
         );
 
         $user = null;
-        if (1 === $query_result->getTotalCount()) {
-            $user = $query_result->getFirstResult();
+        if (1 === $queryResult->getTotalCount()) {
+            $user = $queryResult->getFirstResult();
         }
 
         return $user;
     }
 
-    // @todo nested query
+    // @note could match multiple users since type filter is not applied
     public function findByToken($token, $type)
     {
-        $query_result = $this->getProjectionQueryService()->find(
+        $queryResult = $this->getProjectionQueryService()->find(
             new CriteriaQuery(
                 new CriteriaList,
                 new CriteriaList([
@@ -73,8 +74,28 @@ class StandardAuthService implements AuthServiceInterface
         );
 
         $user = null;
-        if (1 === $query_result->getTotalCount()) {
-            $user = $query_result->getFirstResult();
+        if (1 === $queryResult->getTotalCount()) {
+            $user = $queryResult->getFirstResult();
+        }
+
+        return $user;
+    }
+
+    public function findByEmail($email)
+    {
+        $queryResult = $this->getProjectionQueryService()->find(
+            new CriteriaQuery(
+                new CriteriaList,
+                new CriteriaList([ new AttributeCriteria('email', new Equals($email)) ]),
+                new CriteriaList,
+                0,
+                1
+            )
+        );
+
+        $user = null;
+        if (1 === $queryResult->getTotalCount()) {
+            $user = $queryResult->getFirstResult();
         }
 
         return $user;
@@ -86,22 +107,22 @@ class StandardAuthService implements AuthServiceInterface
         // proxies user look up and password verification through the UserService
     }
 
-    public function verifyPassword($password, $password_hash)
+    public function verifyPassword($password, $passwordHash)
     {
-        return $this->password_handler->verify($password, $password_hash);
+        return $this->passwordHandler->verify($password, $passwordHash);
     }
 
     public function encodePassword($password)
     {
-        return $this->password_handler->hash($password);
+        return $this->passwordHandler->hash($password);
     }
 
     protected function getProjectionQueryService()
     {
-        $query_service_key = $this->config->get(
+        $queryServiceKey = $this->config->get(
             'query_service',
             'hlx.security.user::projection.standard::query_service'
         );
-        return $this->query_service_map->getItem($query_service_key);
+        return $this->queryServiceMap->getItem($queryServiceKey);
     }
 }

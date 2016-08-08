@@ -1,11 +1,10 @@
 <?php
 
-namespace Hlx\Security\Service;
+namespace Hlx\Security\Authenticator;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -13,13 +12,6 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
 class TokenAuthenticator extends AbstractGuardAuthenticator
 {
-    protected $encoderFactory;
-
-    public function __construct(EncoderFactoryInterface $encoderFactory)
-    {
-        $this->encoderFactory = $encoderFactory;
-    }
-
     public function getCredentials(Request $request)
     {
         // Checks if the credential header is provided

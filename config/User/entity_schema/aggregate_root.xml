@@ -15,36 +15,18 @@
         </options>
         <!-- attribute definitions -->
         <attributes>
-            <attribute name="username" type="text">
-                <option name="mandatory">true</option>
-                <option name="min_length">1</option>
-                <option name="max_length">50</option>
-            </attribute>
-            <attribute name="email" type="email">
-                <option name="mandatory">true</option>
-            </attribute>
-            <attribute name="role" type="text">
-                <option name="mandatory">true</option>
-                <option name="min_length">1</option>
-                <option name="max_length">255</option>
-            </attribute>
-            <attribute name="firstname" type="text">
-                <option name="max_length">100</option>
-            </attribute>
-            <attribute name="lastname" type="text">
-                <option name="max_length">100</option>
-            </attribute>
-            <attribute name="password_hash" type="text">
-                <option name="min_length">50</option>
-                <option name="max_length">100</option>
-            </attribute>
-            <attribute name="images" type="image-list">
-                <option name="max_count">5</option>
-            </attribute>
+            <attribute name="username" type="text" />
+            <attribute name="email" type="email" />
+            <attribute name="role" type="text" />
+            <attribute name="firstname" type="text" />
+            <attribute name="lastname" type="text" />
+            <attribute name="password_hash" type="text" />
+            <attribute name="images" type="image-list" />
             <attribute name="tokens" type="embedded-entity-list">
                 <option name="entity_types">
                     <option>Verification</option>
                     <option>Authentication</option>
+                    <option>Oauth</option>
                 </option>
             </attribute>
         </attributes>
@@ -67,6 +49,24 @@
             <implementor>\Honeybee\Model\Aggregate\EmbeddedEntityType</implementor>
             <entity_implementor>\Honeybee\Model\Aggregate\EmbeddedEntity</entity_implementor>
             <attributes>
+                <attribute name="token" type="text">
+                    <option name="mandatory">true</option>
+                </attribute>
+                <attribute name="expires_at" type="timestamp">
+                    <option name="format_native">Y-m-d\TH:i:s.uP</option>
+                </attribute>
+            </attributes>
+        </embed_definition>
+        <embed_definition name="Oauth">
+            <implementor>\Honeybee\Model\Aggregate\EmbeddedEntityType</implementor>
+            <entity_implementor>\Honeybee\Model\Aggregate\EmbeddedEntity</entity_implementor>
+            <attributes>
+                <attribute name="id" type="text">
+                    <option name="mandatory">true</option>
+                </attribute>
+                <attribute name="service" type="text">
+                    <option name="mandatory">true</option>
+                </attribute>
                 <attribute name="token" type="text">
                     <option name="mandatory">true</option>
                 </attribute>

@@ -1,12 +1,12 @@
 <?php
 
-namespace Hlx\Security\User\Model\Aggregate\Embed;
+namespace Hlx\Security\User\Projection\Standard\Embed;
 
-use Hlx\Security\User\Model\Aggregate\Embed\Base\Authentication as BaseAuthentication;
+use Hlx\Security\User\Projection\Standard\Embed\Base\Oauth as BaseOauth;
 
 /**
  * This class may be used to customize the behaviour of the
- * 'Authentication' entities and has built-in validation and
+ * 'Oauth' entities and has built-in validation and
  * change tracking.
  *
  *
@@ -26,6 +26,6 @@ use Hlx\Security\User\Model\Aggregate\Embed\Base\Authentication as BaseAuthentic
  *
  * For more information and hooks have a look at the base classes.
  */
-class Authentication extends BaseAuthentication
+class Oauth extends BaseOauth
 {
 }
