@@ -7,8 +7,6 @@ use Gigablah\Silex\OAuth\Security\User\Provider\OAuthUserProviderInterface;
 use Hlx\Security\User\User;
 use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -44,7 +42,7 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface, OA
         $security_user = $this->authService->findByToken($token, $type);
 
         if (!$security_user) {
-            throw new TokenNotFoundException;
+            throw new UsernameNotFoundException;
         }
 
         return new User($security_user->toArray());
@@ -55,7 +53,7 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface, OA
         $security_user = $this->authService->findByEmail($email);
 
         if (!$security_user) {
-            throw new AuthenticationException;
+            throw new UsernameNotFoundException;
         }
 
         return new User($security_user->toArray());
@@ -63,22 +61,17 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface, OA
 
     public function loadUserByOAuthCredentials(OAuthTokenInterface $token)
     {
-        $security_user = $this->authService->findByEmail($token->getEmail());
-
-        if (!$security_user) {
+        try {
+            $user = $this->loadUserByEmail($token->getEmail());
+            $this->registrationService->updateOauthUser($user, $token);
+        } catch (UsernameNotFoundException $error) {
             $this->registrationService->registerOauthUser($token);
-            $security_user = $this->authService->findByEmail($token->getEmail());
-        } else {
-            $this->registrationService->updateOauthUser($security_user, $token);
+            $user = $this->loadUserByEmail($token->getEmail());
         }
 
-        if (!$security_user) {
-            throw new AuthenticationException;
-        }
+        $this->registrationService->verifyUser($user);
 
-        $this->registrationService->verifyUser($security_user);
-
-        return new User($security_user->toArray());
+        return $user;
     }
 
     public function refreshUser(UserInterface $user)

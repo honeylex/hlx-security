@@ -9,7 +9,7 @@ hlx.security.auth_service:
       alias: Honeybee\Infrastructure\Security\Auth\AuthServiceInterface
 
 hlx.security.registration_service:
-  class: Hlx\Security\Service\StandardRegistrationService
+  class: Hlx\Security\Service\RegistrationService
   provisioner:
     class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\DefaultProvisioner
     settings:
