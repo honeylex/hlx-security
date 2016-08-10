@@ -4,9 +4,9 @@ namespace Hlx\Security\Service;
 
 use Gigablah\Silex\OAuth\Security\Authentication\Token\OAuthTokenInterface;
 use Hlx\Security\User\Model\Aggregate\UserType;
-use Hlx\Security\User\Model\Task\ProceedUserWorkflow\ProceedUserWorkflowCommand;
 use Hlx\Security\User\Model\Task\RegisterOauthUser\RegisterOauthUserCommand;
 use Hlx\Security\User\Model\Task\RegisterUser\RegisterUserCommand;
+use Hlx\Security\User\Model\Task\VerifyUser\VerifyUserCommand;
 use Hlx\Security\User\Model\Task\UpdateOauthUser\UpdateOauthUserCommand;
 use Hlx\Security\User\User;
 use Honeybee\Common\Util\StringToolkit;
@@ -110,19 +110,19 @@ class RegistrationService implements RegistrationServiceInterface
 
     public function verifyUser(User $user)
     {
-        $currentStateName = $user->getWorkflowState();
+        if ($user->getWorkflowState() === 'verified') {
+            return;
+        }
 
-        if ($currentStateName !== 'unverified') {
+        if ($user->getWorkflowState() !== 'unverified') {
             throw new CustomUserMessageAuthenticationException(
                 sprintf('Cannot verify user "%s".', $user->getUsername())
             );
         }
 
-        $result = (new AggregateRootCommandBuilder($this->userType, ProceedUserWorkflowCommand::CLASS))
+        $result = (new AggregateRootCommandBuilder($this->userType, VerifyUserCommand::CLASS))
             ->withAggregateRootIdentifier($user->getIdentifier())
             ->withKnownRevision($user->getRevision())
-            ->withCurrentStateName($currentStateName)
-            ->withEventName('promote')
             ->build();
 
         if (!$result instanceof Success) {

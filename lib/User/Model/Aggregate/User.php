@@ -20,9 +20,12 @@ use Hlx\Security\User\Model\Task\RegisterUser\UserRegisteredEvent;
 use Hlx\Security\User\Model\Task\RemoveToken\TokenRemovedEvent;
 use Hlx\Security\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
 use Hlx\Security\User\Model\Task\SetUserPassword\UserPasswordSetEvent;
+use Hlx\Security\User\Model\Task\VerifyUser\UserVerifiedEvent;
+use Hlx\Security\User\Model\Task\VerifyUser\VerifyUserCommand;
 use Honeybee\Common\Error\RuntimeError;
 use Honeybee\Common\Util\StringToolkit;
 use Honeybee\EntityInterface;
+use Honeybee\Model\Aggregate\WorkflowSubject;
 use Honeybee\Model\Event\EmbeddedEntityEventList;
 use Honeybee\Model\Task\CreateAggregateRoot\CreateAggregateRootCommand;
 use Ramsey\Uuid\Uuid;
@@ -59,7 +62,7 @@ class User extends BaseUser
     {
         $this->guardCommandPreConditions($command);
 
-        foreach ($this->getValue('tokens') as $position => $token) {
+        foreach ($this->getTokens() as $position => $token) {
             if ($token instanceof Authentication) {
                 $this->applyEvent(new UserPasswordSetEvent([
                     'metadata' => $command->getMetadata(),
@@ -106,7 +109,7 @@ class User extends BaseUser
                         'identifier' => $tokenUuid,
                         'token' => StringToolkit::generateRandomToken()
                     ],
-                    'position' => count($this->getValue('tokens')),
+                    'position' => count($this->getTokens()),
                     'embedded_entity_identifier' => $tokenUuid,
                     'embedded_entity_type' => 'authentication',
                     'parent_attribute_name' => 'tokens',
@@ -205,7 +208,7 @@ class User extends BaseUser
     {
         $this->guardCommandPreConditions($command);
 
-        foreach ($this->getValue('tokens') as $position => $token) {
+        foreach ($this->getTokens() as $position => $token) {
             if ($token instanceof Authentication) {
                 $this->applyEvent(new UserLoggedOutEvent([
                     'metadata' => $command->getMetadata(),
@@ -239,7 +242,7 @@ class User extends BaseUser
     {
         $this->guardCommandPreConditions($command);
 
-        foreach ($this->getValue('tokens') as $position => $token) {
+        foreach ($this->getTokens() as $position => $token) {
             if ($token instanceof Oauth && $token->getValue('service') === $command->getService()) {
                 if ($token->getToken() !== $command->getToken()) {
                     // update token only if it has changed
@@ -291,7 +294,7 @@ class User extends BaseUser
                         'token' => $command->getToken(),
                         'expires_at' => $command->getExpiresAt()
                     ],
-                    'position' => count($this->getValue('tokens')),
+                    'position' => count($this->getTokens()),
                     'embedded_entity_identifier' => $tokenUuid,
                     'embedded_entity_type' => 'oauth',
                     'parent_attribute_name' => 'tokens',
@@ -299,5 +302,70 @@ class User extends BaseUser
                 ])
             ])
         ]));
+    }
+
+    /*
+     * Verify user account and remove verification token if present
+     */
+    public function verifyUser(VerifyUserCommand $command)
+    {
+        $this->guardCommandPreConditions($command);
+
+        if ($command->getCurrentStateName() !== $this->getWorkflowState()) {
+            throw new RuntimeError(
+                sprintf(
+                    'The AR\'s(%s) current state %s does not match the given command state %s.',
+                    $this,
+                    $this->getWorkflowState(),
+                    $command->getCurrentStateName()
+                )
+            );
+        }
+
+        $workflowSubject = new WorkflowSubject($this->state_machine->getName(), $this);
+        $this->state_machine->execute($workflowSubject, $command->getEventName());
+
+        $eventData = [
+            'metadata' => $command->getMetadata(),
+            'uuid' => $this->getUuid(),
+            'seq_number' => $this->getRevision() + 1,
+            'aggregate_root_type' => $this->getType()->getPrefix(),
+            'aggregate_root_identifier' => $this->getIdentifier(),
+            'data' => [
+                'workflow_state' => $workflowSubject->getCurrentStateName(),
+                'workflow_parameters' => $workflowSubject->getWorkflowParameters()
+            ],
+            'embedded_entity_events' => new EmbeddedEntityEventList
+        ];
+
+        // @todo make sure embedded events are applied
+        $reposition = false;
+        foreach ($this->getTokens() as $position => $token) {
+            if ($token instanceof Verification) {
+                $eventData['embedded_entity_events']->addItem(
+                    new TokenRemovedEvent([
+                        'data' => [],
+                        'embedded_entity_identifier' => $token->getIdentifier(),
+                        'embedded_entity_type' => 'verification',
+                        'parent_attribute_name' => 'tokens',
+                        'embedded_entity_events' => []
+                    ])
+                );
+                $reposition = true;
+            } elseif (true === $reposition) {
+                $eventData['embedded_entity_events']->addItem(
+                    new TokenModifiedEvent([
+                        'data' => [],
+                        'position' => $position - 1,
+                        'embedded_entity_identifier' => $token->getIdentifier(),
+                        'embedded_entity_type' => $token->getType()->getPrefix(),
+                        'parent_attribute_name' => 'tokens',
+                        'embedded_entity_events' => []
+                    ])
+                );
+            }
+        }
+
+        $this->applyEvent(new UserVerifiedEvent($eventData));
     }
 }
