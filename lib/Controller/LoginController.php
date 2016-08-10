@@ -73,7 +73,6 @@ class LoginController implements LogoutSuccessHandlerInterface
             $result = (new AggregateRootCommandBuilder($this->userType, LogoutUserCommand::CLASS))
                 ->withAggregateRootIdentifier($user->getIdentifier())
                 ->withKnownRevision($user->getRevision())
-                ->withValues([]) // @todo default empty values?
                 ->build();
 
             if (!$result instanceof Success) {

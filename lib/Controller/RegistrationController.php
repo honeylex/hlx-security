@@ -13,7 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Length;
@@ -68,16 +68,21 @@ class RegistrationController
         }
 
         try {
+            $username = $form->getData()['username'];
+            $user = $this->userService->loadUserByUsername($username);
+        } catch (UsernameNotFoundException $error) {
             $token = StringToolkit::generateRandomToken();
             $this->registrationService->registerUser($form->getData(), $token);
-        } catch (AuthenticationException $error) {
-            return $this->templateRenderer->render(
-                '@hlx-security/registration.html.twig',
-                [ 'form' => $form->createView(), 'errors' => $error->getMessage() ]
-            );
+            return $app->redirect($this->urlGenerator->generate('hlx.security.password', [ 'token' => $token ]));
         }
 
-        return $app->redirect($this->urlGenerator->generate('hlx.security.password', [ 'token' => $token ]));
+        return $this->templateRenderer->render(
+            '@hlx-security/registration.html.twig',
+            [
+                'form' => $this->buildRegistrationForm($this->formFactory)->createView(),
+                'errors' => 'This user is already registered.'
+            ]
+        );
     }
 
     public function verify(Request $request, Application $app)

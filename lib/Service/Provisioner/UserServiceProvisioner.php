@@ -90,7 +90,7 @@ class UserServiceProvisioner extends SilexServiceProvisioner
             'oauth' => [
                 // provide security context to default firewall
                 'context' => $oauth_settings->get('context', 'default'),
-                'pattern' => "^$routing_prefix/auth/.*$",
+                'pattern' => "^$routing_prefix/auth/",
                 'anonymous' => true,
                 'oauth' => [
                     'login_path' => "$routing_prefix/auth/{service}",
@@ -113,6 +113,10 @@ class UserServiceProvisioner extends SilexServiceProvisioner
                     $custom_firewalls,
                     $oauth_firewalls,
                     [
+                        'dev' => [
+                            'pattern' => '^/_(profiler|wdt)/',
+                            'security' => false
+                        ],
                         'login' => [ 'pattern' => "^$routing_prefix/login$" ],
                         'registration' => [ 'pattern' => "^$routing_prefix/registration$" ],
                         'verification' => [ 'pattern' => "^$routing_prefix/verify$" ],
