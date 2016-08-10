@@ -1,0 +1,6 @@
+Welcome {{ username }},
+
+Thank you for registering with {{ project_name }}. Please follow the link provided
+to complete verification of your email address.
+
+{{ url('hlx.security.verify', { token: verification_token }) }}

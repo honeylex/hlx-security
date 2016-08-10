@@ -14,3 +14,4 @@ $routing->get('/registration', [ RegistrationController::CLASS, 'read' ])->bind(
 $routing->post('/registration', [ RegistrationController::CLASS, 'write' ]);
 $routing->get('/password', [ PasswordController::CLASS, 'read' ])->bind($this->getPrefix().'.password');
 $routing->post('/password', [ PasswordController::CLASS, 'write' ]);
+$routing->get('/verify', [ RegistrationController::CLASS, 'verify' ])->bind($this->getPrefix().'.verify');

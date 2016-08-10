@@ -1,0 +1,18 @@
+channels:
+  honeybee.events.domain:
+    - transport: sync
+      enabled: true
+      filters:
+        - settings:
+            expression: event.getType() matches "/^hlx\.security\.user\..*/"
+      handlers:
+        - class: Hlx\Security\User\Projection\EventHandler\UserProjectionUpdater
+
+  honeybee.events.replay:
+    - transport: sync
+      enabled: true
+      filters:
+        - settings:
+            expression: event.getType() matches "/^hlx\.security\.user\..*/"
+      handlers:
+        - class: Honeybee\Projection\EventHandler\ProjectionUpdater

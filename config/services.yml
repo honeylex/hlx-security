@@ -1,21 +1,21 @@
 #
 # service configuration for the Security crate
 ---
-hlx.security.user.auth_service:
+hlx.security.auth_service:
   class: Hlx\Security\Service\StandardAuthService
   provisioner:
     class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\DefaultProvisioner
     settings:
       alias: Honeybee\Infrastructure\Security\Auth\AuthServiceInterface
 
-hlx.security.user.registration_service:
+hlx.security.registration_service:
   class: Hlx\Security\Service\StandardRegistrationService
   provisioner:
     class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\DefaultProvisioner
     settings:
       alias: Hlx\Security\Service\RegistrationServiceInterface
 
-hlx.security.user.user_service:
+hlx.security.user_service:
   class: Hlx\Security\Service\UserService
   provisioner:
     class: Hlx\Security\Service\Provisioner\UserServiceProvisioner
@@ -25,7 +25,7 @@ hlx.security.user.user_service:
       logout_handler: Hlx\Security\Controller\LoginController
       alias: Symfony\Component\Security\Core\User\UserProviderInterface
 
-hlx.security.user.token_storage:
+hlx.security.token_storage:
   class: Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage
   provisioner:
     class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\SilexServiceProvisioner
@@ -33,3 +33,14 @@ hlx.security.user.token_storage:
       app_key: security.token_storage
       share: true
       alias: Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
+
+hlx.security.mail_service:
+  class: Hlx\Security\Service\MailService
+  options:
+    project_name: ${project.name}
+    from_email: ${project.email.from_email}
+    from_name: ${project.email.from_name}
+    sender_email: ${project.email.sender_email}
+    sender_name: ${project.email.sender_name}
+    reply_email: ${project.email.reply_email}
+    reply_name: ${project.email.reply_name}
