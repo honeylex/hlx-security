@@ -2,38 +2,39 @@
 
 {% block view_classes %}resource-history-view{% endblock %}
 
-{% block content %}
-<div>
-    <div class="row">
-        <div class="col-xs-12 col-md-12">
-            <div class="page-header">
-              <h1>User <small>resource-history</small></h1>
-            </div>
+{% block header %}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="page-header">
+          <h1>User <small>resource-history</small></h1>
         </div>
     </div>
-    <div class="row">
-        <div class="col-xs-12 col-md-8">
-            <ul class="timeline">
-                {% for event in history %}
-                <li class="{% if not loop.index0 % 2 == 0 %}timeline-inverted{% endif %}">
-                    <div class="timeline-badge {{ event.badge.sentiment }}"><i class="glyphicon {{ event.badge.icon }}"></i></div>
-                    <div class="timeline-panel">
-                        <div class="timeline-heading">
-                            <h4 class="timeline-title">{{ event.title }} <small class="text-muted"><i class="glyphicon glyphicon-time"></i> {{ event.when }}</small></h4>
-                            <p></p>
-                        </div>
-                        <div class="timeline-body">
-                            <p>Revision: {{ event.revision }}</p>
-                            <p>Date: {{ event.date }}</p>
-                            <p>Changes:</p>
-                            <dd><pre class="json-highlight">{{ event.changes }}</pre></dd>
-                        </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xs-12 col-md-8">
+        <ul class="timeline">
+            {% for event in history %}
+            <li class="{% if not loop.index0 % 2 == 0 %}timeline-inverted{% endif %}">
+                <div class="timeline-badge {{ event.badge.sentiment }}"><i class="glyphicon {{ event.badge.icon }}"></i></div>
+                <div class="timeline-panel">
+                    <div class="timeline-heading">
+                        <h4 class="timeline-title">{{ event.title }} <small class="text-muted"><i class="glyphicon glyphicon-time"></i> {{ event.when }}</small></h4>
+                        <p></p>
                     </div>
-                </li>
-                {% endfor %}
-            </ul>
-            <a href="{{ url('hlx.security.user.list') }}" class="btn btn-primary back-btn">back to list</a>
-        </div>
+                    <div class="timeline-body">
+                        <p>Revision: {{ event.revision }}</p>
+                        <p>Date: {{ event.date }}</p>
+                        <p>Changes:</p>
+                        <dd><pre class="json-highlight">{{ event.changes }}</pre></dd>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url('hlx.security.user.list') }}" class="btn btn-primary back-btn">back to list</a>
     </div>
 </div>
 {% endblock %}

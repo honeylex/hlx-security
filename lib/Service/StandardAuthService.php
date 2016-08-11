@@ -101,6 +101,32 @@ class StandardAuthService implements AuthServiceInterface
         return $user;
     }
 
+    public function findByUsernameOrEmail($username, $email)
+    {
+        $queryResult = $this->getProjectionQueryService()->find(
+            new CriteriaQuery(
+                new CriteriaList,
+                new CriteriaList(
+                    [
+                        new AttributeCriteria('username', new Equals($username)),
+                        new AttributeCriteria('email', new Equals($email))
+                    ],
+                    CriteriaList::OP_OR
+                ),
+                new CriteriaList,
+                0,
+                1
+            )
+        );
+
+        $user = null;
+        if (1 === $queryResult->getTotalCount()) {
+            $user = $queryResult->getFirstResult();
+        }
+
+        return $user;
+    }
+
     public function authenticate($username, $password, $options = [])
     {
         // not currently implemented since the registered SecurityProvider

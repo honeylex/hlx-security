@@ -67,12 +67,16 @@ class RegistrationController
             );
         }
 
+        $formData = $form->getData();
+        $username = $formData['username'];
+        $email = $formData['email'];
+
         try {
-            $username = $form->getData()['username'];
-            $user = $this->userService->loadUserByUsername($username);
+            // check username or email do not exist
+            $this->userService->loadUserByUsernameOrEmail($username, $email);
         } catch (UsernameNotFoundException $error) {
             $token = StringToolkit::generateRandomToken();
-            $this->registrationService->registerUser($form->getData(), $token);
+            $this->registrationService->registerUser($formData, $token);
             return $app->redirect($this->urlGenerator->generate('hlx.security.password', [ 'token' => $token ]));
         }
 
@@ -80,7 +84,7 @@ class RegistrationController
             '@hlx-security/registration.html.twig',
             [
                 'form' => $this->buildRegistrationForm($this->formFactory)->createView(),
-                'errors' => 'This user is already registered.'
+                'errors' => [ 'This user is already registered.' ]
             ]
         );
     }

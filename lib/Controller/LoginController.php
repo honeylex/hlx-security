@@ -57,9 +57,16 @@ class LoginController implements LogoutSuccessHandlerInterface
     {
         $form = $this->buildLoginForm($this->formFactory);
 
+        $error = $app['security.last_error']($request);
+        $lastUsername = $request->getSession()->get('_security.last_username');
+
         return $this->templateRenderer->render(
             '@hlx-security/login.html.twig',
-            [ 'form' => $form->createView() ]
+            [
+                'form' => $form->createView(),
+                'last_username' => $lastUsername,
+                'errors' => (array) $error
+            ]
         );
     }
 

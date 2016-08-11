@@ -7,6 +7,7 @@ use Gigablah\Silex\OAuth\Security\User\Provider\OAuthUserProviderInterface;
 use Hlx\Security\User\User;
 use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
+use Symfony\Component\Security\Core\Exception\LockedException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -63,7 +64,12 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface, OA
     {
         try {
             $user = $this->loadUserByEmail($token->getEmail());
-            $this->registrationService->updateOauthUser($user, $token);
+            if ($user->isAccountNonLocked() && $user->isEnabled()) {
+                // do not allow deactivated or deleted users to update
+                $this->registrationService->updateOauthUser($user, $token);
+            } else {
+                throw new LockedException;
+            }
         } catch (UsernameNotFoundException $error) {
             $this->registrationService->registerOauthUser($token);
             $user = $this->loadUserByEmail($token->getEmail());
@@ -72,6 +78,17 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface, OA
         $this->registrationService->verifyUser($user);
 
         return $user;
+    }
+
+    public function loadUserByUsernameOrEmail($username, $email)
+    {
+        $security_user = $this->authService->findByUsernameOrEmail($username, $email);
+
+        if (!$security_user) {
+            throw new UsernameNotFoundException;
+        }
+
+        return new User($security_user->toArray());
     }
 
     public function refreshUser(UserInterface $user)

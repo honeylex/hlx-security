@@ -2,29 +2,25 @@
 
 namespace Hlx\Security\User\Controller;
 
-use Hlx\Security\User\Model\Aggregate\UserType;
-use Hlx\Security\User\Model\Task\CreateUser\CreateUserCommand;
+use Hlx\Security\Service\RegistrationServiceInterface;
 use Honeybee\Common\Util\StringToolkit;
-use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
 use Honeybee\Infrastructure\DataAccess\Finder\FinderResultInterface;
 use Honeybee\Infrastructure\DataAccess\Query\CriteriaList;
 use Honeybee\Infrastructure\DataAccess\Query\CriteriaQuery;
 use Honeybee\Infrastructure\DataAccess\Query\QueryServiceMap;
 use Honeybee\Infrastructure\DataAccess\Query\SearchCriteria;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
-use Honeybee\Model\Command\AggregateRootCommandBuilder;
-use Shrink0r\Monatic\Error;
-use Shrink0r\Monatic\Success;
 use Silex\Application;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Form;
-use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Component\Validator\Constraints\Length;
@@ -33,11 +29,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ListController
 {
-    protected $userType;
-
     protected $templateRenderer;
-
-    protected $commandBus;
 
     protected $queryServiceMap;
 
@@ -47,22 +39,26 @@ class ListController
 
     protected $validator;
 
+    protected $userService;
+
+    protected $registrationService;
+
     public function __construct(
-        UserType $userType,
         TemplateRendererInterface $templateRenderer,
-        CommandBusInterface $commandBus,
         QueryServiceMap $queryServiceMap,
         UrlGeneratorInterface $urlGenerator,
         FormFactoryInterface $formFactory,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        UserProviderInterface $userService,
+        RegistrationServiceInterface $registrationService
     ) {
-        $this->userType = $userType;
         $this->templateRenderer = $templateRenderer;
-        $this->commandBus = $commandBus;
         $this->queryServiceMap = $queryServiceMap;
         $this->urlGenerator = $urlGenerator;
         $this->formFactory = $formFactory;
         $this->validator = $validator;
+        $this->userService = $userService;
+        $this->registrationService = $registrationService;
     }
 
     public function read(Request $request)
@@ -79,18 +75,20 @@ class ListController
             return $this->renderTemplate($request, $form);
         }
 
-        $token = StringToolkit::generateRandomToken();
-        $result = (new AggregateRootCommandBuilder($this->userType, CreateUserCommand::CLASS))
-            ->withValues($form->getData())
-            ->withVerificationToken($token)
-            ->build();
+        $formData = $form->getData();
+        $username = $formData['username'];
+        $email = $formData['email'];
 
-        if ($result instanceof Error) {
-            return $this->renderTemplate($request, $form);
-        } else {
-            $this->commandBus->post($result->get());
+        try {
+            // check username or email do not exist
+            $this->userService->loadUserByUsernameOrEmail($username, $email);
+        } catch (UsernameNotFoundException $error) {
+            $token = StringToolkit::generateRandomToken();
+            $this->registrationService->registerUser($formData, $token);
             return $app->redirect($request->getRequestUri());
         }
+
+        return $this->renderTemplate($request, $form, [ 'This user is already registered.' ]);
     }
 
     protected function getListParams(Request $request)
@@ -123,7 +121,7 @@ class ListController
         $query = new CriteriaQuery($searchCriteria, new CriteriaList, new CriteriaList, ($page - 1) * $limit, $limit);
 
         return $this->queryServiceMap
-            ->getItem($this->userType->getPrefix().'::projection.standard::query_service')
+            ->getItem('hlx.security.user::projection.standard::query_service')
             ->find($query);
     }
 
@@ -143,13 +141,13 @@ class ListController
             ->add('firstname', TextType::CLASS, [ 'required' => false ])
             ->add('lastname', TextType::CLASS, [ 'required' => false ])
             ->add('role', ChoiceType::CLASS, [
-                'choices' => [ 'administrator' => 'administrator', 'user' => 'user' ],
+                'choices' => [ 'Administrator' => 'administrator', 'User' => 'user' ],
                 'constraints' => new Choice([ 'administrator', 'user' ]),
             ])
             ->getForm();
     }
 
-    protected function renderTemplate(Request $request, Form $form)
+    protected function renderTemplate(Request $request, Form $form, array $errors = [])
     {
         list($query, $page, $limit) = $this->getListParams($request);
         $search = $this->fetchUserList($query, $page, $limit);
@@ -160,7 +158,8 @@ class ListController
                 'q' => '',
                 'user_list' => $search,
                 'form' => $form->createView(),
-                'pager' => $this->buildPager($search, $query, $page, $limit)
+                'pager' => $this->buildPager($search, $query, $page, $limit),
+                'errors' => $errors
             ]
         );
     }

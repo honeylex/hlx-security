@@ -85,8 +85,7 @@ class User implements AdvancedUserInterface
 
     public function isAccountNonLocked()
     {
-        // @todo deactivated state check
-        return $this->isEnabled();
+        return $this->getWorkflowState() !== 'deleted';
     }
 
     public function isCredentialsNonExpired()
@@ -99,7 +98,7 @@ class User implements AdvancedUserInterface
 
     public function isEnabled()
     {
-        return $this->getWorkflowState() !== 'deleted';
+        return $this->getWorkflowState() !== 'deactivated';
     }
 
     public function getSalt()

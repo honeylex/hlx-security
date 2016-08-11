@@ -44,5 +44,3 @@ query_services:
               - username
               - firstname
               - lastname
-            query_filters:
-              workflow_state: "!deleted"
