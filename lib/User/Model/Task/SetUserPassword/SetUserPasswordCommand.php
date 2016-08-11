@@ -2,12 +2,18 @@
 
 namespace Hlx\Security\User\Model\Task\SetUserPassword;
 
-use Honeybee\Model\Command\AggregateRootCommand;
-use Honeybee\Model\Event\AggregateRootEventInterface;
+use Assert\Assertion;
+use Honeybee\Model\Task\ModifyAggregateRoot\ModifyAggregateRootCommand;
 
-class SetUserPasswordCommand extends AggregateRootCommand
+class SetUserPasswordCommand extends ModifyAggregateRootCommand
 {
     protected $password_hash;
+
+    public function __construct(array $state = [])
+    {
+        $this->values = [];
+        parent::__construct($state);
+    }
 
     public function getEventClass()
     {
@@ -28,11 +34,7 @@ class SetUserPasswordCommand extends AggregateRootCommand
     {
         parent::guardRequiredState();
 
-        assert($this->password_hash !== null, '"password_hash" is set');
-    }
-
-    public function conflictsWith(AggregateRootEventInterface $event, array &$conflicting_changes = [])
-    {
-        return false;
+        Assertion::string($this->password_hash);
+        Assertion::notBlank($this->password_hash);
     }
 }

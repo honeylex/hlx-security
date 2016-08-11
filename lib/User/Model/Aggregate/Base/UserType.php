@@ -90,6 +90,7 @@ abstract class UserType extends AggregateRootType
                         'entity_types' => array(
                             '\\Hlx\\Security\\User\\Model\\Aggregate\\Embed\\VerificationType',
                             '\\Hlx\\Security\\User\\Model\\Aggregate\\Embed\\AuthenticationType',
+                            '\\Hlx\\Security\\User\\Model\\Aggregate\\Embed\\SetPasswordType',
                             '\\Hlx\\Security\\User\\Model\\Aggregate\\Embed\\OauthType',
                         ),
                     )

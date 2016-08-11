@@ -6,11 +6,12 @@
         <implementor>\Honeybee\Projection\ProjectionType</implementor>
         <entity_implementor>\Honeybee\Projection\Projection</entity_implementor>
         <description>
-            Defines the (normalized) strucuture of a default user projection.
+            Defines the (normalized) structure of Standard User projection.
         </description>
         <options>
             <option name="vendor">Hlx</option>
             <option name="package">Security</option>
+            <option name="variant">Standard</option>
             <option name="is_hierarchical">false</option>
         </options>
         <xi:include href="../aggregate_root.xml" xpointer="xmlns(dt=http://berlinonline.net/trellis/1.0/schema)
@@ -28,6 +29,14 @@
             </attributes>
         </embed_definition>
         <embed_definition name="Authentication">
+            <implementor>\Honeybee\Projection\EmbeddedEntityType</implementor>
+            <entity_implementor>\Honeybee\Projection\EmbeddedEntity</entity_implementor>
+            <attributes>
+                <attribute name="token" type="text" />
+                <attribute name="expires_at" type="timestamp" />
+            </attributes>
+        </embed_definition>
+        <embed_definition name="SetPassword">
             <implementor>\Honeybee\Projection\EmbeddedEntityType</implementor>
             <entity_implementor>\Honeybee\Projection\EmbeddedEntity</entity_implementor>
             <attributes>

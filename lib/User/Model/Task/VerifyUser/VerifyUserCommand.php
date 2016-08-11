@@ -14,11 +14,6 @@ class VerifyUserCommand extends ProceedUserWorkflowCommand
         parent::__construct($state);
     }
 
-    public function getAffectedAttributeNames()
-    {
-        return [ 'execution_context', 'tokens' ];
-    }
-
     public function getEventClass()
     {
         return UserVerifiedEvent::CLASS;

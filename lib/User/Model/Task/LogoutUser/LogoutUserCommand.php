@@ -2,7 +2,6 @@
 
 namespace Hlx\Security\User\Model\Task\LogoutUser;
 
-use Honeybee\Infrastructure\Command\Command;
 use Honeybee\Model\Task\ModifyAggregateRoot\ModifyAggregateRootCommand;
 
 class LogoutUserCommand extends ModifyAggregateRootCommand

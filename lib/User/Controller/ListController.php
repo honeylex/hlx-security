@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\User\Controller;
 
-use Hlx\Security\Service\RegistrationServiceInterface;
+use Hlx\Security\Service\AccountServiceInterface;
 use Honeybee\Common\Util\StringToolkit;
 use Honeybee\Infrastructure\DataAccess\Finder\FinderResultInterface;
 use Honeybee\Infrastructure\DataAccess\Query\CriteriaList;
@@ -41,7 +41,7 @@ class ListController
 
     protected $userService;
 
-    protected $registrationService;
+    protected $accountService;
 
     public function __construct(
         TemplateRendererInterface $templateRenderer,
@@ -50,7 +50,7 @@ class ListController
         FormFactoryInterface $formFactory,
         ValidatorInterface $validator,
         UserProviderInterface $userService,
-        RegistrationServiceInterface $registrationService
+        AccountServiceInterface $accountService
     ) {
         $this->templateRenderer = $templateRenderer;
         $this->queryServiceMap = $queryServiceMap;
@@ -58,7 +58,7 @@ class ListController
         $this->formFactory = $formFactory;
         $this->validator = $validator;
         $this->userService = $userService;
-        $this->registrationService = $registrationService;
+        $this->accountService = $accountService;
     }
 
     public function read(Request $request)
@@ -84,7 +84,7 @@ class ListController
             $this->userService->loadUserByUsernameOrEmail($username, $email);
         } catch (UsernameNotFoundException $error) {
             $token = StringToolkit::generateRandomToken();
-            $this->registrationService->registerUser($formData, $token);
+            $this->accountService->registerUser($formData, $token);
             return $app->redirect($request->getRequestUri());
         }
 

@@ -13,6 +13,8 @@ subscriptions:
         handler: Hlx\Security\User\Model\Task\VerifyUser\VerifyUserCommandHandler
       hlx.security.user.proceed_user_workflow:
         handler: Hlx\Security\User\Model\Task\ProceedUserWorkflow\ProceedUserWorkflowCommandHandler
+      hlx.security.user.start_set_user_password:
+        handler: Hlx\Security\User\Model\Task\SetUserPassword\StartSetUserPasswordCommandHandler
       hlx.security.user.set_user_password:
         handler: Hlx\Security\User\Model\Task\SetUserPassword\SetUserPasswordCommandHandler
       hlx.security.user.logout_user:

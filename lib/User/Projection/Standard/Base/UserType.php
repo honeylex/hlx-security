@@ -90,6 +90,7 @@ abstract class UserType extends ProjectionType
                         'entity_types' => array(
                             '\\Hlx\\Security\\User\\Projection\\Standard\\Embed\\VerificationType',
                             '\\Hlx\\Security\\User\\Projection\\Standard\\Embed\\AuthenticationType',
+                            '\\Hlx\\Security\\User\\Projection\\Standard\\Embed\\SetPasswordType',
                             '\\Hlx\\Security\\User\\Projection\\Standard\\Embed\\OauthType',
                         ),
                     )
@@ -99,6 +100,7 @@ abstract class UserType extends ProjectionType
                 array(
                     'vendor' => 'Hlx',
                     'package' => 'Security',
+                    'variant' => 'Standard',
                     'is_hierarchical' => false,
                 )
             )

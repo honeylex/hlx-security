@@ -2,13 +2,15 @@
 
 namespace Hlx\Security\Controller;
 
-use Hlx\Security\Service\RegistrationServiceInterface;
+use Hlx\Security\Service\AccountServiceInterface;
 use Honeybee\Common\Util\StringToolkit;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Silex\Application;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,7 +29,7 @@ class RegistrationController
 
     protected $urlGenerator;
 
-    protected $registrationService;
+    protected $accountService;
 
     protected $userService;
 
@@ -35,13 +37,13 @@ class RegistrationController
         FormFactoryInterface $formFactory,
         TemplateRendererInterface $templateRenderer,
         UrlGeneratorInterface $urlGenerator,
-        RegistrationServiceInterface $registrationService,
+        AccountServiceInterface $accountService,
         UserProviderInterface $userService
     ) {
         $this->formFactory = $formFactory;
         $this->templateRenderer = $templateRenderer;
         $this->urlGenerator = $urlGenerator;
-        $this->registrationService = $registrationService;
+        $this->accountService = $accountService;
         $this->userService = $userService;
     }
 
@@ -72,12 +74,11 @@ class RegistrationController
         $email = $formData['email'];
 
         try {
-            // check username or email do not exist
             $this->userService->loadUserByUsernameOrEmail($username, $email);
         } catch (UsernameNotFoundException $error) {
-            $token = StringToolkit::generateRandomToken();
-            $this->registrationService->registerUser($formData, $token);
-            return $app->redirect($this->urlGenerator->generate('hlx.security.password', [ 'token' => $token ]));
+            // register only if username/email do not already exist
+            $this->accountService->registerUser($formData);
+            return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
         }
 
         return $this->templateRenderer->render(
@@ -92,11 +93,10 @@ class RegistrationController
     public function verify(Request $request, Application $app)
     {
         $token = $request->get('token');
+
         $user = $this->userService->loadUserByToken($token, 'verification');
 
-        $this->registrationService->verifyUser($user);
-
-        // @todo autologin
+        $this->accountService->verifyUser($user);
 
         return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
     }
@@ -106,6 +106,14 @@ class RegistrationController
         return $this->formFactory->createBuilder(FormType::CLASS)
             ->add('username', TextType::CLASS, ['constraints' => [ new NotBlank, new Length([ 'min' => 5 ]) ]])
             ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
+            ->add('password', RepeatedType::CLASS, [
+                'type' => PasswordType::CLASS,
+                'constraints' => new NotBlank,
+                'invalid_message' => 'The password fields must match.',
+                'required' => true,
+                'first_options'  => [ 'label' => 'Password' ],
+                'second_options' => [ 'label' => 'Repeat Password' ]
+            ])
             ->add('firstname', TextType::CLASS, [ 'required' => false ])
             ->add('lastname', TextType::CLASS, [ 'required' => false ])
             ->add('role', ChoiceType::CLASS, [

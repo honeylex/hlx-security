@@ -5,6 +5,7 @@ namespace Hlx\Security\User\Model\Aggregate;
 use Hlx\Security\User\Model\Aggregate\Base\User as BaseUser;
 use Hlx\Security\User\Model\Aggregate\Embed\Authentication;
 use Hlx\Security\User\Model\Aggregate\Embed\Oauth;
+use Hlx\Security\User\Model\Aggregate\Embed\SetPassword;
 use Hlx\Security\User\Model\Aggregate\Embed\Verification;
 use Hlx\Security\User\Model\Task\AddToken\TokenAddedEvent;
 use Hlx\Security\User\Model\Task\LogoutUser\LogoutUserCommand;
@@ -19,7 +20,9 @@ use Hlx\Security\User\Model\Task\RegisterUser\RegisterUserCommand;
 use Hlx\Security\User\Model\Task\RegisterUser\UserRegisteredEvent;
 use Hlx\Security\User\Model\Task\RemoveToken\TokenRemovedEvent;
 use Hlx\Security\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
+use Hlx\Security\User\Model\Task\SetUserPassword\StartSetUserPasswordCommand;
 use Hlx\Security\User\Model\Task\SetUserPassword\UserPasswordSetEvent;
+use Hlx\Security\User\Model\Task\SetUserPassword\UserPasswordSetStartedEvent;
 use Hlx\Security\User\Model\Task\VerifyUser\UserVerifiedEvent;
 use Hlx\Security\User\Model\Task\VerifyUser\VerifyUserCommand;
 use Honeybee\Common\Error\RuntimeError;
@@ -56,14 +59,14 @@ use Ramsey\Uuid\Uuid;
 class User extends BaseUser
 {
     /*
-     * Set a password hash and add an authentication token
+     * Set the password hash and remove token
      */
-    public function setPassword(SetUserPasswordCommand $command)
+    public function setUserPassword(SetUserPasswordCommand $command)
     {
         $this->guardCommandPreConditions($command);
 
         foreach ($this->getTokens() as $position => $token) {
-            if ($token instanceof Authentication) {
+            if ($token instanceof SetPassword) {
                 $this->applyEvent(new UserPasswordSetEvent([
                     'metadata' => $command->getMetadata(),
                     'uuid' => $this->getUuid(),
@@ -74,49 +77,18 @@ class User extends BaseUser
                         'password_hash' => $command->getPasswordHash()
                     ],
                     'embedded_entity_events' => new EmbeddedEntityEventList([
-                        new TokenModifiedEvent([
-                            'data' => [
-                                'token' => StringToolkit::generateRandomToken()
-                            ],
-                            'position' => $position,
+                        new TokenRemovedEvent([
+                            'data' => [],
                             'embedded_entity_identifier' => $token->getIdentifier(),
-                            'embedded_entity_type' => 'authentication',
+                            'embedded_entity_type' => 'set_password',
                             'parent_attribute_name' => 'tokens',
                             'embedded_entity_events' => []
                         ])
                     ])
                 ]));
-                return;
+                break;
             }
         }
-
-        /*
-         * Add authentication token if one was not found
-         */
-        $tokenUuid = Uuid::uuid4()->toString();
-        $this->applyEvent(new UserPasswordSetEvent([
-            'metadata' => $command->getMetadata(),
-            'uuid' => $this->getUuid(),
-            'seq_number' => $this->getRevision() + 1,
-            'aggregate_root_type' => $this->getType()->getPrefix(),
-            'aggregate_root_identifier' => $this->getIdentifier(),
-            'data' => [
-                'password_hash' => $command->getPasswordHash()
-            ],
-            'embedded_entity_events' => new EmbeddedEntityEventList([
-                new TokenAddedEvent([
-                    'data' => [
-                        'identifier' => $tokenUuid,
-                        'token' => StringToolkit::generateRandomToken()
-                    ],
-                    'position' => count($this->getTokens()),
-                    'embedded_entity_identifier' => $tokenUuid,
-                    'embedded_entity_type' => 'authentication',
-                    'parent_attribute_name' => 'tokens',
-                    'embedded_entity_events' => []
-                ])
-            ])
-        ]));
     }
 
     /*
@@ -155,7 +127,7 @@ class User extends BaseUser
                 new TokenAddedEvent([
                     'data' => [
                         'identifier' => $tokenUuid,
-                        'token' => $command->getVerificationToken()
+                        'token' => $command->getToken()
                     ],
                     'position' => 0,
                     'embedded_entity_identifier' => $tokenUuid,
@@ -204,7 +176,7 @@ class User extends BaseUser
     /*
      * Reset authentication token when a user logs out
      */
-    public function resetAuthenticationToken(LogoutUserCommand $command)
+    public function logoutUser(LogoutUserCommand $command)
     {
         $this->guardCommandPreConditions($command);
 
@@ -351,21 +323,72 @@ class User extends BaseUser
                         'embedded_entity_events' => []
                     ])
                 );
-                $reposition = true;
-            } elseif (true === $reposition) {
-                $eventData['embedded_entity_events']->addItem(
-                    new TokenModifiedEvent([
-                        'data' => [],
-                        'position' => $position - 1,
-                        'embedded_entity_identifier' => $token->getIdentifier(),
-                        'embedded_entity_type' => $token->getType()->getPrefix(),
-                        'parent_attribute_name' => 'tokens',
-                        'embedded_entity_events' => []
-                    ])
-                );
+                break;
             }
         }
 
         $this->applyEvent(new UserVerifiedEvent($eventData));
+    }
+
+    public function startSetUserPassword(StartSetUserPasswordCommand $command)
+    {
+        $this->guardCommandPreConditions($command);
+
+        foreach ($this->getTokens() as $position => $token) {
+            if ($token instanceof SetPassword) {
+                if ($token->getExpiresAt()->getTimestamp() <= strtotime('+1 hour')) {
+                    // update expiring token only
+                    $this->applyEvent(new UserPasswordSetStartedEvent([
+                        'metadata' => $command->getMetadata(),
+                        'uuid' => $this->getUuid(),
+                        'seq_number' => $this->getRevision() + 1,
+                        'aggregate_root_type' => $this->getType()->getPrefix(),
+                        'aggregate_root_identifier' => $this->getIdentifier(),
+                        'data' => [],
+                        'embedded_entity_events' => new EmbeddedEntityEventList([
+                            new TokenModifiedEvent([
+                                'data' => [
+                                    'token' => $command->getToken(),
+                                    'expires_at' => $command->getExpiresAt()
+                                ],
+                                'position' => $position,
+                                'embedded_entity_identifier' => $token->getIdentifier(),
+                                'embedded_entity_type' => 'set_password',
+                                'parent_attribute_name' => 'tokens',
+                                'embedded_entity_events' => []
+                            ])
+                        ])
+                    ]));
+                }
+                return;
+            }
+        }
+
+        /*
+         * Add a set password token if one doesn't exist
+         */
+        $tokenUuid = Uuid::uuid4()->toString();
+        $this->applyEvent(new UserPasswordSetStartedEvent([
+            'metadata' => $command->getMetadata(),
+            'uuid' => $this->getUuid(),
+            'seq_number' => $this->getRevision() + 1,
+            'aggregate_root_type' => $this->getType()->getPrefix(),
+            'aggregate_root_identifier' => $this->getIdentifier(),
+            'data' => [],
+            'embedded_entity_events' => new EmbeddedEntityEventList([
+                new TokenAddedEvent([
+                    'data' => [
+                        'identifier' => $tokenUuid,
+                        'token' => $command->getToken(),
+                        'expires_at' => $command->getExpiresAt()
+                    ],
+                    'position' => count($this->getTokens()),
+                    'embedded_entity_identifier' => $tokenUuid,
+                    'embedded_entity_type' => 'set_password',
+                    'parent_attribute_name' => 'tokens',
+                    'embedded_entity_events' => []
+                ])
+            ])
+        ]));
     }
 }

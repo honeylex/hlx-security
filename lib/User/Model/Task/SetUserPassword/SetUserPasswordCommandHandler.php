@@ -23,6 +23,6 @@ class SetUserPasswordCommandHandler extends AggregateRootCommandHandler
 
     protected function doExecute(CommandInterface $command, AggregateRootInterface $user)
     {
-        $user->setPassword($command);
+        $user->setUserPassword($command);
     }
 }

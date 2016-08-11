@@ -17,14 +17,14 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface, OA
 {
     protected $authService;
 
-    protected $registrationService;
+    protected $accountService;
 
     public function __construct(
         AuthServiceInterface $authService,
-        RegistrationServiceInterface $registrationService
+        AccountServiceInterface $accountService
     ) {
         $this->authService = $authService;
-        $this->registrationService = $registrationService;
+        $this->accountService = $accountService;
     }
 
     public function loadUserByUsername($username)
@@ -64,18 +64,13 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface, OA
     {
         try {
             $user = $this->loadUserByEmail($token->getEmail());
-            if ($user->isAccountNonLocked() && $user->isEnabled()) {
-                // do not allow deactivated or deleted users to update
-                $this->registrationService->updateOauthUser($user, $token);
-            } else {
-                throw new LockedException;
-            }
+            $this->accountService->updateOauthUser($user, $token);
         } catch (UsernameNotFoundException $error) {
-            $this->registrationService->registerOauthUser($token);
+            $this->accountService->registerOauthUser($token);
             $user = $this->loadUserByEmail($token->getEmail());
         }
 
-        $this->registrationService->verifyUser($user);
+        $this->accountService->verifyUser($user);
 
         return $user;
     }

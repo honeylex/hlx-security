@@ -2,6 +2,6 @@
 
 namespace Hlx\Security\Service;
 
-interface RegistrationServiceInterface
+interface AccountServiceInterface
 {
 }

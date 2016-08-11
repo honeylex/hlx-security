@@ -26,6 +26,7 @@
                 <option name="entity_types">
                     <option>Verification</option>
                     <option>Authentication</option>
+                    <option>SetPassword</option>
                     <option>Oauth</option>
                 </option>
             </attribute>
@@ -46,6 +47,18 @@
             </attributes>
         </embed_definition>
         <embed_definition name="Authentication">
+            <implementor>\Honeybee\Model\Aggregate\EmbeddedEntityType</implementor>
+            <entity_implementor>\Honeybee\Model\Aggregate\EmbeddedEntity</entity_implementor>
+            <attributes>
+                <attribute name="token" type="text">
+                    <option name="mandatory">true</option>
+                </attribute>
+                <attribute name="expires_at" type="timestamp">
+                    <option name="format_native">Y-m-d\TH:i:s.uP</option>
+                </attribute>
+            </attributes>
+        </embed_definition>
+        <embed_definition name="SetPassword">
             <implementor>\Honeybee\Model\Aggregate\EmbeddedEntityType</implementor>
             <entity_implementor>\Honeybee\Model\Aggregate\EmbeddedEntity</entity_implementor>
             <attributes>

@@ -2,12 +2,8 @@
 
 namespace Hlx\Security\Controller;
 
-use Hlx\Security\User\Model\Aggregate\UserType;
-use Hlx\Security\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
-use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
+use Hlx\Security\Service\AccountServiceInterface;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
-use Honeybee\Model\Command\AggregateRootCommandBuilder;
-use Shrink0r\Monatic\Success;
 use Silex\Application;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -16,48 +12,44 @@ use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class PasswordController
+class SetPasswordController
 {
     protected $formFactory;
 
     protected $templateRenderer;
 
-    protected $userType;
-
     protected $userService;
 
     protected $urlGenerator;
 
-    protected $commandBus;
+    protected $accountService;
 
     public function __construct(
         FormFactoryInterface $formFactory,
         TemplateRendererInterface $templateRenderer,
-        UserType $userType,
         UserProviderInterface $userService,
         UrlGeneratorInterface $urlGenerator,
-        CommandBusInterface $commandBus
+        AccountServiceInterface $accountService
     ) {
         $this->formFactory = $formFactory;
         $this->templateRenderer = $templateRenderer;
-        $this->userType = $userType;
         $this->userService = $userService;
         $this->urlGenerator = $urlGenerator;
-        $this->commandBus = $commandBus;
+        $this->accountService = $accountService;
     }
 
     public function read(Request $request, Application $app)
     {
         $token = $request->get('token');
-        // @todo redirect/error on missing/invalid token
 
         $form = $this->buildForm($this->formFactory, [ 'token' => $token ]);
 
         return $this->templateRenderer->render(
-            '@hlx-security/password.html.twig',
+            '@hlx-security/set_password.html.twig',
             [ 'form' => $form->createView() ]
         );
     }
@@ -69,29 +61,27 @@ class PasswordController
 
         if (!$form->isValid()) {
             return $this->templateRenderer->render(
-                '@hlx-security/password.html.twig',
+                '@hlx-security/set_password.html.twig',
                 [ 'form' => $form->createView() ]
             );
         }
 
-        $form_data = $form->getData();
-        $user = $this->userService->loadUserByToken($form_data['token'], 'verification');
-        $result = (new AggregateRootCommandBuilder($this->userType, SetUserPasswordCommand::CLASS))
-            ->withAggregateRootIdentifier($user->getIdentifier())
-            ->withKnownRevision($user->getRevision())
-            ->withPasswordHash($this->userService->encodePassword($form_data['password'], null))
-            ->build();
+        $formData = $form->getData();
+        $token = $formData['token'];
+        $password = $formData['password'];
 
-        if (!$result instanceof Success) {
+        try {
+            $user = $this->userService->loadUserByToken($formData['token'], 'set_password');
+            $this->accountService->setUserPassword($user, $password);
+        } catch (AuthenticationException $error) {
             return $this->templateRenderer->render(
-                '@hlx-security/password.html.twig',
-                [ 'form' => $form->createView(), 'errors' => $result->get() ]
+                '@hlx-security/set_password.html.twig',
+                [
+                    'form' => $this->buildForm($this->formFactory, [ 'token' => $token ])->createView(),
+                    'errors' => (array) $error->getMessageKey()
+                ]
             );
         }
-
-        $this->commandBus->post($result->get());
-
-        // @todo autologin
 
         return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
     }

@@ -120,7 +120,8 @@ class UserServiceProvisioner extends SilexServiceProvisioner
                         'login' => [ 'pattern' => "^$routing_prefix/login$" ],
                         'registration' => [ 'pattern' => "^$routing_prefix/registration$" ],
                         'verification' => [ 'pattern' => "^$routing_prefix/verify$" ],
-                        'password' => [ 'pattern' => "^$routing_prefix/password$" ],
+                        'set_password' => [ 'pattern' => "^$routing_prefix/set_password$" ],
+                        'forgot_password' => [ 'pattern' => "^$routing_prefix/forgot_password$" ],
                         'home' => [
                             'pattern' => '^/$',
                             'anonymous' => true

@@ -3,7 +3,10 @@
 namespace Hlx\Security\User\Projection\EventHandler;
 
 use Hlx\Security\Service\MailService;
+use Hlx\Security\User\Model\Task\RegisterUser\UserRegisteredEvent;
 use Hlx\Security\User\Model\Task\SetUserPassword\UserPasswordSetEvent;
+use Hlx\Security\User\Model\Task\SetUserPassword\UserPasswordSetStartedEvent;
+use Hlx\Security\User\Projection\Standard\Embed\SetPassword;
 use Hlx\Security\User\Projection\Standard\Embed\Verification;
 use Hlx\Security\User\Projection\Standard\User;
 use Honeybee\Infrastructure\Config\ConfigInterface;
@@ -42,13 +45,28 @@ class UserProjectionUpdater extends ProjectionUpdater
         $this->mailService = $mailService;
     }
 
-    protected function afterUserPasswordSet(UserPasswordSetEvent $event, User $user)
+    protected function afterUserRegistered(UserRegisteredEvent $event, User $user)
     {
         foreach ($user->getTokens() as $token) {
             if ($token instanceof Verification) {
-                $this->mailService->sendVerificationRequestEmail($token, $user);
+                $this->mailService->sendVerificationRequest($token, $user);
                 break;
             }
         }
+    }
+
+    protected function afterUserPasswordSetStarted(UserPasswordSetStartedEvent $event, User $user)
+    {
+        foreach ($user->getTokens() as $token) {
+            if ($token instanceof SetPassword) {
+                $this->mailService->sendSetPasswordInstructions($token, $user);
+                break;
+            }
+        }
+    }
+
+    protected function afterUserPasswordSet(UserPasswordSetEvent $event, User $user)
+    {
+        $this->mailService->sendPasswordSetNotification($user);
     }
 }

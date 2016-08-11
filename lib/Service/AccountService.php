@@ -6,40 +6,53 @@ use Gigablah\Silex\OAuth\Security\Authentication\Token\OAuthTokenInterface;
 use Hlx\Security\User\Model\Aggregate\UserType;
 use Hlx\Security\User\Model\Task\RegisterOauthUser\RegisterOauthUserCommand;
 use Hlx\Security\User\Model\Task\RegisterUser\RegisterUserCommand;
-use Hlx\Security\User\Model\Task\VerifyUser\VerifyUserCommand;
+use Hlx\Security\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
+use Hlx\Security\User\Model\Task\SetUserPassword\StartSetUserPasswordCommand;
 use Hlx\Security\User\Model\Task\UpdateOauthUser\UpdateOauthUserCommand;
+use Hlx\Security\User\Model\Task\VerifyUser\VerifyUserCommand;
 use Hlx\Security\User\User;
 use Honeybee\Common\Util\StringToolkit;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
+use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Honeybee\Model\Command\AggregateRootCommandBuilder;
 use Psr\Log\LoggerInterface;
 use Shrink0r\Monatic\Success;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
+use Symfony\Component\Security\Core\Exception\DisabledException;
+use Symfony\Component\Security\Core\Exception\LockedException;
 
-class RegistrationService implements RegistrationServiceInterface
+class AccountService implements AccountServiceInterface
 {
     protected $userType;
 
     protected $commandBus;
 
+    protected $authService;
+
     protected $logger;
 
-    public function __construct(UserType $userType, CommandBusInterface $commandBus, LoggerInterface $logger)
-    {
+    public function __construct(
+        UserType $userType,
+        CommandBusInterface $commandBus,
+        AuthServiceInterface $authService,
+        LoggerInterface $logger
+    ) {
         $this->userType = $userType;
         $this->commandBus = $commandBus;
+        $this->authService = $authService;
         $this->logger = $logger;
     }
 
-    public function registerUser(array $values, $token = null)
+    public function registerUser(array $values)
     {
-        if (empty($token)) {
-            $token = StringToolkit::generateRandomToken();
+        if (isset($values['password'])) {
+            $values['password_hash'] = $this->authService->encodePassword($values['password']);
+            unset($values['password']);
         }
 
         $result = (new AggregateRootCommandBuilder($this->userType, RegisterUserCommand::CLASS))
             ->withValues($values)
-            ->withVerificationToken($token)
+            ->withToken(StringToolkit::generateRandomToken())
             ->build();
 
         if (!$result instanceof Success) {
@@ -81,6 +94,8 @@ class RegistrationService implements RegistrationServiceInterface
 
     public function updateOauthUser(User $user, OAuthTokenInterface $token)
     {
+        $this->guardUserStatus($user);
+
         $serviceName = $token->getService();
 
         $result = (new AggregateRootCommandBuilder($this->userType, UpdateOauthUserCommand::CLASS))
@@ -110,14 +125,10 @@ class RegistrationService implements RegistrationServiceInterface
 
     public function verifyUser(User $user)
     {
+        $this->guardUserStatus($user);
+
         if ($user->getWorkflowState() === 'verified') {
             return;
-        }
-
-        if ($user->getWorkflowState() !== 'unverified') {
-            throw new CustomUserMessageAuthenticationException(
-                sprintf('Cannot verify user "%s".', $user->getUsername())
-            );
         }
 
         $result = (new AggregateRootCommandBuilder($this->userType, VerifyUserCommand::CLASS))
@@ -132,5 +143,58 @@ class RegistrationService implements RegistrationServiceInterface
         }
 
         $this->commandBus->post($result->get());
+    }
+
+    public function startSetUserPassword(User $user)
+    {
+        $this->guardUserStatus($user);
+
+        $result = (new AggregateRootCommandBuilder($this->userType, StartSetUserPasswordCommand::CLASS))
+            ->withAggregateRootIdentifier($user->getIdentifier())
+            ->withKnownRevision($user->getRevision())
+            ->withToken(StringToolkit::generateRandomToken())
+            ->withExpiresAt(date(
+                StartSetUserPasswordCommand::DATE_ISO8601_WITH_MICROS,
+                time() + 86400 // 1 day
+            ))
+            ->build();
+
+        if (!$result instanceof Success) {
+            throw new CustomUserMessageAuthenticationException(
+                sprintf('Error starting to set user "%s" password.', $user->getUsername())
+            );
+        }
+
+        $this->commandBus->post($result->get());
+    }
+
+    public function setUserPassword(User $user, $password)
+    {
+        $this->guardUserStatus($user);
+
+        $result = (new AggregateRootCommandBuilder($this->userType, SetUserPasswordCommand::CLASS))
+            ->withAggregateRootIdentifier($user->getIdentifier())
+            ->withKnownRevision($user->getRevision())
+            ->withPasswordHash($this->authService->encodePassword($password))
+            ->build();
+
+        if (!$result instanceof Success) {
+            throw new CustomUserMessageAuthenticationException(
+                sprintf('Error setting password for user "%s".', $user->getUsername())
+            );
+        }
+
+        $this->commandBus->post($result->get());
+    }
+
+    protected function guardUserStatus(User $user)
+    {
+        if (!$user->isAccountNonLocked()) {
+            throw new LockedException;
+        }
+
+        if (!$user->isEnabled()) {
+            throw new DisabledException;
+        }
     }
 }
