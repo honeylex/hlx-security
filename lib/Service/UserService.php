@@ -21,7 +21,7 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface, OA
 
     public function __construct(
         AuthServiceInterface $authService,
-        AccountServiceInterface $accountService
+        AccountService $accountService
     ) {
         $this->authService = $authService;
         $this->accountService = $accountService;

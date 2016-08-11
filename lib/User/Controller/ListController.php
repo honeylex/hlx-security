@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\User\Controller;
 
-use Hlx\Security\Service\AccountServiceInterface;
+use Hlx\Security\Service\AccountService;
 use Honeybee\Common\Util\StringToolkit;
 use Honeybee\Infrastructure\DataAccess\Finder\FinderResultInterface;
 use Honeybee\Infrastructure\DataAccess\Query\CriteriaList;
@@ -50,7 +50,7 @@ class ListController
         FormFactoryInterface $formFactory,
         ValidatorInterface $validator,
         UserProviderInterface $userService,
-        AccountServiceInterface $accountService
+        AccountService $accountService
     ) {
         $this->templateRenderer = $templateRenderer;
         $this->queryServiceMap = $queryServiceMap;

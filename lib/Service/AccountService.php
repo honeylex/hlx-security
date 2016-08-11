@@ -21,7 +21,7 @@ use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationExc
 use Symfony\Component\Security\Core\Exception\DisabledException;
 use Symfony\Component\Security\Core\Exception\LockedException;
 
-class AccountService implements AccountServiceInterface
+class AccountService
 {
     protected $userType;
 

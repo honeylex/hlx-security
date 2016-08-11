@@ -1,8 +1,8 @@
 #
 # service configuration for the Security crate
 ---
-hlx.security.auth_service:
-  class: Hlx\Security\Service\StandardAuthService
+hlx.security.authentication_service:
+  class: Hlx\Security\Service\AuthenticationService
   provisioner:
     class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\DefaultProvisioner
     settings:
@@ -12,8 +12,6 @@ hlx.security.account_service:
   class: Hlx\Security\Service\AccountService
   provisioner:
     class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\DefaultProvisioner
-    settings:
-      alias: Hlx\Security\Service\AccountServiceInterface
 
 hlx.security.user_service:
   class: Hlx\Security\Service\UserService

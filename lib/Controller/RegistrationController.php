@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\Controller;
 
-use Hlx\Security\Service\AccountServiceInterface;
+use Hlx\Security\Service\AccountService;
 use Honeybee\Common\Util\StringToolkit;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Silex\Application;
@@ -37,7 +37,7 @@ class RegistrationController
         FormFactoryInterface $formFactory,
         TemplateRendererInterface $templateRenderer,
         UrlGeneratorInterface $urlGenerator,
-        AccountServiceInterface $accountService,
+        AccountService $accountService,
         UserProviderInterface $userService
     ) {
         $this->formFactory = $formFactory;

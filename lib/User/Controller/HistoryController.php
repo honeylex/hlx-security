@@ -10,6 +10,7 @@ use Hlx\Security\User\Model\Task\ProceedUserWorkflow\UserWorkflowProceededEvent;
 use Hlx\Security\User\Model\Task\RegisterOauthUser\OauthUserRegisteredEvent;
 use Hlx\Security\User\Model\Task\RegisterUser\UserRegisteredEvent;
 use Hlx\Security\User\Model\Task\SetUserPassword\UserPasswordSetEvent;
+use Hlx\Security\User\Model\Task\SetUserPassword\UserPasswordSetStartedEvent;
 use Hlx\Security\User\Model\Task\UpdateOauthUser\OauthUserUpdatedEvent;
 use Honeybee\Infrastructure\DataAccess\Storage\StorageReaderMap;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
@@ -78,6 +79,11 @@ class HistoryController
                     $type = 'delete';
                     $icon = 'glyphicon-trash';
                 }
+            } elseif ($event instanceof UserPasswordSetStartedEvent) {
+                $type = 'modify';
+                $sentiment = 'success';
+                $title = 'User password set started';
+                $icon = 'glyphicon-lock';
             } elseif ($event instanceof UserPasswordSetEvent) {
                 $type = 'modify';
                 $sentiment = 'success';

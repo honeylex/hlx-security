@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\Controller;
 
-use Hlx\Security\Service\AccountServiceInterface;
+use Hlx\Security\Service\AccountService;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Silex\Application;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
@@ -33,7 +33,7 @@ class SetPasswordController
         TemplateRendererInterface $templateRenderer,
         UserProviderInterface $userService,
         UrlGeneratorInterface $urlGenerator,
-        AccountServiceInterface $accountService
+        AccountService $accountService
     ) {
         $this->formFactory = $formFactory;
         $this->templateRenderer = $templateRenderer;

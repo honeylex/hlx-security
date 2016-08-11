@@ -13,7 +13,7 @@ use Honeybee\Infrastructure\Security\Auth\AuthResponse;
 use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Honeybee\Infrastructure\Security\Auth\CryptedPasswordHandler;
 
-class StandardAuthService implements AuthServiceInterface
+class AuthenticationService implements AuthServiceInterface
 {
     const TYPE_KEY = 'hlx.security.standard';
 

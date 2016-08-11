@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\Controller;
 
-use Hlx\Security\Service\AccountServiceInterface;
+use Hlx\Security\Service\AccountService;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Silex\Application;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -30,7 +30,7 @@ class ForgotPasswordController
         FormFactoryInterface $formFactory,
         TemplateRendererInterface $templateRenderer,
         UserProviderInterface $userService,
-        AccountServiceInterface $accountService,
+        AccountService $accountService,
         UrlGeneratorInterface $urlGenerator
     ) {
         $this->formFactory = $formFactory;
