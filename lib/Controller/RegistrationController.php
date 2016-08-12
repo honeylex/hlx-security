@@ -65,6 +65,7 @@ class RegistrationController
             '@hlx-security/registration.html.twig',
             [
                 'form' => $form->createView(),
+                'recaptcha_enabled' => $this->recaptchaSettings->get('enabled'),
                 'recaptcha_site_key' => $this->recaptchaSettings->get('site_key')
             ]
         );
@@ -80,6 +81,7 @@ class RegistrationController
                 '@hlx-security/registration.html.twig',
                 [
                     'form' => $form->createView(),
+                    'recaptcha_enabled' => $this->recaptchaSettings->get('enabled'),
                     'recaptcha_site_key' => $this->recaptchaSettings->get('site_key')
                 ]
             );
@@ -105,6 +107,7 @@ class RegistrationController
             '@hlx-security/registration.html.twig',
             [
                 'form' => $form->createView(),
+                'recaptcha_enabled' => $this->recaptchaSettings->get('enabled'),
                 'recaptcha_site_key' => $this->recaptchaSettings->get('site_key'),
                 'errors' => $errors
             ]
@@ -147,7 +150,7 @@ class RegistrationController
 
     protected function validateRecaptcha($gRecaptchaResponse, $remoteIp = null)
     {
-        if ($this->recaptchaSettings->has('site_key')) {
+        if ($this->recaptchaSettings->get('enabled')) {
             $recaptcha = new ReCaptcha($this->recaptchaSettings->get('secret_key'));
             $response = $recaptcha->verify($gRecaptchaResponse, $remoteIp);
             if (!$response->isSuccess()) {

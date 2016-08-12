@@ -57,6 +57,7 @@ class ForgotPasswordController
             '@hlx-security/forgot_password.html.twig',
             [
                 'form' => $form->createView(),
+                'recaptcha_enabled' => $this->recaptchaSettings->get('enabled'),
                 'recaptcha_site_key' => $this->recaptchaSettings->get('site_key')
             ]
         );
@@ -72,6 +73,7 @@ class ForgotPasswordController
                 '@hlx-security/forgot_password.html.twig',
                 [
                     'form' => $form->createView(),
+                    'recaptcha_enabled' => $this->recaptchaSettings->get('enabled'),
                     'recaptcha_site_key' => $this->recaptchaSettings->get('site_key')
                 ]
             );
@@ -89,6 +91,7 @@ class ForgotPasswordController
                 '@hlx-security/forgot_password.html.twig',
                 [
                     'form' => $this->buildForm($this->formFactory)->createView(),
+                    'recaptcha_enabled' => $this->recaptchaSettings->get('enabled'),
                     'recaptcha_site_key' => $this->recaptchaSettings->get('site_key'),
                     'errors' => (array) $error->getMessageKey()
                 ]
@@ -107,12 +110,12 @@ class ForgotPasswordController
 
     protected function validateRecaptcha($gRecaptchaResponse, $remoteIp = null)
     {
-        if ($this->recaptchaSettings->has('site_key')) {
+        if ($this->recaptchaSettings->get('enabled')) {
             $recaptcha = new ReCaptcha($this->recaptchaSettings->get('secret_key'));
             $response = $recaptcha->verify($gRecaptchaResponse, $remoteIp);
             if (!$response->isSuccess()) {
                 $errors = $response->getErrorCodes();
-                throw new CustomUserMessageAuthenticationException('Recaptcha failure.');
+                throw new CustomUserMessageAuthenticationException('Recaptcha failed.');
             }
         }
     }
