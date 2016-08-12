@@ -1,5 +1,11 @@
 {% extends "layout.html.twig" %}
 
+{% block scripts %}
+{% if recaptcha_site_key %}
+<script src='https://www.google.com/recaptcha/api.js'></script>
+{% endif %}
+{% endblock %}
+
 {% block view_classes %}registration{% endblock %}
 
 {% block header %}
@@ -19,6 +25,9 @@
             <div class="tab-pane active" id="registration">
                 {{ form_widget(form) }}
             </div>
+            {% if recaptcha_site_key %}
+            <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+            {% endif %}
             <div class="form-actions">
                 <button class="btn btn-success" type="submit">register</button>
             </div>

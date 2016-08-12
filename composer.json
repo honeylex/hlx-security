@@ -6,7 +6,8 @@
     "require": {
         "php": ">=5.6.1",
         "symfony/security": "~2.8|~3.1",
-        "gigablah/silex-oauth": "~2.0@dev"
+        "gigablah/silex-oauth": "~2.0@dev",
+        "google/recaptcha": "~1.1"
     },
     "require-dev": {
         "phpunit/phpunit": "~5.3",
