@@ -41,9 +41,6 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
             $routingPrefix = '';
         }
 
-        // provide cookie settings from crate config
-        $cookieSettings = $crateSettings->get('cookie', new Settings);
-
         // Make the user service upfront for the security provider
         $userService = $injector
             ->share($service)
@@ -116,7 +113,6 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
             [
                 'security.default_encoder' => $userService,
                 'security.firewalls' => array_merge(
-                    // @todo need better firewall building and merge
                     $customFirewalls,
                     $oauthFirewalls,
                     [
@@ -124,17 +120,9 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
                             'pattern' => '^/_(profiler|wdt)/',
                             'security' => false
                         ],
-                        'login' => [ 'pattern' => "^$routingPrefix/login$" ],
-                        'registration' => [ 'pattern' => "^$routingPrefix/registration$" ],
-                        'verification' => [ 'pattern' => "^$routingPrefix/verify$" ],
-                        'password' => [ 'pattern' => "^$routingPrefix/password/(set|forgot)$" ],
-                        'home' => [
-                            'pattern' => '^/$',
-                            'anonymous' => true
-                        ],
                         'default' => [
                             'pattern' => "^.*$",
-                            'anonymous' => false,
+                            'anonymous' => true,
                             'guard' => [
                                 'authenticators' => [
                                     'hlx.security.oauth_authenticator'
@@ -147,26 +135,35 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
                             ],
                             'logout' => [
                                 'logout_path' => "$routingPrefix/logout",
-                                'target_url' => '/goodbye',
                                 'invalidate_session' => true,
                                 'with_csrf' => true
                             ],
                             'remember_me' => array_merge(
                                 [ 'name' => 'HLX_SECURITY' ],
-                                $cookieSettings->toArray()
+                                $crateSettings->get('cookie', new Settings)->toArray()
                             ),
                             'users' => $userService
                         ]
                     ]
                 ),
-                'security.access_rules' => [
-                    [ '^/user', 'ROLE_ADMIN' ],
-                    [ '^/auth', 'ROLE_USER' ]
-                ],
-                'security.role_hierarchy' => [
-                    'administrator' => [ 'ROLE_ADMIN', 'ROLE_USER' ],
-                    'user' => [ 'ROLE_USER' ]
-                ]
+                'security.access_rules' => array_merge(
+                    $crateSettings->get('access_rules', new Settings)->toArray(),
+                    [
+                        [ "^$routingPrefix/login$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
+                        [ "^$routingPrefix/password/(set|forgot)$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
+                        [ "^$routingPrefix/registration$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
+                        [ "^$routingPrefix/verify$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
+                        [ "^$routingPrefix/user", 'ROLE_ADMIN' ],
+                        [ "^$routingPrefix/auth", 'ROLE_USER' ]
+                    ]
+                ),
+                'security.role_hierarchy' => array_merge(
+                    [
+                        'administrator' => [ 'ROLE_ADMIN', 'ROLE_USER' ],
+                        'user' => [ 'ROLE_USER' ]
+                    ],
+                    $crateSettings->get('role_hierarchy', new Settings)->toArray()
+                )
             ]
         );
 
