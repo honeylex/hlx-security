@@ -15,7 +15,7 @@
 {% block content %}
 <div class="row">
     <div class="col-xs-12 col-md-6">
-        <form method="post" class="tab-content" action="{{ path('hlx.security.login_check') }}">
+        <form method="post" class="tab-content" action="{{ path('hlx.security.login.check') }}">
             <div class="tab-pane active" id="login">
                 {{ form_widget(form) }}
             </div>
@@ -23,7 +23,7 @@
                 <button class="btn btn-success" type="submit">Login</button>
                 <a href="/auth/facebook" class="btn btn-primary">Facebook</a>
                 <a href="{{ url('hlx.security.registration') }}" class="btn btn-primary">Register</a>
-                <a href="{{ url('hlx.security.forgot_password') }}">Forgot your password?<a/>
+                <a href="{{ url('hlx.security.password.forgot') }}">Forgot your password?<a/>
             </div>
         </form>
     </div>

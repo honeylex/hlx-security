@@ -2,12 +2,8 @@
 
 namespace Hlx\Security\Controller;
 
-use Hlx\Security\User\Model\Aggregate\UserType;
-use Hlx\Security\User\Model\Task\LogoutUser\LogoutUserCommand;
-use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
+use Hlx\Security\Service\AccountService;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
-use Honeybee\Model\Command\AggregateRootCommandBuilder;
-use Shrink0r\Monatic\Success;
 use Silex\Application;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
@@ -29,28 +25,24 @@ class LoginController implements LogoutSuccessHandlerInterface
 
     protected $templateRenderer;
 
-    protected $commandBus;
-
     protected $tokenStorage;
 
-    protected $userType;
-
     protected $httpUtils;
+
+    protected $accountService;
 
     public function __construct(
         FormFactoryInterface $formFactory,
         TemplateRendererInterface $templateRenderer,
-        CommandBusInterface $commandBus,
         TokenStorageInterface $tokenStorage,
-        UserType $userType,
-        HttpUtils $httpUtils
+        HttpUtils $httpUtils,
+        AccountService $accountService
     ) {
         $this->formFactory = $formFactory;
         $this->templateRenderer = $templateRenderer;
-        $this->commandBus = $commandBus;
         $this->tokenStorage = $tokenStorage;
-        $this->userType = $userType;
         $this->httpUtils = $httpUtils;
+        $this->accountService = $accountService;
     }
 
     public function read(Request $request, Application $app)
@@ -77,16 +69,7 @@ class LoginController implements LogoutSuccessHandlerInterface
         // Reset authentication token for the user on logout
         if ($token instanceof TokenInterface) {
             $user = $token->getUser();
-            $result = (new AggregateRootCommandBuilder($this->userType, LogoutUserCommand::CLASS))
-                ->withAggregateRootIdentifier($user->getIdentifier())
-                ->withKnownRevision($user->getRevision())
-                ->build();
-
-            if (!$result instanceof Success) {
-                throw new LogoutException;
-            }
-
-            $this->commandBus->post($result->get());
+            $this->accountService->logoutUser($user);
         }
 
         return $this->httpUtils->createRedirectResponse($request, '/');

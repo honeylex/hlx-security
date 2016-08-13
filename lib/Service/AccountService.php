@@ -4,6 +4,7 @@ namespace Hlx\Security\Service;
 
 use Gigablah\Silex\OAuth\Security\Authentication\Token\OAuthTokenInterface;
 use Hlx\Security\User\Model\Aggregate\UserType;
+use Hlx\Security\User\Model\Task\LogoutUser\LogoutUserCommand;
 use Hlx\Security\User\Model\Task\RegisterOauthUser\RegisterOauthUserCommand;
 use Hlx\Security\User\Model\Task\RegisterUser\RegisterUserCommand;
 use Hlx\Security\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
@@ -20,6 +21,7 @@ use Shrink0r\Monatic\Success;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\DisabledException;
 use Symfony\Component\Security\Core\Exception\LockedException;
+use Symfony\Component\Security\Core\Exception\LogoutException;
 
 class AccountService
 {
@@ -184,6 +186,20 @@ class AccountService
             throw new CustomUserMessageAuthenticationException(
                 sprintf('Error setting password for user "%s".', $user->getUsername())
             );
+        }
+
+        $this->commandBus->post($result->get());
+    }
+
+    public function logoutUser(User $user)
+    {
+        $result = (new AggregateRootCommandBuilder($this->userType, LogoutUserCommand::CLASS))
+            ->withAggregateRootIdentifier($user->getIdentifier())
+            ->withKnownRevision($user->getRevision())
+            ->build();
+
+        if (!$result instanceof Success) {
+            throw new LogoutException;
         }
 
         $this->commandBus->post($result->get());

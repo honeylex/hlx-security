@@ -10,7 +10,7 @@ use Hlx\Security\EventListener\OauthInfoListener;
 use Hlx\Security\Locale\SessionLocaleListener;
 use Hlx\Security\Locale\UserLocaleListener;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
-use Honeybee\FrameworkBinding\Silex\Service\Provisioner\SilexServiceProvisioner;
+use Honeybee\FrameworkBinding\Silex\Service\Provisioner\ProvisionerInterface;
 use Honeybee\Infrastructure\Config\Settings;
 use Honeybee\Infrastructure\Config\SettingsInterface;
 use Honeybee\ServiceDefinitionInterface;
@@ -20,8 +20,9 @@ use Silex\Provider\RememberMeServiceProvider;
 use Silex\Provider\SecurityServiceProvider;
 use Silex\Provider\SessionServiceProvider;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class UserServiceProvisioner extends SilexServiceProvisioner implements EventListenerProviderInterface
+class UserServiceProvisioner implements ProvisionerInterface, EventListenerProviderInterface
 {
     public function provision(
         Container $app,
@@ -31,21 +32,23 @@ class UserServiceProvisioner extends SilexServiceProvisioner implements EventLis
         SettingsInterface $provisionerSettings
     ) {
         $service = $serviceDefinition->getClass();
-        $serviceKey = $provisionerSettings->get('app_key');
         $crate = $configProvider->getCrateMap()->getItem('hlx.security');
-        $crate_settings = $crate->getSettings();
+        $crateSettings = $crate->getSettings();
 
         // allow override of routing prefix from crate settings
-        $routing_prefix = $crate->getRoutingPrefix();
-        if ($routing_prefix === '/') {
-            $routing_prefix = '';
+        $routingPrefix = $crate->getRoutingPrefix();
+        if ($routingPrefix === '/') {
+            $routingPrefix = '';
         }
 
         // provide cookie settings from crate config
-        $cookie_settings = $crate_settings->get('cookie', new Settings);
+        $cookieSettings = $crateSettings->get('cookie', new Settings);
 
         // Make the user service upfront for the security provider
-        $app[$serviceKey] = $injector->make($service);
+        $userService = $injector
+            ->share($service)
+            ->alias(UserProviderInterface::CLASS, $service)
+            ->make($service);
 
         // logout handler registration - 'default' matching firewall name
         $app['security.authentication.logout_handler.default'] = function () use ($injector, $provisionerSettings) {
@@ -64,15 +67,15 @@ class UserServiceProvisioner extends SilexServiceProvisioner implements EventLis
 
         // register oauth services
         $oauth_services = [];
-        if ($oauth_settings = $crate_settings->get('oauth')) {
-            if ($facebook_settings = $oauth_settings->get('facebook')) {
+        if ($oauthSettings = $crateSettings->get('oauth')) {
+            if ($facebook_settings = $oauthSettings->get('facebook')) {
                 $oauth_services['Facebook'] = [
                     'key' => (string) $facebook_settings->get('app_key'),
                     'secret' => (string) $facebook_settings->get('app_secret'),
                     'scope' => (array) $facebook_settings->get('scope'),
                     'user_endpoint' => sprintf(
                         'https://graph.facebook.com/me?fields=%s',
-                        implode(',', (array) $facebook_settings->get('fields', [ 'id', 'name' , 'email' ]))
+                        implode(',', (array) $facebook_settings->get('fields', [ 'id', 'name', 'email' ]))
                     )
                 ];
             }
@@ -82,50 +85,49 @@ class UserServiceProvisioner extends SilexServiceProvisioner implements EventLis
             new OAuthServiceProvider,
             [
                 'oauth.services' => $oauth_services,
-                'oauth.user_info_listener' => function ($app) use ($oauth_settings) {
-                    return new OauthInfoListener($app['oauth'], $app['oauth.services'], $oauth_settings);
+                'oauth.user_info_listener' => function ($app) use ($oauthSettings) {
+                    return new OauthInfoListener($app['oauth'], $app['oauth.services'], $oauthSettings);
                 }
             ]
         );
 
         // setup firewalls
-        $custom_firewalls = $crate_settings->get('firewalls', new Settings)->toArray();
-        $oauth_firewalls = $oauth_settings ? [
+        $customFirewalls = $crateSettings->get('firewalls', new Settings)->toArray();
+        $oauthFirewalls = $oauthSettings ? [
             'oauth' => [
                 // provide security context to default firewall
-                'context' => $oauth_settings->get('context', 'default'),
-                'pattern' => "^$routing_prefix/auth/",
+                'context' => $oauthSettings->get('context', 'default'),
+                'pattern' => "^$routingPrefix/auth/",
                 'anonymous' => true,
                 'oauth' => [
-                    'login_path' => "$routing_prefix/auth/{service}",
-                    'callback_path' => "$routing_prefix/auth/{service}/callback",
-                    'check_path' => "$routing_prefix/auth/{service}/check",
-                    'failure_path' => "$routing_prefix/login",
-                    'default_target_path' => "$routing_prefix/user/list",
+                    'login_path' => "$routingPrefix/auth/{service}",
+                    'callback_path' => "$routingPrefix/auth/{service}/callback",
+                    'check_path' => "$routingPrefix/auth/{service}/check",
+                    'failure_path' => 'hlx.security.login',
+                    'default_target_path' => 'home',
                     'with_csrf' => true
                 ],
-                'users' => $app[$serviceKey]
+                'users' => $userService
             ]
         ] : [];
 
         $app->register(
             new SecurityServiceProvider,
             [
-                'security.default_encoder' => $app[$serviceKey],
+                'security.default_encoder' => $userService,
                 'security.firewalls' => array_merge(
                     // @todo need better firewall building and merge
-                    $custom_firewalls,
-                    $oauth_firewalls,
+                    $customFirewalls,
+                    $oauthFirewalls,
                     [
                         'dev' => [
                             'pattern' => '^/_(profiler|wdt)/',
                             'security' => false
                         ],
-                        'login' => [ 'pattern' => "^$routing_prefix/login$" ],
-                        'registration' => [ 'pattern' => "^$routing_prefix/registration$" ],
-                        'verification' => [ 'pattern' => "^$routing_prefix/verify$" ],
-                        'set_password' => [ 'pattern' => "^$routing_prefix/set_password$" ],
-                        'forgot_password' => [ 'pattern' => "^$routing_prefix/forgot_password$" ],
+                        'login' => [ 'pattern' => "^$routingPrefix/login$" ],
+                        'registration' => [ 'pattern' => "^$routingPrefix/registration$" ],
+                        'verification' => [ 'pattern' => "^$routingPrefix/verify$" ],
+                        'password' => [ 'pattern' => "^$routingPrefix/password/(set|forgot)$" ],
                         'home' => [
                             'pattern' => '^/$',
                             'anonymous' => true
@@ -139,20 +141,21 @@ class UserServiceProvisioner extends SilexServiceProvisioner implements EventLis
                                 ]
                             ],
                             'form' => [
-                                'login_path' => "$routing_prefix/login",
-                                'check_path' => "$routing_prefix/login_check",
-                                'default_target_path' => "$routing_prefix/user/list"
+                                'login_path' => 'hlx.security.login',
+                                'check_path' => 'hlx.security.login.check',
+                                'default_target_path' => 'home'
                             ],
                             'logout' => [
-                                'logout_path' => "$routing_prefix/logout",
+                                'logout_path' => "$routingPrefix/logout",
+                                'target_url' => '/goodbye',
                                 'invalidate_session' => true,
                                 'with_csrf' => true
                             ],
                             'remember_me' => array_merge(
                                 [ 'name' => 'HLX_SECURITY' ],
-                                $cookie_settings->toArray()
+                                $cookieSettings->toArray()
                             ),
-                            'users' => $app[$serviceKey]
+                            'users' => $userService
                         ]
                     ]
                 ),
@@ -172,8 +175,6 @@ class UserServiceProvisioner extends SilexServiceProvisioner implements EventLis
             $app->register(new SessionServiceProvider);
             $app->register(new RememberMeServiceProvider);
         }
-
-        parent::provision($app, $injector, $configProvider, $serviceDefinition, $provisionerSettings);
 
         return $injector;
     }

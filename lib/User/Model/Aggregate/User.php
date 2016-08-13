@@ -217,15 +217,14 @@ class User extends BaseUser
         $values = $command->getValues();
 
         // do not overwrite values if already set
-        if (!empty($this->getFirstname())) {
+        if (!empty($this->getFirstname()) && isset($values['firstname'])) {
             unset($values['firstname']);
         }
 
-        if (!empty($this->getLastname())) {
+        if (!empty($this->getLastname()) && isset($values['lastname'])) {
             unset($values['lastname']);
         }
-
-        if (!empty($this->getLocale())) {
+        if (!empty($this->getLocale()) && isset($values['locale'])) {
             unset($values['locale']);
         }
 
@@ -271,7 +270,7 @@ class User extends BaseUser
             'seq_number' => $this->getRevision() + 1,
             'aggregate_root_type' => $this->getType()->getPrefix(),
             'aggregate_root_identifier' => $this->getIdentifier(),
-            'data' => $command->getValues(),
+            'data' => $values,
             'embedded_entity_events' => new EmbeddedEntityEventList([
                 new TokenAddedEvent([
                     'data' => [

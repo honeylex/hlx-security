@@ -18,6 +18,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
@@ -38,7 +40,11 @@ class RegistrationController
 
     protected $userService;
 
+    protected $tokenStorage;
+
     protected $recaptchaSettings;
+
+    protected $autoLoginSettings;
 
     public function __construct(
         FormFactoryInterface $formFactory,
@@ -46,15 +52,18 @@ class RegistrationController
         UrlGeneratorInterface $urlGenerator,
         AccountService $accountService,
         UserProviderInterface $userService,
-        ConfigProviderInterface $configProvider
+        ConfigProviderInterface $configProvider,
+        TokenStorageInterface $tokenStorage
     ) {
         $this->formFactory = $formFactory;
         $this->templateRenderer = $templateRenderer;
         $this->urlGenerator = $urlGenerator;
         $this->accountService = $accountService;
         $this->userService = $userService;
+        $this->tokenStorage = $tokenStorage;
         $crateSettings = $configProvider->getCrateMap()->getItem('hlx.security')->getSettings();
         $this->recaptchaSettings = $crateSettings->get('recaptcha', new Settings);
+        $this->autoLoginSettings = $crateSettings->get('auto_login', new Settings);
     }
 
     public function read(Request $request, Application $app)
@@ -90,6 +99,7 @@ class RegistrationController
         $formData = $form->getData();
         $username = $formData['username'];
         $email = $formData['email'];
+        $role =  $formData['role'];
 
         try {
             $this->validateRecaptcha($request->request->get('g-recaptcha-response'));
@@ -98,7 +108,18 @@ class RegistrationController
         } catch (UsernameNotFoundException $error) {
             // register only if username/email do not already exist
             $this->accountService->registerUser($formData);
-            return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
+            if ($this->autoLoginSettings->get('enabled') && $session = $request->getSession()) {
+                $firewall = $this->autoLoginSettings->get('firewall', 'default');
+                $user = $this->userService->loadUserByUsernameOrEmail($username, $email);
+                $token = new UsernamePasswordToken($user, null, $firewall, [ $role ]);
+                $this->tokenStorage->setToken($token);
+                $session->set('_security_'.$firewall, serialize($token));
+                $session->save();
+                $targetPath = $this->autoLoginSettings->get('target_path', 'home');
+                return $app->redirect($this->urlGenerator->generate($targetPath));
+            } else {
+                return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
+            }
         } catch (AuthenticationException $error) {
             $errors = (array) $error->getMessageKey();
         }
