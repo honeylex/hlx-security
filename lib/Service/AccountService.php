@@ -72,6 +72,7 @@ class AccountService
                 'email' => $token->getEmail(),
                 'firstname' => $token->getAttribute('firstname'),
                 'lastname' => $token->getAttribute('lastname'),
+                'locale' => $token->getAttribute('locale'),
                 'role' => $role
             ])
             ->withId($token->getUid())

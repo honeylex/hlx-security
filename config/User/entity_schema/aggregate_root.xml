@@ -20,6 +20,7 @@
             <attribute name="role" type="text" />
             <attribute name="firstname" type="text" />
             <attribute name="lastname" type="text" />
+            <attribute name="locale" type="text" />
             <attribute name="password_hash" type="text" />
             <attribute name="images" type="image-list" />
             <attribute name="tokens" type="embedded-entity-list">

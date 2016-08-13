@@ -7,17 +7,21 @@ use Gigablah\Silex\OAuth\OAuthServiceProvider;
 use Hlx\Security\Authenticator\OauthAuthenticator;
 use Hlx\Security\Authenticator\TokenAuthenticator;
 use Hlx\Security\EventListener\OauthInfoListener;
+use Hlx\Security\Locale\SessionLocaleListener;
+use Hlx\Security\Locale\UserLocaleListener;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
 use Honeybee\FrameworkBinding\Silex\Service\Provisioner\SilexServiceProvisioner;
 use Honeybee\Infrastructure\Config\Settings;
 use Honeybee\Infrastructure\Config\SettingsInterface;
 use Honeybee\ServiceDefinitionInterface;
 use Pimple\Container;
+use Silex\Api\EventListenerProviderInterface;
 use Silex\Provider\RememberMeServiceProvider;
 use Silex\Provider\SecurityServiceProvider;
 use Silex\Provider\SessionServiceProvider;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class UserServiceProvisioner extends SilexServiceProvisioner
+class UserServiceProvisioner extends SilexServiceProvisioner implements EventListenerProviderInterface
 {
     public function provision(
         Container $app,
@@ -172,5 +176,13 @@ class UserServiceProvisioner extends SilexServiceProvisioner
         parent::provision($app, $injector, $configProvider, $serviceDefinition, $provisionerSettings);
 
         return $injector;
+    }
+
+    public function subscribe(Container $app, EventDispatcherInterface $dispatcher)
+    {
+        if (isset($app['session'])) {
+            $dispatcher->addSubscriber(new SessionLocaleListener);
+            $dispatcher->addSubscriber(new UserLocaleListener($app['session']));
+        }
     }
 }

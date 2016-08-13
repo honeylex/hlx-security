@@ -105,6 +105,19 @@ abstract class User extends AggregateRoot
     }
 
     /**
+     * Returns the current value of the 'locale' attribute on this
+     * 'User' entity. The 'default_value' option set for
+     * this attribute is returned if no value was set. If neither a value nor
+     * default value was set the 'null_value' option value is returned.
+     *
+     * @return mixed Value or default value of attribute 'locale'. Null value otherwise (defaults to NULL).
+     */
+    public function getLocale()
+    {
+        return $this->getValue('locale');
+    }
+
+    /**
      * Returns the current value of the 'password_hash' attribute on this
      * 'User' entity. The 'default_value' option set for
      * this attribute is returned if no value was set. If neither a value nor

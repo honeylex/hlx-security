@@ -44,6 +44,16 @@ class User implements AdvancedUserInterface
         return $this->state['email'];
     }
 
+    public function getLocale()
+    {
+        return $this->state['locale'];
+    }
+
+    public function getLanguage()
+    {
+        return substr($this->getLocale(), 0, 2);
+    }
+
     public function getWorkflowState()
     {
         return $this->state['workflow_state'];

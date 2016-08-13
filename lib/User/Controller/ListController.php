@@ -132,12 +132,17 @@ class ListController
             'firstname' => '',
             'lastname' => '',
             'email' => '',
+            'locale' => '',
             'role' => ''
         ];
 
         return $this->formFactory->createBuilder(FormType::CLASS, $data)
             ->add('username', TextType::CLASS, ['constraints' => [ new NotBlank, new Length([ 'min' => 5 ]) ]])
             ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
+            ->add('locale', ChoiceType::CLASS, [
+                'choices' => [ 'English' => 'en_GB', 'Deutsch' => 'de_DE' ],
+                'constraints' => new Choice([ 'en_GB', 'de_DE' ]),
+            ])
             ->add('firstname', TextType::CLASS, [ 'required' => false ])
             ->add('lastname', TextType::CLASS, [ 'required' => false ])
             ->add('role', ChoiceType::CLASS, [

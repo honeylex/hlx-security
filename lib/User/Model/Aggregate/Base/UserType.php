@@ -74,6 +74,11 @@ abstract class UserType extends AggregateRootType
                     []
                 ),
                 new \Trellis\Runtime\Attribute\Text\TextAttribute(
+                    'locale',
+                    $this,
+                    []
+                ),
+                new \Trellis\Runtime\Attribute\Text\TextAttribute(
                     'password_hash',
                     $this,
                     []

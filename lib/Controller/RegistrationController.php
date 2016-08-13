@@ -138,6 +138,10 @@ class RegistrationController
                 'first_options'  => [ 'label' => 'Password' ],
                 'second_options' => [ 'label' => 'Repeat Password' ]
             ])
+            ->add('locale', ChoiceType::CLASS, [
+                'choices' => [ 'English' => 'en_GB', 'Deutsch' => 'de_DE' ],
+                'constraints' => new Choice([ 'en_GB', 'de_DE' ])
+            ])
             ->add('firstname', TextType::CLASS, [ 'required' => false ])
             ->add('lastname', TextType::CLASS, [ 'required' => false ])
             ->add('role', ChoiceType::CLASS, [
@@ -146,7 +150,6 @@ class RegistrationController
             ])
             ->getForm();
     }
-
 
     protected function validateRecaptcha($gRecaptchaResponse, $remoteIp = null)
     {
