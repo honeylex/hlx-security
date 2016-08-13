@@ -25,7 +25,7 @@ class UpdateOauthUserCommand extends ModifyAggregateRootCommand
 
     public function getAffectedAttributeNames()
     {
-        return [ 'firstname', 'lastname', 'tokens' ];
+        return [ 'firstname', 'lastname', 'locale', 'tokens' ];
     }
 
     public function getId()

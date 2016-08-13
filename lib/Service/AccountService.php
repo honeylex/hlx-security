@@ -104,7 +104,8 @@ class AccountService
             ->withKnownRevision($user->getRevision())
             ->withValues([
                 'firstname' => $token->getAttribute('firstname'),
-                'lastname' => $token->getAttribute('lastname')
+                'lastname' => $token->getAttribute('lastname'),
+                'locale' => $token->getAttribute('locale')
             ])
             ->withId($token->getUid())
             ->withService($serviceName)

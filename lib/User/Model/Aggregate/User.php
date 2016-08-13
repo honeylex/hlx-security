@@ -214,6 +214,21 @@ class User extends BaseUser
     {
         $this->guardCommandPreConditions($command);
 
+        $values = $command->getValues();
+
+        // do not overwrite values if already set
+        if (!empty($this->getFirstname())) {
+            unset($values['firstname']);
+        }
+
+        if (!empty($this->getLastname())) {
+            unset($values['lastname']);
+        }
+
+        if (!empty($this->getLocale())) {
+            unset($values['locale']);
+        }
+
         foreach ($this->getTokens() as $position => $token) {
             if ($token instanceof Oauth && $token->getValue('service') === $command->getService()) {
                 if ($token->getToken() !== $command->getToken()) {
@@ -224,7 +239,7 @@ class User extends BaseUser
                         'seq_number' => $this->getRevision() + 1,
                         'aggregate_root_type' => $this->getType()->getPrefix(),
                         'aggregate_root_identifier' => $this->getIdentifier(),
-                        'data' => $command->getValues(),
+                        'data' => $values,
                         'embedded_entity_events' => new EmbeddedEntityEventList([
                             new TokenModifiedEvent([
                                 'data' => [
