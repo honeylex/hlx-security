@@ -10,6 +10,7 @@ use Honeybee\Infrastructure\Mail\MailServiceInterface;
 use Honeybee\Infrastructure\Mail\Message;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class MailService
 {
@@ -21,22 +22,26 @@ class MailService
 
     protected $templateRenderer;
 
+    protected $translator;
+
     public function __construct(
         ConfigInterface $config,
         LoggerInterface $logger,
         MailServiceInterface $mailService,
-        TemplateRendererInterface $templateRenderer
+        TemplateRendererInterface $templateRenderer,
+        TranslatorInterface $translator
     ) {
         $this->config = $config;
         $this->logger = $logger;
         $this->mailService = $mailService;
         $this->templateRenderer = $templateRenderer;
+        $this->translator = $translator;
     }
 
     public function sendVerificationRequest(Verification $token, User $user)
     {
         $message = $this->createMessageFromTemplate(
-            '@hlx-security/email/registration_verification.txt.twig',
+            'registration_verification',
             $user,
             [
                 'username' => $this->getName($user),
@@ -46,7 +51,7 @@ class MailService
             ]
         );
 
-        $message->setSubject('Verification required');
+        $message->setSubject($this->trans('Verification required', $user));
 
         $result = $this->mailService->send($message);
     }
@@ -54,7 +59,7 @@ class MailService
     public function sendSetPasswordInstructions(SetPassword $token, User $user)
     {
         $message = $this->createMessageFromTemplate(
-            '@hlx-security/email/set_password.txt.twig',
+            'set_password',
             $user,
             [
                 'username' => $this->getName($user),
@@ -62,7 +67,7 @@ class MailService
             ]
         );
 
-        $message->setSubject('Password setting instructions');
+        $message->setSubject($this->trans('Password setting instructions', $user));
 
         $result = $this->mailService->send($message);
     }
@@ -70,12 +75,12 @@ class MailService
     public function sendPasswordSetNotification(User $user)
     {
         $message = $this->createMessageFromTemplate(
-            '@hlx-security/email/password_set.txt.twig',
+            'password_set',
             $user,
             [ 'username' => $this->getName($user) ]
         );
 
-        $message->setSubject('Your password was set');
+        $message->setSubject($this->trans('Your password was set', $user));
 
         $result = $this->mailService->send($message);
     }
@@ -104,9 +109,19 @@ class MailService
             $message->setReplyTo([ $replyEmail => $this->config->get('reply_name', '') ]);
         }
 
-        $bodyText = $this->templateRenderer->render($template, $templateVars);
+        // render by user language
+        $bodyText = $this->templateRenderer->render(
+            sprintf('@hlx-security/email/%s.%s.txt.twig', $template, $user->getLocaleLanguage()),
+            $templateVars
+        );
+
         $message->setBodyText($bodyText);
 
         return $message;
+    }
+
+    protected function trans($key, User $user, array $params = [])
+    {
+        return $this->translator->trans($key, $params, 'email', $user->getLocaleLanguage());
     }
 }

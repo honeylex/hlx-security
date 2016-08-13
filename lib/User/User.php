@@ -49,7 +49,7 @@ class User implements AdvancedUserInterface
         return $this->state['locale'];
     }
 
-    public function getLanguage()
+    public function getLocaleLanguage()
     {
         return substr($this->getLocale(), 0, 2);
     }
