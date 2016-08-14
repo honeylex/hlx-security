@@ -104,7 +104,7 @@ class RegistrationController
             $this->validateRecaptcha($request->request->get('g-recaptcha-response'));
             if (!$this->userService->userExists($username, $email)) {
                 $this->accountService->registerUser($formData);
-                // auto login handling
+                // auto login handling - requires sync registration
                 if ($this->autoLoginSettings->get('enabled') && $session = $request->getSession()) {
                     $firewall = $this->autoLoginSettings->get('firewall', 'default');
                     $user = $this->userService->loadUserByEmail($email);
@@ -147,7 +147,7 @@ class RegistrationController
     protected function buildRegistrationForm(FormFactoryInterface $formFactory)
     {
         return $this->formFactory->createBuilder(FormType::CLASS)
-            ->add('username', TextType::CLASS, ['constraints' => [ new NotBlank, new Length([ 'min' => 5 ]) ]])
+            ->add('username', TextType::CLASS, [ 'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ] ])
             ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
             ->add('password', RepeatedType::CLASS, [
                 'type' => PasswordType::CLASS,

@@ -40,7 +40,7 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface, OA
 
     public function loadUserByUsername($username)
     {
-        $security_user = $this->authService->findByUsername($username);
+        $security_user = $this->authService->findByUsernameOrEmail($username);
 
         if (!$security_user) {
             throw new UsernameNotFoundException;

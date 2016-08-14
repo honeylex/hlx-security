@@ -91,7 +91,7 @@ class CreateController
     protected function buildUserForm()
     {
         return $this->formFactory->createBuilder(FormType::CLASS)
-            ->add('username', TextType::CLASS, ['constraints' => [ new NotBlank, new Length([ 'min' => 5 ]) ]])
+            ->add('username', TextType::CLASS, [ 'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ] ])
             ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
             ->add('locale', ChoiceType::CLASS, [
                 'choices' => [ 'English' => 'en_GB', 'Deutsch' => 'de_DE' ],

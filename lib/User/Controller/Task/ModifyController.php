@@ -95,7 +95,7 @@ class ModifyController
     protected function buildUserForm(array $data = [])
     {
         return $this->formFactory->createBuilder(FormType::CLASS, $data)
-            ->add('username', TextType::CLASS, [ 'constraints' => [ new NotBlank, new Length([ 'min' => 5 ]) ]])
+            ->add('username', TextType::CLASS, [ 'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ] ])
             ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
             ->add('firstname', TextType::CLASS, [ 'required' => false ])
             ->add('lastname', TextType::CLASS, [ 'required' => false ])

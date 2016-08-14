@@ -8,14 +8,15 @@ use Honeybee\Infrastructure\Config\Settings;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use ReCaptcha\ReCaptcha;
 use Silex\Application;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ForgotPasswordController
@@ -80,11 +81,11 @@ class ForgotPasswordController
         }
 
         $formData = $form->getData();
-        $email = $formData['email'];
+        $username = $formData['username'];
 
         try {
             $this->validateRecaptcha($request->request->get('g-recaptcha-response'));
-            $user = $this->userService->loadUserByEmail($email);
+            $user = $this->userService->loadUserByUsername($username);
             $this->accountService->startSetUserPassword($user);
         } catch (AuthenticationException $error) {
             return $this->templateRenderer->render(
@@ -104,7 +105,10 @@ class ForgotPasswordController
     protected function buildForm(FormFactoryInterface $formFactory, array $data = [])
     {
         return $formFactory->createBuilder(FormType::CLASS, $data)
-            ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
+            ->add('username', TextType::CLASS, [
+                'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ],
+                'label' => 'Username or Email'
+            ])
             ->getForm();
     }
 

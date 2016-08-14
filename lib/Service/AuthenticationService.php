@@ -112,6 +112,32 @@ class AuthenticationService implements AuthServiceInterface
         return $user;
     }
 
+    public function findByUsernameOrEmail($username)
+    {
+        $queryResult = $this->getProjectionQueryService()->find(
+            new CriteriaQuery(
+                new CriteriaList,
+                new CriteriaList(
+                    [
+                        new AttributeCriteria('username', new Equals($username)),
+                        new AttributeCriteria('email', new Equals($username))
+                    ],
+                    CriteriaList::OP_OR
+                ),
+                new CriteriaList,
+                0,
+                1
+            )
+        );
+
+        $user = null;
+        if (1 === $queryResult->getTotalCount()) {
+            $user = $queryResult->getFirstResult();
+        }
+
+        return $user;
+    }
+
     public function findAllByUsernameOrEmail($username, $email, array $ignoreIds = [])
     {
         $filterCriteriaList = new CriteriaList([

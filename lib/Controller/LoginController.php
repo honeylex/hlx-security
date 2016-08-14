@@ -78,7 +78,10 @@ class LoginController implements LogoutSuccessHandlerInterface
     protected function buildLoginForm(FormFactoryInterface $formFactory)
     {
         return $formFactory->createNamedBuilder(null, FormType::CLASS)
-            ->add('_username', TextType::CLASS, ['constraints' => [ new NotBlank, new Length([ 'min' => 5 ]) ]])
+            ->add('_username', TextType::CLASS, [
+                'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ],
+                'label' => 'Username or Email'
+            ])
             ->add('_password', PasswordType::CLASS, [ 'constraints' => new NotBlank ])
             ->add('_remember_me', CheckboxType::CLASS, [ 'data' => true ])
             ->getForm();
