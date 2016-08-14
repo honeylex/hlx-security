@@ -5,24 +5,24 @@ namespace Hlx\Security\User\Controller\Task;
 use Hlx\Security\Service\AccountService;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Silex\Application;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class ModifyController
+class CreateController
 {
-    protected $templateRenderer;
-
     protected $formFactory;
+
+    protected $templateRenderer;
 
     protected $urlGenerator;
 
@@ -31,14 +31,14 @@ class ModifyController
     protected $accountService;
 
     public function __construct(
-        TemplateRendererInterface $templateRenderer,
         FormFactoryInterface $formFactory,
+        TemplateRendererInterface $templateRenderer,
         UrlGeneratorInterface $urlGenerator,
         UserProviderInterface $userService,
         AccountService $accountService
     ) {
-        $this->templateRenderer = $templateRenderer;
         $this->formFactory = $formFactory;
+        $this->templateRenderer = $templateRenderer;
         $this->urlGenerator = $urlGenerator;
         $this->userService = $userService;
         $this->accountService = $accountService;
@@ -46,26 +46,23 @@ class ModifyController
 
     public function read(Request $request)
     {
-        $user = $this->userService->loadUserByIdentifier($request->get('identifier'));
-        $form = $this->buildUserForm($user->toArray());
+        $form = $this->buildUserForm();
 
         return $this->templateRenderer->render(
-            '@hlx-security/user/task/modify.html.twig',
-            [ 'form' => $form->createView(), 'user' => $user ]
+            '@hlx-security/user/task/create.html.twig',
+            [ 'form' => $form->createView() ]
         );
     }
 
     public function write(Request $request, Application $app)
     {
-        $user = $this->userService->loadUserByIdentifier($request->get('identifier'));
-
-        $form = $this->buildUserForm($user->toArray());
+        $form = $this->buildUserForm();
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
             return $this->templateRenderer->render(
-                '@hlx-security/user/task/modify.html.twig',
-                [ 'form' => $form->createView(), 'user' => $user ]
+                '@hlx-security/user/task/create.html.twig',
+                [ 'form' => $form->createView() ]
             );
         }
 
@@ -74,8 +71,8 @@ class ModifyController
         $email = $formData['email'];
 
         try {
-            if (!$this->userService->userExists($username, $email, [ $user->getIdentifier() ])) {
-                $this->accountService->updateUser($user, $formData);
+            if (!$this->userService->userExists($username, $email)) {
+                $this->accountService->registerUser($formData);
                 return $app->redirect($this->urlGenerator->generate('hlx.security.user.list'));
             }
         } catch (AuthenticationException $error) {
@@ -83,26 +80,25 @@ class ModifyController
         }
 
         return $this->templateRenderer->render(
-            '@hlx-security/user/task/modify.html.twig',
+            '@hlx-security/user/task/create.html.twig',
             [
                 'form' => $form->createView(),
-                'user' => $user,
                 'errors' => isset($errors) ? $errors : [ 'This user is already registered.' ]
             ]
         );
     }
 
-    protected function buildUserForm(array $data = [])
+    protected function buildUserForm()
     {
-        return $this->formFactory->createBuilder(FormType::CLASS, $data)
-            ->add('username', TextType::CLASS, [ 'constraints' => [ new NotBlank, new Length([ 'min' => 5 ]) ]])
+        return $this->formFactory->createBuilder(FormType::CLASS)
+            ->add('username', TextType::CLASS, ['constraints' => [ new NotBlank, new Length([ 'min' => 5 ]) ]])
             ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
-            ->add('firstname', TextType::CLASS, [ 'required' => false ])
-            ->add('lastname', TextType::CLASS, [ 'required' => false ])
             ->add('locale', ChoiceType::CLASS, [
                 'choices' => [ 'English' => 'en_GB', 'Deutsch' => 'de_DE' ],
-                'constraints' => new Choice([ 'en_GB', 'de_DE' ])
+                'constraints' => new Choice([ 'en_GB', 'de_DE' ]),
             ])
+            ->add('firstname', TextType::CLASS, [ 'required' => false ])
+            ->add('lastname', TextType::CLASS, [ 'required' => false ])
             ->add('role', ChoiceType::CLASS, [
                 'choices' => [ 'Administrator' => 'administrator', 'User' => 'user' ],
                 'constraints' => new Choice([ 'administrator', 'user' ]),

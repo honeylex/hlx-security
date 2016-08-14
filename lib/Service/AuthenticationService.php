@@ -4,6 +4,7 @@ namespace Hlx\Security\Service;
 
 use Hlx\Security\User\Projection\Standard\User;
 use Honeybee\Infrastructure\Config\ConfigInterface;
+use Honeybee\Infrastructure\DataAccess\Finder\FinderMap;
 use Honeybee\Infrastructure\DataAccess\Query\AttributeCriteria;
 use Honeybee\Infrastructure\DataAccess\Query\Comparison\Equals;
 use Honeybee\Infrastructure\DataAccess\Query\CriteriaList;
@@ -21,21 +22,31 @@ class AuthenticationService implements AuthServiceInterface
 
     protected $queryServiceMap;
 
+    protected $finderMap;
+
     protected $passwordHandler;
 
     public function __construct(
         ConfigInterface $config,
         QueryServiceMap $queryServiceMap,
+        FinderMap $finderMap,
         CryptedPasswordHandler $passwordHandler
     ) {
         $this->config = $config;
         $this->queryServiceMap = $queryServiceMap;
+        $this->finderMap = $finderMap;
         $this->passwordHandler = $passwordHandler;
     }
 
     public function getTypeKey()
     {
         return static::TYPE_KEY;
+    }
+
+    public function findByIdentifier($identifier)
+    {
+        $results = $this->getFinder()->getByIdentifier($identifier);
+        return $results->getFirstResult();
     }
 
     public function findByUsername($username)
@@ -101,30 +112,31 @@ class AuthenticationService implements AuthServiceInterface
         return $user;
     }
 
-    public function findByUsernameOrEmail($username, $email)
+    public function findAllByUsernameOrEmail($username, $email, array $ignoreIds = [])
     {
-        $queryResult = $this->getProjectionQueryService()->find(
-            new CriteriaQuery(
-                new CriteriaList,
-                new CriteriaList(
-                    [
-                        new AttributeCriteria('username', new Equals($username)),
-                        new AttributeCriteria('email', new Equals($email))
-                    ],
-                    CriteriaList::OP_OR
-                ),
-                new CriteriaList,
-                0,
-                1
+        $filterCriteriaList = new CriteriaList([
+            new CriteriaList(
+                [
+                    new AttributeCriteria('username', new Equals($username)),
+                    new AttributeCriteria('email', new Equals($email))
+                ],
+                CriteriaList::OP_OR
             )
-        );
+        ]);
 
-        $user = null;
-        if (1 === $queryResult->getTotalCount()) {
-            $user = $queryResult->getFirstResult();
+        if (!empty($ignoreIds)) {
+            $filterCriteriaList->addItem(new AttributeCriteria('_id', new Equals($ignoreIds, true)));
         }
 
-        return $user;
+        return $this->getProjectionQueryService()->find(
+            new CriteriaQuery(
+                new CriteriaList,
+                $filterCriteriaList,
+                new CriteriaList,
+                0,
+                1000
+            )
+        );
     }
 
     public function authenticate($username, $password, $options = [])
@@ -141,6 +153,15 @@ class AuthenticationService implements AuthServiceInterface
     public function encodePassword($password)
     {
         return $this->passwordHandler->hash($password);
+    }
+
+    protected function getFinder()
+    {
+        $finderKey = $this->config->get(
+            'finder',
+            'hlx.security.user::projection.standard::view_store::finder'
+        );
+        return $this->finderMap->getItem($finderKey);
     }
 
     protected function getProjectionQueryService()

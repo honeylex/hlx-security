@@ -29,6 +29,11 @@ class User implements AdvancedUserInterface
         return $this->state['revision'];
     }
 
+    public function getLanguage()
+    {
+        return $this->state['language'];
+    }
+
     public function getUsername()
     {
         return $this->state['username'];

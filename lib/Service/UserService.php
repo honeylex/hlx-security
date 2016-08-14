@@ -27,6 +27,17 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface, OA
         $this->accountService = $accountService;
     }
 
+    public function loadUserByIdentifier($identifier)
+    {
+        $security_user = $this->authService->findByIdentifier($identifier);
+
+        if (!$security_user) {
+            throw new UsernameNotFoundException;
+        }
+
+        return new User($security_user->toArray());
+    }
+
     public function loadUserByUsername($username)
     {
         $security_user = $this->authService->findByUsername($username);
@@ -75,15 +86,10 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface, OA
         return $user;
     }
 
-    public function loadUserByUsernameOrEmail($username, $email)
+    public function userExists($username, $email, array $ignoreIds = [])
     {
-        $security_user = $this->authService->findByUsernameOrEmail($username, $email);
-
-        if (!$security_user) {
-            throw new UsernameNotFoundException;
-        }
-
-        return new User($security_user->toArray());
+        $result = $this->authService->findAllByUsernameOrEmail($username, $email, $ignoreIds);
+        return $result->getTotalCount() > 0;
     }
 
     public function refreshUser(UserInterface $user)

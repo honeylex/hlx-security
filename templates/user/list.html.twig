@@ -14,7 +14,7 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-xs-12 col-md-8">
+    <div class="col-xs-12">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <div class="userlist-header">
@@ -76,8 +76,7 @@
                 <thead>
                     <tr>
                         <th>username</th>
-                        <th>firstname</th>
-                        <th>lastname</th>
+                        <th>name</th>
                         <th>email</th>
                         <th>locale</th>
                         <th>role</th>
@@ -102,8 +101,7 @@
                                 {{ user.username }}
                             {% endif %}
                         </td>
-                        <td>{{ user.firstname }}</td>
-                        <td>{{ user.lastname }}</td>
+                        <td>{{ user.firstname }} {{ user.lastname }}</td>
                         <td>{{ user.email }}</td>
                         <td>{{ user.locale }}</td>
                         <td>{{ user.role }}</td>
@@ -177,23 +175,10 @@
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
-        </div>
-    </div>
-    <div class="col-xs-12 col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">Create user</div>
-            <div class="panel-body">
-                <!--
-                create form
-                -->
-
-                <form method="post">
-                    {{ form_widget(form) }}
-
-                    <button class="btn btn-success" type="submit">create</button>
-                </form>
             </div>
+        </div>
+        <div class="pull-right">
+            <a href="{{ url('hlx.security.user.tasks.create') }}" class="btn btn-primary">create user</a>
         </div>
     </div>
 </div>

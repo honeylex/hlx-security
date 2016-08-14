@@ -99,26 +99,24 @@ class RegistrationController
         $formData = $form->getData();
         $username = $formData['username'];
         $email = $formData['email'];
-        $role =  $formData['role'];
 
         try {
             $this->validateRecaptcha($request->request->get('g-recaptcha-response'));
-            $this->userService->loadUserByUsernameOrEmail($username, $email);
-            $errors = [ 'This user is already registered.' ];
-        } catch (UsernameNotFoundException $error) {
-            // register only if username/email do not already exist
-            $this->accountService->registerUser($formData);
-            if ($this->autoLoginSettings->get('enabled') && $session = $request->getSession()) {
-                $firewall = $this->autoLoginSettings->get('firewall', 'default');
-                $user = $this->userService->loadUserByUsernameOrEmail($username, $email);
-                $token = new UsernamePasswordToken($user, null, $firewall, [ $role ]);
-                $this->tokenStorage->setToken($token);
-                $session->set('_security_'.$firewall, serialize($token));
-                $session->save();
-                $targetPath = $this->autoLoginSettings->get('target_path', 'home');
-                return $app->redirect($this->urlGenerator->generate($targetPath));
-            } else {
-                return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
+            if (!$this->userService->userExists($username, $email)) {
+                $this->accountService->registerUser($formData);
+                // auto login handling
+                if ($this->autoLoginSettings->get('enabled') && $session = $request->getSession()) {
+                    $firewall = $this->autoLoginSettings->get('firewall', 'default');
+                    $user = $this->userService->loadUserByEmail($email);
+                    $token = new UsernamePasswordToken($user, null, $firewall, $user->getRoles());
+                    $this->tokenStorage->setToken($token);
+                    $session->set('_security_'.$firewall, serialize($token));
+                    $session->save();
+                    $targetPath = $this->autoLoginSettings->get('target_path', 'home');
+                    return $app->redirect($this->urlGenerator->generate($targetPath));
+                } else {
+                    return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
+                }
             }
         } catch (AuthenticationException $error) {
             $errors = (array) $error->getMessageKey();
@@ -130,7 +128,7 @@ class RegistrationController
                 'form' => $form->createView(),
                 'recaptcha_enabled' => $this->recaptchaSettings->get('enabled'),
                 'recaptcha_site_key' => $this->recaptchaSettings->get('site_key'),
-                'errors' => $errors
+                'errors' => isset($errors) ? $errors : [ 'This user is already registered.' ]
             ]
         );
     }

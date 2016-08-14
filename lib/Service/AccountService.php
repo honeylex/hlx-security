@@ -5,6 +5,7 @@ namespace Hlx\Security\Service;
 use Gigablah\Silex\OAuth\Security\Authentication\Token\OAuthTokenInterface;
 use Hlx\Security\User\Model\Aggregate\UserType;
 use Hlx\Security\User\Model\Task\LogoutUser\LogoutUserCommand;
+use Hlx\Security\User\Model\Task\ModifyUser\ModifyUserCommand;
 use Hlx\Security\User\Model\Task\RegisterOauthUser\RegisterOauthUserCommand;
 use Hlx\Security\User\Model\Task\RegisterUser\RegisterUserCommand;
 use Hlx\Security\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
@@ -22,6 +23,7 @@ use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationExc
 use Symfony\Component\Security\Core\Exception\DisabledException;
 use Symfony\Component\Security\Core\Exception\LockedException;
 use Symfony\Component\Security\Core\Exception\LogoutException;
+use Symfony\Component\Security\Core\Exception\RuntimeException;
 
 class AccountService
 {
@@ -89,6 +91,23 @@ class AccountService
         if (!$result instanceof Success) {
             throw new CustomUserMessageAuthenticationException(
                 sprintf('Error registering user via %s.', $serviceName)
+            );
+        }
+
+        $this->commandBus->post($result->get());
+    }
+
+    public function updateUser(User $user, array $values)
+    {
+        $result = (new AggregateRootCommandBuilder($this->userType, ModifyUserCommand::CLASS))
+            ->withAggregateRootIdentifier($user->getIdentifier())
+            ->withKnownRevision($user->getRevision())
+            ->withValues($values)
+            ->build();
+
+        if (!$result instanceof Success) {
+            throw new RuntimeException(
+                sprintf('Error updating user "%s".', $user->getUsername())
             );
         }
 
