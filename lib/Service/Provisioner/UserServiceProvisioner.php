@@ -7,8 +7,10 @@ use Gigablah\Silex\OAuth\OAuthServiceProvider;
 use Hlx\Security\Authenticator\OauthAuthenticator;
 use Hlx\Security\Authenticator\TokenAuthenticator;
 use Hlx\Security\EventListener\OauthInfoListener;
-use Hlx\Security\Locale\SessionLocaleListener;
-use Hlx\Security\Locale\UserLocaleListener;
+use Hlx\Security\EventListener\SessionLocaleListener;
+use Hlx\Security\EventListener\UserLocaleListener;
+use Hlx\Security\EventListener\UserLoginListener;
+use Hlx\Security\EventListener\UserLogoutListener;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
 use Honeybee\FrameworkBinding\Silex\Service\Provisioner\ProvisionerInterface;
 use Honeybee\Infrastructure\Config\Settings;
@@ -47,9 +49,20 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
             ->alias(UserProviderInterface::CLASS, $service)
             ->make($service);
 
-        // logout handler registration - 'default' matching firewall name
-        $app['security.authentication.logout_handler.default'] = function () use ($injector, $provisionerSettings) {
-            return $injector->make($provisionerSettings->get('logout_handler'));
+        // logout handler - 'default' matching firewall name
+        $app['security.authentication.logout_handler.default'] = function ($app) use ($injector) {
+            return $injector->share(UserLogoutListener::CLASS)->make(
+                UserLogoutListener::CLASS,
+                [ ':targetUrl' => $app['security.firewalls']['default']['logout']['target_url'] ]
+            );
+        };
+
+        // login success handler - 'default' matching firewall name
+        $app['security.authentication.success_handler.default'] = function ($app) use ($injector) {
+            return $injector->share(UserLoginListener::CLASS)->make(
+                UserLoginListener::CLASS,
+                [ ':options' => $app['security.firewalls']['default']['form'] ]
+            );
         };
 
         // api token authenticator
@@ -113,38 +126,35 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
             [
                 'security.default_encoder' => $userService,
                 'security.firewalls' => array_merge(
-                    $customFirewalls,
                     $oauthFirewalls,
-                    [
-                        'dev' => [
-                            'pattern' => '^/_(profiler|wdt)/',
-                            'security' => false
+                    array_replace_recursive(
+                        [
+                            'dev' => [
+                                'pattern' => '^/_(profiler|wdt)/',
+                                'security' => false
+                            ],
+                            'default' => [
+                                'pattern' => "^.*$",
+                                'anonymous' => true,
+                                'form' => [
+                                    'login_path' => 'hlx.security.login',
+                                    'check_path' => 'hlx.security.login.check',
+                                    'default_target_path' => '/'
+                                ],
+                                'logout' => [
+                                    'logout_path' => "$routingPrefix/logout",
+                                    'target_url' => '/',
+                                    'invalidate_session' => true,
+                                    'with_csrf' => true
+                                ],
+                                'remember_me' => [
+                                    'name' => 'HLX_SECURITY'
+                                ],
+                                'users' => $userService
+                            ]
                         ],
-                        'default' => [
-                            'pattern' => "^.*$",
-                            'anonymous' => true,
-                            'guard' => [
-                                'authenticators' => [
-                                    'hlx.security.oauth_authenticator'
-                                ]
-                            ],
-                            'form' => [
-                                'login_path' => 'hlx.security.login',
-                                'check_path' => 'hlx.security.login.check',
-                                'default_target_path' => 'home'
-                            ],
-                            'logout' => [
-                                'logout_path' => "$routingPrefix/logout",
-                                'invalidate_session' => true,
-                                'with_csrf' => true
-                            ],
-                            'remember_me' => array_merge(
-                                [ 'name' => 'HLX_SECURITY' ],
-                                $crateSettings->get('cookie', new Settings)->toArray()
-                            ),
-                            'users' => $userService
-                        ]
-                    ]
+                        $customFirewalls
+                    )
                 ),
                 'security.access_rules' => array_merge(
                     $crateSettings->get('access_rules', new Settings)->toArray(),
@@ -159,7 +169,7 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
                 ),
                 'security.role_hierarchy' => array_merge(
                     [
-                        'administrator' => [ 'ROLE_ADMIN', 'ROLE_USER' ],
+                        'administrator' => [ 'ROLE_ADMIN', 'ROLE_USER', 'ROLE_ALLOWED_TO_SWITCH' ],
                         'user' => [ 'ROLE_USER' ]
                     ],
                     $crateSettings->get('role_hierarchy', new Settings)->toArray()

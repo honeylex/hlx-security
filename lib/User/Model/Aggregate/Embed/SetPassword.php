@@ -28,4 +28,8 @@ use Hlx\Security\User\Model\Aggregate\Embed\Base\SetPassword as BaseSetPassword;
  */
 class SetPassword extends BaseSetPassword
 {
+    public function hasExpired()
+    {
+        return $this->getExpiresAt()->getTimestamp() <= time();
+    }
 }

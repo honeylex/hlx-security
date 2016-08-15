@@ -2,6 +2,7 @@
 
 namespace Hlx\Security\Authenticator;
 
+use Hlx\Security\User\OauthUser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\AuthenticationTrustResolverInterface;
@@ -28,13 +29,17 @@ class OauthAuthenticator extends AbstractGuardAuthenticator
 
     public function getCredentials(Request $request)
     {
+        return [];
     }
 
-    public function getUser($credentials, UserProviderInterface $userProvider)
+    public function getUser($credentials, UserProviderInterface $userService)
     {
         $token = $this->tokenStorage->getToken();
         if ($token && !$this->trustResolver->isAnonymous($token)) {
-            return $token->getUser();
+            $user = $token->getUser();
+            if ($user instanceof OauthUser) {
+                return $user;
+            }
         }
     }
 

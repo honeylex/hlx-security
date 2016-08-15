@@ -4,6 +4,8 @@ namespace Hlx\Security\User\Controller;
 
 use Carbon\Carbon;
 use Hlx\Security\User\Model\Aggregate\UserType;
+use Hlx\Security\User\Model\Task\LoginUser\OauthUserLoggedInEvent;
+use Hlx\Security\User\Model\Task\LoginUser\UserLoggedInEvent;
 use Hlx\Security\User\Model\Task\LogoutUser\UserLoggedOutEvent;
 use Hlx\Security\User\Model\Task\ModifyUser\UserModifiedEvent;
 use Hlx\Security\User\Model\Task\ProceedUserWorkflow\UserWorkflowProceededEvent;
@@ -11,7 +13,7 @@ use Hlx\Security\User\Model\Task\RegisterOauthUser\OauthUserRegisteredEvent;
 use Hlx\Security\User\Model\Task\RegisterUser\UserRegisteredEvent;
 use Hlx\Security\User\Model\Task\SetUserPassword\UserPasswordSetEvent;
 use Hlx\Security\User\Model\Task\SetUserPassword\UserPasswordSetStartedEvent;
-use Hlx\Security\User\Model\Task\UpdateOauthUser\OauthUserUpdatedEvent;
+use Hlx\Security\User\Model\Task\ConnectOauthUser\OauthUserConnectedEvent;
 use Honeybee\Infrastructure\DataAccess\Storage\StorageReaderMap;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,10 +58,10 @@ class HistoryController
                 $sentiment = 'success';
                 $title = 'User data was modified';
                 $icon = 'glyphicon-pencil';
-            } elseif ($event instanceof OauthUserUpdatedEvent) {
+            } elseif ($event instanceof OauthUserConnectedEvent) {
                 $type = 'modify';
                 $sentiment = 'success';
-                $title = 'User was modified via Oauth';
+                $title = 'User was connected via Oauth';
                 $icon = 'glyphicon-pencil';
             } elseif ($event instanceof UserWorkflowProceededEvent) {
                 $title = 'User was ';
@@ -88,6 +90,16 @@ class HistoryController
                 $type = 'modify';
                 $sentiment = 'success';
                 $title = 'User password set';
+                $icon = 'glyphicon-lock';
+            } elseif ($event instanceof UserLoggedInEvent) {
+                $type = 'modify';
+                $sentiment = 'success';
+                $title = 'User logged in';
+                $icon = 'glyphicon-lock';
+            } elseif ($event instanceof OauthUserLoggedInEvent) {
+                $type = 'modify';
+                $sentiment = 'success';
+                $title = 'User logged in via Oauth';
                 $icon = 'glyphicon-lock';
             } elseif ($event instanceof UserLoggedOutEvent) {
                 $type = 'modify';

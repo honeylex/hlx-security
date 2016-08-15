@@ -105,15 +105,17 @@ class User implements AdvancedUserInterface
 
     public function isCredentialsNonExpired()
     {
-        $auth_token = $this->getToken('authentication');
-        return isset($auth_token['expires_at'])
-            ? new DateTime('now') < new DateTime($auth_token['expires_at'])
-            : true;
+        return true;
     }
 
     public function isEnabled()
     {
         return $this->getWorkflowState() !== 'deactivated';
+    }
+
+    public function isVerified()
+    {
+        return $this->getWorkflowState() === 'verified';
     }
 
     public function getSalt()

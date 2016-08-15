@@ -17,8 +17,6 @@ hlx.security.user_service:
   class: Hlx\Security\Service\UserService
   provisioner:
     class: Hlx\Security\Service\Provisioner\UserServiceProvisioner
-    settings:
-      logout_handler: Hlx\Security\Controller\LoginController
 
 hlx.security.token_storage:
   class: Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage

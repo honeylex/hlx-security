@@ -42,9 +42,6 @@
                 <attribute name="token" type="text">
                     <option name="mandatory">true</option>
                 </attribute>
-                <attribute name="expires_at" type="timestamp">
-                    <option name="format_native">Y-m-d\TH:i:s.uP</option>
-                </attribute>
             </attributes>
         </embed_definition>
         <embed_definition name="Authentication">

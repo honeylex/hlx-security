@@ -2,6 +2,7 @@
 
 namespace Hlx\Security\Authenticator;
 
+use Hlx\Security\User\ApiUser;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -32,9 +33,10 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
         ];
     }
 
-    public function getUser($credentials, UserProviderInterface $userProvider)
+    public function getUser($credentials, UserProviderInterface $userService)
     {
-        return $userProvider->loadUserByToken($credentials['token'], 'authentication');
+        $user = $userService->loadUserByToken($credentials['token'], 'authentication');
+        return new ApiUser($user->toArray());
     }
 
     public function checkCredentials($credentials, UserInterface $user)

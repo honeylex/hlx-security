@@ -47,14 +47,6 @@ abstract class VerificationType extends EmbeddedEntityType
                     ),
                     $parent_attribute
                 ),
-                new \Trellis\Runtime\Attribute\Timestamp\TimestampAttribute(
-                    'expires_at',
-                    $this,
-                    array(
-                        'format_native' => 'Y-m-d\\TH:i:s.uP',
-                    ),
-                    $parent_attribute
-                ),
             ],
             new Options(
                 []

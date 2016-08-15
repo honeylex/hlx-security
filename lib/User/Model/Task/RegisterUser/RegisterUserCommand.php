@@ -11,8 +11,6 @@ class RegisterUserCommand extends CreateAggregateRootCommand
 
     protected $expires_at;
 
-    protected $token;
-
     public function getEventClass()
     {
         return UserRegisteredEvent::CLASS;
@@ -23,16 +21,10 @@ class RegisterUserCommand extends CreateAggregateRootCommand
         return $this->expires_at;
     }
 
-    public function getToken()
-    {
-        return $this->token;
-    }
-
     protected function guardRequiredState()
     {
         parent::guardRequiredState();
 
-        Assertion::nullOrDate($this->expires_at, self::DATE_ISO8601_WITH_MICROS);
-        Assertion::regex($this->token, '#\w{16,64}#i');
+        Assertion::date($this->expires_at, self::DATE_ISO8601_WITH_MICROS);
     }
 }

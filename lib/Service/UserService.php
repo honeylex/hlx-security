@@ -4,6 +4,7 @@ namespace Hlx\Security\Service;
 
 use Gigablah\Silex\OAuth\Security\Authentication\Token\OAuthTokenInterface;
 use Gigablah\Silex\OAuth\Security\User\Provider\OAuthUserProviderInterface;
+use Hlx\Security\User\OauthUser;
 use Hlx\Security\User\User;
 use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
@@ -73,17 +74,22 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface, OA
 
     public function loadUserByOAuthCredentials(OAuthTokenInterface $token)
     {
+        $email = $token->getEmail();
+
         try {
-            $user = $this->loadUserByEmail($token->getEmail());
-            $this->accountService->updateOauthUser($user, $token);
+            $user = $this->loadUserByEmail($email);
+            $this->accountService->handleOauthUser($user, $token);
         } catch (UsernameNotFoundException $error) {
             $this->accountService->registerOauthUser($token);
-            $user = $this->loadUserByEmail($token->getEmail());
         }
 
+        // load again to get updated token and proceed workflow
+        $user = $this->loadUserByEmail($email);
         $this->accountService->verifyUser($user);
 
-        return $user;
+        // @todo may need to refresh workflow state
+
+        return new OauthUser($user->toArray(), $token->getService());
     }
 
     public function userExists($username, $email, array $ignoreIds = [])
@@ -94,17 +100,23 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface, OA
 
     public function refreshUser(UserInterface $user)
     {
-        if (!$this->supportsClass(get_class($user))) {
+        $userClass = get_class($user);
+        if (!$this->supportsClass($userClass)) {
             throw new UnsupportedUserException;
         }
 
-        // @todo called after loadUserByUsername so no need to load user twice?
-        return $this->loadUserByUsername($user->getUsername());
+        $refreshedUser = $this->loadUserByIdentifier($user->getIdentifier());
+
+        if ($user instanceof OauthUser) {
+            return new $userClass($refreshedUser->toArray(), $user->getService());
+        } else {
+            return new $userClass($user->toArray());
+        }
     }
 
     public function supportsClass($class)
     {
-        return User::CLASS === $class;
+        return User::CLASS === $class || is_subclass_of($class, User::CLASS);
     }
 
     public function encodePassword($raw, $salt)

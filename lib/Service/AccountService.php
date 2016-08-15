@@ -4,16 +4,17 @@ namespace Hlx\Security\Service;
 
 use Gigablah\Silex\OAuth\Security\Authentication\Token\OAuthTokenInterface;
 use Hlx\Security\User\Model\Aggregate\UserType;
+use Hlx\Security\User\Model\Task\ConnectOauthUser\ConnectOauthUserCommand;
+use Hlx\Security\User\Model\Task\LoginUser\LoginOauthUserCommand;
+use Hlx\Security\User\Model\Task\LoginUser\LoginUserCommand;
 use Hlx\Security\User\Model\Task\LogoutUser\LogoutUserCommand;
 use Hlx\Security\User\Model\Task\ModifyUser\ModifyUserCommand;
 use Hlx\Security\User\Model\Task\RegisterOauthUser\RegisterOauthUserCommand;
 use Hlx\Security\User\Model\Task\RegisterUser\RegisterUserCommand;
 use Hlx\Security\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
 use Hlx\Security\User\Model\Task\SetUserPassword\StartSetUserPasswordCommand;
-use Hlx\Security\User\Model\Task\UpdateOauthUser\UpdateOauthUserCommand;
 use Hlx\Security\User\Model\Task\VerifyUser\VerifyUserCommand;
 use Hlx\Security\User\User;
-use Honeybee\Common\Util\StringToolkit;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
 use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Honeybee\Model\Command\AggregateRootCommandBuilder;
@@ -56,7 +57,10 @@ class AccountService
 
         $result = (new AggregateRootCommandBuilder($this->userType, RegisterUserCommand::CLASS))
             ->withValues($values)
-            ->withToken(StringToolkit::generateRandomToken())
+            ->withExpiresAt(date(
+                RegisterUserCommand::DATE_ISO8601_WITH_MICROS,
+                time() + (86400 * 30) // 30 days
+            ))
             ->build();
 
         if (!$result instanceof Success) {
@@ -76,7 +80,6 @@ class AccountService
                 'email' => $token->getEmail(),
                 'firstname' => $token->getAttribute('firstname'),
                 'lastname' => $token->getAttribute('lastname'),
-                'locale' => $token->getAttribute('locale'),
                 'role' => $role
             ])
             ->withId($token->getUid())
@@ -114,25 +117,39 @@ class AccountService
         $this->commandBus->post($result->get());
     }
 
-    public function updateOauthUser(User $user, OAuthTokenInterface $token)
+    public function handleOauthUser(User $user, OAuthTokenInterface $token)
+    {
+        $serviceName = $token->getService();
+
+        foreach($user->getTokens() as $userToken) {
+            if ($userToken['@type'] === 'oauth' && $userToken['service'] == $serviceName) {
+                // Log in instead of connect
+                $this->loginOauthUser($user, $token);
+                return;
+            }
+        }
+
+        $this->connectOauthUser($user, $token);
+    }
+
+    public function connectOauthUser(User $user, OAuthTokenInterface $token)
     {
         $this->guardUserStatus($user);
 
         $serviceName = $token->getService();
 
-        $result = (new AggregateRootCommandBuilder($this->userType, UpdateOauthUserCommand::CLASS))
+        $result = (new AggregateRootCommandBuilder($this->userType, ConnectOauthUserCommand::CLASS))
             ->withAggregateRootIdentifier($user->getIdentifier())
             ->withKnownRevision($user->getRevision())
             ->withValues([
                 'firstname' => $token->getAttribute('firstname'),
-                'lastname' => $token->getAttribute('lastname'),
-                'locale' => $token->getAttribute('locale')
+                'lastname' => $token->getAttribute('lastname')
             ])
             ->withId($token->getUid())
             ->withService($serviceName)
             ->withToken($token->getCredentials())
             ->withExpiresAt(date(
-                UpdateOauthUserCommand::DATE_ISO8601_WITH_MICROS,
+                ConnectOauthUserCommand::DATE_ISO8601_WITH_MICROS,
                 $token->getAccessToken()->getEndOfLife()
             ))
             ->build();
@@ -150,7 +167,7 @@ class AccountService
     {
         $this->guardUserStatus($user);
 
-        if ($user->getWorkflowState() === 'verified') {
+        if ($user->isVerified()) {
             return;
         }
 
@@ -175,10 +192,9 @@ class AccountService
         $result = (new AggregateRootCommandBuilder($this->userType, StartSetUserPasswordCommand::CLASS))
             ->withAggregateRootIdentifier($user->getIdentifier())
             ->withKnownRevision($user->getRevision())
-            ->withToken(StringToolkit::generateRandomToken())
             ->withExpiresAt(date(
                 StartSetUserPasswordCommand::DATE_ISO8601_WITH_MICROS,
-                time() + 86400 // 1 day
+                time() + 600 // 10 minutes between resets
             ))
             ->build();
 
@@ -204,6 +220,51 @@ class AccountService
         if (!$result instanceof Success) {
             throw new CustomUserMessageAuthenticationException(
                 sprintf('Error setting password for user "%s".', $user->getUsername())
+            );
+        }
+
+        $this->commandBus->post($result->get());
+    }
+
+    public function loginUser(User $user)
+    {
+        $result = (new AggregateRootCommandBuilder($this->userType, LoginUserCommand::CLASS))
+            ->withAggregateRootIdentifier($user->getIdentifier())
+            ->withKnownRevision($user->getRevision())
+            ->withExpiresAt(date(
+                LoginUserCommand::DATE_ISO8601_WITH_MICROS,
+                time() + (86400 * 30) // 30 days
+            ))
+            ->build();
+
+        if (!$result instanceof Success) {
+            throw new CustomUserMessageAuthenticationException(
+                sprintf('Error logging in user "%s".', $user->getUsername())
+            );
+        }
+
+        $this->commandBus->post($result->get());
+    }
+
+    public function loginOauthUser(User $user, OAuthTokenInterface $token)
+    {
+        $serviceName = $token->getService();
+
+        $result = (new AggregateRootCommandBuilder($this->userType, LoginOauthUserCommand::CLASS))
+            ->withAggregateRootIdentifier($user->getIdentifier())
+            ->withKnownRevision($user->getRevision())
+            ->withId($token->getUid())
+            ->withService($serviceName)
+            ->withToken($token->getCredentials())
+            ->withExpiresAt(date(
+                LoginOauthUserCommand::DATE_ISO8601_WITH_MICROS,
+                $token->getAccessToken()->getEndOfLife()
+            ))
+            ->build();
+
+        if (!$result instanceof Success) {
+            throw new CustomUserMessageAuthenticationException(
+                sprintf('Error logging in user "%s" via %s.', $user->getUsername(), $serviceName)
             );
         }
 

@@ -5,8 +5,8 @@ subscriptions:
         handler: Hlx\Security\User\Model\Task\RegisterUser\RegisterUserCommandHandler
       hlx.security.user.register_oauth_user:
         handler: Hlx\Security\User\Model\Task\RegisterOauthUser\RegisterOauthUserCommandHandler
-      hlx.security.user.update_oauth_user:
-        handler: Hlx\Security\User\Model\Task\UpdateOauthUser\UpdateOauthUserCommandHandler
+      hlx.security.user.connect_oauth_user:
+        handler: Hlx\Security\User\Model\Task\ConnectOauthUser\ConnectOauthUserCommandHandler
       hlx.security.user.modify_user:
         handler: Hlx\Security\User\Model\Task\ModifyUser\ModifyUserCommandHandler
       hlx.security.user.verify_user:
@@ -17,5 +17,9 @@ subscriptions:
         handler: Hlx\Security\User\Model\Task\SetUserPassword\StartSetUserPasswordCommandHandler
       hlx.security.user.set_user_password:
         handler: Hlx\Security\User\Model\Task\SetUserPassword\SetUserPasswordCommandHandler
+      hlx.security.user.login_user:
+        handler: Hlx\Security\User\Model\Task\LoginUser\LoginUserCommandHandler
+      hlx.security.user.login_oauth_user:
+        handler: Hlx\Security\User\Model\Task\LoginUser\LoginOauthUserCommandHandler
       hlx.security.user.logout_user:
         handler: Hlx\Security\User\Model\Task\LogoutUser\LogoutUserCommandHandler
