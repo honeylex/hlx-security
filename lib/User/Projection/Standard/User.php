@@ -29,8 +29,4 @@ use Hlx\Security\User\Projection\Standard\Base\User as BaseUser;
  */
 class User extends BaseUser
 {
-    public function getLocaleLanguage()
-    {
-        return substr($this->getLocale(), 0, 2);
-    }
 }

@@ -27,7 +27,7 @@ class SessionLocaleListener implements EventSubscriberInterface
             $request->getSession()->set('_locale', $locale);
         } else {
             // if no explicit locale has been set on this request, use one from the session
-            $request->setLocale($request->getSession()->get('_locale', $this->defaultLocale));
+            $request->setLocale($request->getSession()->get('_locale', $request->getLocale()));
         }
     }
 
@@ -35,7 +35,7 @@ class SessionLocaleListener implements EventSubscriberInterface
     {
         return [
             // must be registered after the default Locale listener
-            KernelEvents::REQUEST => [[ 'onKernelRequest', 15 ]],
+            KernelEvents::REQUEST => [[ 'onKernelRequest', 14 ]],
         ];
     }
 }

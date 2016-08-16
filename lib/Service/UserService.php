@@ -87,7 +87,8 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface, OA
         $user = $this->loadUserByEmail($email);
         $this->accountService->verifyUser($user);
 
-        // @todo may need to refresh workflow state
+        // @note may need to refresh workflow state although refreshUser is
+        // typically called by framework on next page load anyway
 
         return new OauthUser($user->toArray(), $token->getService());
     }

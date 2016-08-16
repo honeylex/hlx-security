@@ -1,6 +1,6 @@
 <?php
 
-namespace Hlx\Security\User\Model\Task\ConnectOauthUser;
+namespace Hlx\Security\User\Model\Task\ConnectService;
 
 use Hlx\Security\User\Model\Aggregate\UserType;
 use Honeybee\Infrastructure\Command\CommandInterface;
@@ -10,7 +10,7 @@ use Honeybee\Model\Aggregate\AggregateRootInterface;
 use Honeybee\Model\Command\AggregateRootCommandHandler;
 use Psr\Log\LoggerInterface;
 
-class ConnectOauthUserCommandHandler extends AggregateRootCommandHandler
+class ConnectOauthServiceCommandHandler extends AggregateRootCommandHandler
 {
     public function __construct(
         UserType $user_type,
@@ -25,6 +25,6 @@ class ConnectOauthUserCommandHandler extends AggregateRootCommandHandler
     {
         // @todo check service token does not exist already
 
-        $user->connectOauthUser($command);
+        $user->connectOauthService($command);
     }
 }

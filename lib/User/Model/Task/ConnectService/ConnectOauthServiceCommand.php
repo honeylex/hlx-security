@@ -1,12 +1,12 @@
 <?php
 
-namespace Hlx\Security\User\Model\Task\ConnectOauthUser;
+namespace Hlx\Security\User\Model\Task\ConnectService;
 
 use Assert\Assertion;
 use Honeybee\Model\Event\AggregateRootEventInterface;
 use Honeybee\Model\Task\ModifyAggregateRoot\ModifyAggregateRootCommand;
 
-class ConnectOauthUserCommand extends ModifyAggregateRootCommand
+class ConnectOauthServiceCommand extends ModifyAggregateRootCommand
 {
     const DATE_ISO8601_WITH_MICROS = 'Y-m-d\TH:i:s.uP';
 
@@ -20,7 +20,7 @@ class ConnectOauthUserCommand extends ModifyAggregateRootCommand
 
     public function getEventClass()
     {
-        return UserOauthTokenConnectedEvent::CLASS;
+        return OauthServiceConnectedEvent::CLASS;
     }
 
     public function getAffectedAttributeNames()

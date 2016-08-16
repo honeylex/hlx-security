@@ -73,6 +73,8 @@ class SetPasswordController
         try {
             $user = $this->userService->loadUserByToken($formData['token'], 'set_password');
             $this->accountService->setUserPassword($user, $password);
+            // We can verify the user at this point if required
+            $this->accountService->verifyUser($user);
         } catch (AuthenticationException $error) {
             return $this->templateRenderer->render(
                 '@hlx-security/set_password.html.twig',

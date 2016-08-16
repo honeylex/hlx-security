@@ -100,8 +100,8 @@ class ModifyController
             ->add('firstname', TextType::CLASS, [ 'required' => false ])
             ->add('lastname', TextType::CLASS, [ 'required' => false ])
             ->add('locale', ChoiceType::CLASS, [
-                'choices' => [ 'English' => 'en_GB', 'Deutsch' => 'de_DE' ],
-                'constraints' => new Choice([ 'en_GB', 'de_DE' ])
+                'choices' => [ 'English' => 'en', 'Deutsch' => 'de' ],
+                'constraints' => new Choice([ 'en', 'de' ])
             ])
             ->add('role', ChoiceType::CLASS, [
                 'choices' => [ 'Administrator' => 'administrator', 'User' => 'user' ],

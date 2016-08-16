@@ -24,8 +24,8 @@ class UserLocaleListener implements EventSubscriberInterface
     {
         $user = $event->getAuthenticationToken()->getUser();
 
-        if (null !== $user->getLocaleLanguage()) {
-            $this->session->set('_locale', $user->getLocaleLanguage());
+        if (null !== $user->getLocale()) {
+            $this->session->set('_locale', $user->getLocale());
         }
     }
 

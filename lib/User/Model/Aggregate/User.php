@@ -8,8 +8,8 @@ use Hlx\Security\User\Model\Aggregate\Embed\Oauth;
 use Hlx\Security\User\Model\Aggregate\Embed\SetPassword;
 use Hlx\Security\User\Model\Aggregate\Embed\Verification;
 use Hlx\Security\User\Model\Task\AddToken\TokenAddedEvent;
-use Hlx\Security\User\Model\Task\ConnectOauthUser\ConnectOauthUserCommand;
-use Hlx\Security\User\Model\Task\ConnectOauthUser\OauthUserConnectedEvent;
+use Hlx\Security\User\Model\Task\ConnectService\ConnectOauthServiceCommand;
+use Hlx\Security\User\Model\Task\ConnectService\OauthServiceConnectedEvent;
 use Hlx\Security\User\Model\Task\LoginUser\LoginOauthUserCommand;
 use Hlx\Security\User\Model\Task\LoginUser\LoginUserCommand;
 use Hlx\Security\User\Model\Task\LoginUser\OauthUserLoggedInEvent;
@@ -18,8 +18,8 @@ use Hlx\Security\User\Model\Task\LogoutUser\LogoutUserCommand;
 use Hlx\Security\User\Model\Task\LogoutUser\UserLoggedOutEvent;
 use Hlx\Security\User\Model\Task\ModifyToken\TokenModifiedEvent;
 use Hlx\Security\User\Model\Task\ModifyUser\UserModifiedEvent;
-use Hlx\Security\User\Model\Task\RegisterOAuthUser\OauthUserRegisteredEvent;
-use Hlx\Security\User\Model\Task\RegisterOauthUser\RegisterOauthUserCommand;
+use Hlx\Security\User\Model\Task\RegisterUser\OauthUserRegisteredEvent;
+use Hlx\Security\User\Model\Task\RegisterUser\RegisterOauthUserCommand;
 use Hlx\Security\User\Model\Task\RegisterUser\RegisterUserCommand;
 use Hlx\Security\User\Model\Task\RegisterUser\UserRegisteredEvent;
 use Hlx\Security\User\Model\Task\RemoveToken\TokenRemovedEvent;
@@ -277,7 +277,7 @@ class User extends BaseUser
     /*
      * Create Oauth token for service
      */
-    public function connectOauthUser(ConnectOauthUserCommand $command)
+    public function connectOauthService(ConnectOauthServiceCommand $command)
     {
         $this->guardCommandPreConditions($command);
 
@@ -293,7 +293,7 @@ class User extends BaseUser
         }
 
         $tokenUuid = Uuid::uuid4()->toString();
-        $this->applyEvent(new OauthUserConnectedEvent([
+        $this->applyEvent(new OauthServiceConnectedEvent([
             'metadata' => $command->getMetadata(),
             'uuid' => $this->getUuid(),
             'seq_number' => $this->getRevision() + 1,

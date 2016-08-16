@@ -189,7 +189,7 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
     public function subscribe(Container $app, EventDispatcherInterface $dispatcher)
     {
         if (isset($app['session'])) {
-            $dispatcher->addSubscriber(new SessionLocaleListener);
+            $dispatcher->addSubscriber(new SessionLocaleListener($app['locale']));
             $dispatcher->addSubscriber(new UserLocaleListener($app['session']));
         }
     }

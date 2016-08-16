@@ -111,7 +111,7 @@ class MailService
 
         // render by user language
         $bodyText = $this->templateRenderer->render(
-            sprintf('@hlx-security/email/%s.%s.txt.twig', $template, $user->getLocaleLanguage()),
+            sprintf('@hlx-security/email/%s.%s.txt.twig', $template, $user->getLocale()),
             $templateVars
         );
 
@@ -122,6 +122,6 @@ class MailService
 
     protected function trans($key, User $user, array $params = [])
     {
-        return $this->translator->trans($key, $params, 'email', $user->getLocaleLanguage());
+        return $this->translator->trans($key, $params, 'email', $user->getLocale());
     }
 }

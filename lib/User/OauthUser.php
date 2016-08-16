@@ -21,7 +21,7 @@ class OauthUser extends User
 
     public function isCredentialsNonExpired()
     {
-        foreach($this->getTokens() as $token) {
+        foreach ($this->getTokens() as $token) {
             if ($token['@type'] === 'oauth' && $token['service'] === $this->service) {
                 return new DateTime('now') < new DateTime($token['expires_at']);
             }

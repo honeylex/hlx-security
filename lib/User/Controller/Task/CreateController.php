@@ -94,8 +94,8 @@ class CreateController
             ->add('username', TextType::CLASS, [ 'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ] ])
             ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
             ->add('locale', ChoiceType::CLASS, [
-                'choices' => [ 'English' => 'en_GB', 'Deutsch' => 'de_DE' ],
-                'constraints' => new Choice([ 'en_GB', 'de_DE' ]),
+                'choices' => [ 'English' => 'en', 'Deutsch' => 'de' ],
+                'constraints' => new Choice([ 'en', 'de' ]),
             ])
             ->add('firstname', TextType::CLASS, [ 'required' => false ])
             ->add('lastname', TextType::CLASS, [ 'required' => false ])

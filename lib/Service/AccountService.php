@@ -4,12 +4,12 @@ namespace Hlx\Security\Service;
 
 use Gigablah\Silex\OAuth\Security\Authentication\Token\OAuthTokenInterface;
 use Hlx\Security\User\Model\Aggregate\UserType;
-use Hlx\Security\User\Model\Task\ConnectOauthUser\ConnectOauthUserCommand;
+use Hlx\Security\User\Model\Task\ConnectService\ConnectOauthServiceCommand;
 use Hlx\Security\User\Model\Task\LoginUser\LoginOauthUserCommand;
 use Hlx\Security\User\Model\Task\LoginUser\LoginUserCommand;
 use Hlx\Security\User\Model\Task\LogoutUser\LogoutUserCommand;
 use Hlx\Security\User\Model\Task\ModifyUser\ModifyUserCommand;
-use Hlx\Security\User\Model\Task\RegisterOauthUser\RegisterOauthUserCommand;
+use Hlx\Security\User\Model\Task\RegisterUser\RegisterOauthUserCommand;
 use Hlx\Security\User\Model\Task\RegisterUser\RegisterUserCommand;
 use Hlx\Security\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
 use Hlx\Security\User\Model\Task\SetUserPassword\StartSetUserPasswordCommand;
@@ -25,6 +25,7 @@ use Symfony\Component\Security\Core\Exception\DisabledException;
 use Symfony\Component\Security\Core\Exception\LockedException;
 use Symfony\Component\Security\Core\Exception\LogoutException;
 use Symfony\Component\Security\Core\Exception\RuntimeException;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class AccountService
 {
@@ -34,17 +35,21 @@ class AccountService
 
     protected $authService;
 
+    protected $translator;
+
     protected $logger;
 
     public function __construct(
         UserType $userType,
         CommandBusInterface $commandBus,
         AuthServiceInterface $authService,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        TranslatorInterface $translator
     ) {
         $this->userType = $userType;
         $this->commandBus = $commandBus;
         $this->authService = $authService;
+        $this->translator = $translator;
         $this->logger = $logger;
     }
 
@@ -53,6 +58,11 @@ class AccountService
         if (isset($values['password'])) {
             $values['password_hash'] = $this->authService->encodePassword($values['password']);
             unset($values['password']);
+        }
+
+        // Set the registration locale to the current locale if not provided
+        if (!isset($values['locale'])) {
+            $values['locale'] = $this->translator->getLocale();
         }
 
         $result = (new AggregateRootCommandBuilder($this->userType, RegisterUserCommand::CLASS))
@@ -80,6 +90,7 @@ class AccountService
                 'email' => $token->getEmail(),
                 'firstname' => $token->getAttribute('firstname'),
                 'lastname' => $token->getAttribute('lastname'),
+                'locale' => $this->translator->getLocale(),
                 'role' => $role
             ])
             ->withId($token->getUid())
@@ -121,7 +132,7 @@ class AccountService
     {
         $serviceName = $token->getService();
 
-        foreach($user->getTokens() as $userToken) {
+        foreach ($user->getTokens() as $userToken) {
             if ($userToken['@type'] === 'oauth' && $userToken['service'] == $serviceName) {
                 // Log in instead of connect
                 $this->loginOauthUser($user, $token);
@@ -129,16 +140,16 @@ class AccountService
             }
         }
 
-        $this->connectOauthUser($user, $token);
+        $this->connectOauthService($user, $token);
     }
 
-    public function connectOauthUser(User $user, OAuthTokenInterface $token)
+    public function connectOauthService(User $user, OAuthTokenInterface $token)
     {
         $this->guardUserStatus($user);
 
         $serviceName = $token->getService();
 
-        $result = (new AggregateRootCommandBuilder($this->userType, ConnectOauthUserCommand::CLASS))
+        $result = (new AggregateRootCommandBuilder($this->userType, ConnectOauthServiceCommand::CLASS))
             ->withAggregateRootIdentifier($user->getIdentifier())
             ->withKnownRevision($user->getRevision())
             ->withValues([
@@ -149,14 +160,14 @@ class AccountService
             ->withService($serviceName)
             ->withToken($token->getCredentials())
             ->withExpiresAt(date(
-                ConnectOauthUserCommand::DATE_ISO8601_WITH_MICROS,
+                ConnectOauthServiceCommand::DATE_ISO8601_WITH_MICROS,
                 $token->getAccessToken()->getEndOfLife()
             ))
             ->build();
 
         if (!$result instanceof Success) {
             throw new CustomUserMessageAuthenticationException(
-                sprintf('Error updating user "%s" via %s.', $user->getUsername(), $serviceName)
+                sprintf('Error connecting user "%s" to %s.', $user->getUsername(), $serviceName)
             );
         }
 

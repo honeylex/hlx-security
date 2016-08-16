@@ -54,11 +54,6 @@ class User implements AdvancedUserInterface
         return $this->state['locale'];
     }
 
-    public function getLocaleLanguage()
-    {
-        return substr($this->getLocale(), 0, 2);
-    }
-
     public function getWorkflowState()
     {
         return $this->state['workflow_state'];
