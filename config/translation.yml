@@ -1,0 +1,15 @@
+en:
+  messages:
+    'Login': Login
+  email:
+    'Verification required': 'Verification required'
+    'Password setting instructions': 'Password setting instructions'
+    'Your password was set': 'Your password was set'
+
+de:
+  messages:
+    'Login': Anmeldung
+  email:
+    'Verification required': 'Bestätigung notwendig'
+    'Password setting instructions': 'Passwort-Einstellung Anweisungen'
+    'Your password was set': 'Ihr Passwort wurde gesetzt'

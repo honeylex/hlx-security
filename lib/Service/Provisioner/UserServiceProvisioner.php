@@ -7,7 +7,6 @@ use Gigablah\Silex\OAuth\OAuthServiceProvider;
 use Hlx\Security\Authenticator\OauthAuthenticator;
 use Hlx\Security\Authenticator\TokenAuthenticator;
 use Hlx\Security\EventListener\OauthInfoListener;
-use Hlx\Security\EventListener\SessionLocaleListener;
 use Hlx\Security\EventListener\UserLocaleListener;
 use Hlx\Security\EventListener\UserLoginListener;
 use Hlx\Security\EventListener\UserLogoutListener;
@@ -20,7 +19,6 @@ use Pimple\Container;
 use Silex\Api\EventListenerProviderInterface;
 use Silex\Provider\RememberMeServiceProvider;
 use Silex\Provider\SecurityServiceProvider;
-use Silex\Provider\SessionServiceProvider;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -178,10 +176,7 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
         );
 
         // register after SecurityServiceProvider
-        if ($provisionerSettings->get('stateless', false) !== true) {
-            $app->register(new SessionServiceProvider);
-            $app->register(new RememberMeServiceProvider);
-        }
+        $app->register(new RememberMeServiceProvider);
 
         return $injector;
     }
@@ -189,7 +184,6 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
     public function subscribe(Container $app, EventDispatcherInterface $dispatcher)
     {
         if (isset($app['session'])) {
-            $dispatcher->addSubscriber(new SessionLocaleListener($app['locale']));
             $dispatcher->addSubscriber(new UserLocaleListener($app['session']));
         }
     }

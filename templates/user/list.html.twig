@@ -93,7 +93,7 @@
                             modify link
                             -->
                             {% if user|accepts_event('edit') %}
-                            <a href="{{ url(
+                            <a href="{{ path(
                                 'hlx.security.user.tasks.modify',
                                 { 'identifier': user.identifier}
                             ) }}" title="modify user">{{ user.username }}</a>
@@ -110,7 +110,7 @@
                                 <!--
                                 demote action
                                 -->
-                                <form method="post" class="form-inline" action="{{ url(
+                                <form method="post" class="form-inline" action="{{ path(
                                         'hlx.security.user.tasks.proceed',
                                         { 'identifier': user.identifier }
                                 ) }}">
@@ -126,7 +126,7 @@
                                 <!--
                                 promote action
                                 -->
-                                <form class="form-inline" method="post" action="{{ url(
+                                <form class="form-inline" method="post" action="{{ path(
                                         'hlx.security.user.tasks.proceed',
                                         { 'identifier': user.identifier }
                                 ) }}">
@@ -144,7 +144,7 @@
                             <!--
                             history link
                             -->
-                            <a href="{{ url(
+                            <a href="{{ path(
                                 'hlx.security.user.history',
                                 { 'identifier': user.identifier }
                             ) }}" class="btn btn-primary btn-xs" title="view user history">
@@ -156,7 +156,7 @@
                                 <!--
                                 delete action
                                 -->
-                                <form method="post" action="{{ url(
+                                <form method="post" action="{{ path(
                                         'hlx.security.user.tasks.proceed',
                                         { 'identifier': user.identifier }
                                 ) }}">
@@ -178,7 +178,7 @@
             </div>
         </div>
         <div class="pull-right">
-            <a href="{{ url('hlx.security.user.tasks.create') }}" class="btn btn-primary">create user</a>
+            <a href="{{ path('hlx.security.user.tasks.create') }}" class="btn btn-primary">create user</a>
         </div>
     </div>
 </div>
