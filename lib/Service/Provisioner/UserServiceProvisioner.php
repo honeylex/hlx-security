@@ -10,6 +10,7 @@ use Hlx\Security\EventListener\OauthInfoListener;
 use Hlx\Security\EventListener\UserLocaleListener;
 use Hlx\Security\EventListener\UserLoginListener;
 use Hlx\Security\EventListener\UserLogoutListener;
+use Hlx\Security\Voter\OwnershipVoter;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
 use Honeybee\FrameworkBinding\Silex\Service\Provisioner\ProvisionerInterface;
 use Honeybee\Infrastructure\Config\Settings;
@@ -129,7 +130,7 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
                         [
                             'dev' => [
                                 'pattern' => '^/_(profiler|wdt)/',
-                                'security' => false
+                                'security' => false // @todo set from environment
                             ],
                             'default' => [
                                 'pattern' => "^.*$",
@@ -167,13 +168,20 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
                 ),
                 'security.role_hierarchy' => array_merge(
                     [
-                        'administrator' => [ 'ROLE_ADMIN', 'ROLE_USER', 'ROLE_ALLOWED_TO_SWITCH' ],
+                        'ROLE_ADMIN' => [ 'ROLE_USER', 'ROLE_ALLOWED_TO_SWITCH' ],
+                        'administrator' => [ 'ROLE_ADMIN' ],
                         'user' => [ 'ROLE_USER' ]
                     ],
                     $crateSettings->get('role_hierarchy', new Settings)->toArray()
                 )
             ]
         );
+
+        // add ownership security voter
+        $app['security.voters'] = $app->extend('security.voters', function ($voters) {
+            $voters[] = new OwnershipVoter;
+            return $voters;
+        });
 
         // register after SecurityServiceProvider
         $app->register(new RememberMeServiceProvider);
