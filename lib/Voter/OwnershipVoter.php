@@ -2,6 +2,7 @@
 
 namespace Hlx\Security\Voter;
 
+use Hlx\Security\User\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -17,7 +18,7 @@ class OwnershipVoter extends Voter
     {
         $user = $token->getUser();
 
-        if ($user instanceof User) {
+        if (!$user instanceof User) {
             return false;
         }
 
