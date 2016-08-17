@@ -1,6 +1,9 @@
 en:
   messages:
     'Login': Login
+    'Logout': Logout
+    'Forgot your password?': 'Forgot your password?'
+    'My Account': 'My Account'
   email:
     'Verification required': 'Verification required'
     'Password setting instructions': 'Password setting instructions'
@@ -9,6 +12,9 @@ en:
 de:
   messages:
     'Login': Anmeldung
+    'Logout': Ausloggen
+    'Forgot your password?': 'Haben Sie Ihr Passwort vergessen?'
+    'My Account': 'Mein Konto'
   email:
     'Verification required': 'Bestätigung notwendig'
     'Password setting instructions': 'Passwort-Einstellung Anweisungen'
