@@ -1,0 +1,22 @@
+{
+    "hlx.security.user": [
+        {
+            "@command": "Hlx\\Security\\User\\Model\\Task\\RegisterUser\\RegisterUserCommand",
+            "values": {
+                "@type": "hlx.security.user",
+                "uuid": "11ee4239-3e82-38ee-8f0b-e59ce9e6cbe0",
+                "language": "de_DE",
+                "version": 1,
+                "username": "admin",
+                "email": "admin@honeylex.dev",
+                "role": "administrator",
+                "firstname": "Honeylex",
+                "lastname": "Admin",
+                "locale": "en",
+                "password_hash": "$2y$11$rI435hgSuSwUm46ESd2Dhu04RUUny1rzNDazy/zV8CK9Yf/vzAnU.",
+                "images": []
+            },
+            "expires_at": "2016-08-17T12:30:00.000000+00:00"
+        }
+    ]
+}

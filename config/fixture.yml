@@ -1,0 +1,9 @@
+#
+# Security fixture targets
+---
+hlx.security::fixture::writer:
+  active: true
+  fixture_loader:
+    class: Honeybee\Infrastructure\Fixture\FileSystemLoader
+    settings:
+      directory: ${project.dir}/vendor/honeylex/hlx-security/fixture
