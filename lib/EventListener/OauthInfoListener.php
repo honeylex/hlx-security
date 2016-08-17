@@ -4,6 +4,7 @@ namespace Hlx\Security\EventListener;
 
 use Gigablah\Silex\OAuth\EventListener\UserInfoListener;
 use Gigablah\Silex\OAuth\OAuthServiceRegistry;
+use Honeybee\Infrastructure\Config\Settings;
 use Honeybee\Infrastructure\Config\SettingsInterface;
 
 class OauthInfoListener extends UserInfoListener
