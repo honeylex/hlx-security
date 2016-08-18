@@ -216,7 +216,6 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
             $voters[] = new OwnershipVoter;
             return $voters;
         });
-
     }
 
     public function subscribe(Container $app, EventDispatcherInterface $dispatcher)

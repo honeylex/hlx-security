@@ -9,6 +9,9 @@ en:
     'Verification required': 'Verification required'
     'Password setting instructions': 'Password setting instructions'
     'Your password was set': 'Your password was set'
+  role:
+    'administrator': 'Administrator'
+    'user': 'User'
 
 de:
   messages:

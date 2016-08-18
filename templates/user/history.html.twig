@@ -29,9 +29,19 @@
                     <div class="timeline-body">
                         <p>Revision: {{ event.revision }}</p>
                         <p>Date: {{ event.date }}</p>
-                        <p>Changes:</p>
+                        {% if event.changes != '[]' %}
+                        <h5>Values changed:</h5>
                         <dd><pre class="json-highlight">{{ event.changes }}</pre></dd>
+                        {% else %}
+                        <h5>No values changed</h5>
+                        {% endif %}
                     </div>
+                    {% for embedded_event in event.embedded_events %}
+                    <div class="timeline-body">
+                        <h5>{{ embedded_event.title }}:</h5>
+                        <dd><pre class="json-highlight">{{ embedded_event.changes }}</pre></dd>
+                    </div>
+                    {% endfor %}
                 </div>
             </li>
             {% endfor %}

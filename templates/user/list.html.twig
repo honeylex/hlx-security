@@ -105,8 +105,8 @@
                         </td>
                         <td>{{ user.firstname }} {{ user.lastname }}</td>
                         <td>{{ user.email }}</td>
-                        <td>{{ user.locale }}</td>
-                        <td>{{ user.role }}</td>
+                        <td>{{ user.locale|trans([], 'locale') }}</td>
+                        <td>{{ user.role|trans([], 'role') }}</td>
                         <td class="list-item-actions workflow-state">
                             <div style="display: flex">
                                 <!--
