@@ -15,6 +15,7 @@ use Hlx\Security\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
 use Hlx\Security\User\Model\Task\SetUserPassword\StartSetUserPasswordCommand;
 use Hlx\Security\User\Model\Task\VerifyUser\VerifyUserCommand;
 use Hlx\Security\User\User;
+use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
 use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Honeybee\Model\Command\AggregateRootCommandBuilder;
@@ -39,11 +40,14 @@ class AccountService
 
     protected $logger;
 
+    protected $defaultRole;
+
     public function __construct(
         UserType $userType,
         CommandBusInterface $commandBus,
         AuthServiceInterface $authService,
         LoggerInterface $logger,
+        ConfigProviderInterface $configProvider,
         TranslatorInterface $translator
     ) {
         $this->userType = $userType;
@@ -51,9 +55,11 @@ class AccountService
         $this->authService = $authService;
         $this->translator = $translator;
         $this->logger = $logger;
+        $crateSettings = $configProvider->getCrateMap()->getItem('hlx.security')->getSettings();
+        $this->defaultRole = $crateSettings->get('default_role', 'user');
     }
 
-    public function registerUser(array $values)
+    public function registerUser(array $values, $role = null)
     {
         if (isset($values['password'])) {
             $values['password_hash'] = $this->authService->encodePassword($values['password']);
@@ -67,6 +73,7 @@ class AccountService
 
         $result = (new AggregateRootCommandBuilder($this->userType, RegisterUserCommand::CLASS))
             ->withValues($values)
+            ->withRole($role ?: $this->defaultRole)
             ->withExpiresAt(date(
                 RegisterUserCommand::DATE_ISO8601_WITH_MICROS,
                 time() + (86400 * 30) // 30 days
@@ -80,7 +87,7 @@ class AccountService
         $this->commandBus->post($result->get());
     }
 
-    public function registerOauthUser(OAuthTokenInterface $token, $role = 'user')
+    public function registerOauthUser(OAuthTokenInterface $token, $role = null)
     {
         $serviceName = $token->getService();
 
@@ -90,12 +97,12 @@ class AccountService
                 'email' => $token->getEmail(),
                 'firstname' => $token->getAttribute('firstname'),
                 'lastname' => $token->getAttribute('lastname'),
-                'locale' => $this->translator->getLocale(),
-                'role' => $role
+                'locale' => $this->translator->getLocale()
             ])
             ->withId($token->getUid())
             ->withService($serviceName)
             ->withToken($token->getCredentials())
+            ->withRole($role ?: $this->defaultRole)
             ->withExpiresAt(date(
                 RegisterOauthUserCommand::DATE_ISO8601_WITH_MICROS,
                 $token->getAccessToken()->getEndOfLife()

@@ -136,8 +136,8 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
                                 'pattern' => "^.*$",
                                 'anonymous' => true,
                                 'form' => [
-                                    'login_path' => 'hlx.security.login',
-                                    'check_path' => 'hlx.security.login.check',
+                                    'login_path' => "$routingPrefix/login",
+                                    'check_path' => "$routingPrefix/login/check",
                                     'default_target_path' => '/'
                                 ],
                                 'logout' => [

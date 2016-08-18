@@ -9,11 +9,18 @@ class RegisterUserCommand extends CreateAggregateRootCommand
 {
     const DATE_ISO8601_WITH_MICROS = 'Y-m-d\TH:i:s.uP';
 
+    protected $role;
+
     protected $expires_at;
 
     public function getEventClass()
     {
         return UserRegisteredEvent::CLASS;
+    }
+
+    public function getRole()
+    {
+        return $this->role;
     }
 
     public function getExpiresAt()
@@ -25,6 +32,8 @@ class RegisterUserCommand extends CreateAggregateRootCommand
     {
         parent::guardRequiredState();
 
+        Assertion::string($this->role);
+        Assertion::notBlank($this->role);
         Assertion::date($this->expires_at, self::DATE_ISO8601_WITH_MICROS);
     }
 }

@@ -85,6 +85,7 @@ class User extends BaseUser
     protected function registerUser(RegisterUserCommand $command)
     {
         $initialData = $this->createInitialData($command);
+        $initialData['role'] = $command->getRole();
         $authenticationTokenUuid = Uuid::uuid4()->toString();
         $verificationTokenUuid = Uuid::uuid4()->toString();
 
@@ -129,6 +130,7 @@ class User extends BaseUser
     protected function registerOauthUser(RegisterOauthUserCommand $command)
     {
         $initialData = $this->createInitialData($command);
+        $initialData['role'] = $command->getRole();
         $authenticationTokenUuid = Uuid::uuid4()->toString();
         $serviceTokenUuid = Uuid::uuid4()->toString();
 

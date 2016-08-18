@@ -4,6 +4,7 @@ en:
     'Logout': Logout
     'Forgot your password?': 'Forgot your password?'
     'My Account': 'My Account'
+    'Register': Register
   email:
     'Verification required': 'Verification required'
     'Password setting instructions': 'Password setting instructions'
@@ -15,6 +16,7 @@ de:
     'Logout': Ausloggen
     'Forgot your password?': 'Haben Sie Ihr Passwort vergessen?'
     'My Account': 'Mein Konto'
+    'Register': Anmelden
   email:
     'Verification required': 'Bestätigung notwendig'
     'Password setting instructions': 'Passwort-Einstellung Anweisungen'

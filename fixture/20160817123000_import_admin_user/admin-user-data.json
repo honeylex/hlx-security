@@ -9,13 +9,13 @@
                 "version": 1,
                 "username": "admin",
                 "email": "admin@honeylex.dev",
-                "role": "administrator",
                 "firstname": "Honeylex",
                 "lastname": "Admin",
                 "locale": "en",
                 "password_hash": "$2y$11$rI435hgSuSwUm46ESd2Dhu04RUUny1rzNDazy/zV8CK9Yf/vzAnU.",
                 "images": []
             },
+            "role": "administrator",
             "expires_at": "2016-08-17T12:30:00.000000+00:00"
         }
     ]
