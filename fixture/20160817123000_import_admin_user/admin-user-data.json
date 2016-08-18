@@ -17,6 +17,13 @@
             },
             "role": "administrator",
             "expires_at": "2016-08-17T12:30:00.000000+00:00"
+        },
+        {
+            "@command": "Hlx\\Security\\User\\Model\\Task\\ProceedUserWorkflow\\ProceedUserWorkflowCommand",
+            "aggregate_root_identifier": "hlx.security.user-11ee4239-3e82-38ee-8f0b-e59ce9e6cbe0-de_DE-1",
+            "known_revision": 1,
+            "current_state_name": "unverified",
+            "event_name": "promote"
         }
     ]
 }
