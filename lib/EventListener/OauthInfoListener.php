@@ -24,21 +24,13 @@ class OauthInfoListener extends UserInfoListener
         $serviceName = strtolower($token->getService());
 
         // add additional attributes to a token from service field mapping configuration
-        foreach ($this->getFieldMapping($serviceName) as $attribute => $field) {
+        $serviceSettings = $this->settings->get($serviceName, new Settings);
+        $fieldMapping = (array) $serviceSettings->get('field_mapping', []);
+
+        foreach ($fieldMapping as $attribute => $field) {
             if (isset($rawUserInfo[$field])) {
                 $token->setAttribute($attribute, $rawUserInfo[$field]);
             }
         }
-    }
-
-    protected function getFieldMapping($serviceName)
-    {
-        $field_mapping = [];
-        if ($service_settings = $this->settings->get($serviceName)) {
-            foreach ((array) $service_settings->get('field_mapping') as $mapping) {
-                $field_mapping = array_merge($field_mapping, (array) $mapping);
-            }
-        }
-        return $field_mapping;
     }
 }

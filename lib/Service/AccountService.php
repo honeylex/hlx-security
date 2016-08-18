@@ -17,6 +17,7 @@ use Hlx\Security\User\Model\Task\VerifyUser\VerifyUserCommand;
 use Hlx\Security\User\User;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
+use Honeybee\Infrastructure\Config\Settings;
 use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Honeybee\Model\Command\AggregateRootCommandBuilder;
 use Psr\Log\LoggerInterface;
@@ -42,13 +43,15 @@ class AccountService
 
     protected $defaultRole;
 
+    protected $availableRoles;
+
     public function __construct(
         UserType $userType,
         CommandBusInterface $commandBus,
         AuthServiceInterface $authService,
-        LoggerInterface $logger,
         ConfigProviderInterface $configProvider,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        LoggerInterface $logger
     ) {
         $this->userType = $userType;
         $this->commandBus = $commandBus;
@@ -56,7 +59,12 @@ class AccountService
         $this->translator = $translator;
         $this->logger = $logger;
         $crateSettings = $configProvider->getCrateMap()->getItem('hlx.security')->getSettings();
-        $this->defaultRole = $crateSettings->get('default_role', 'user');
+        $rolesSettings = $crateSettings->get('roles', new Settings);
+        $this->defaultRole = $rolesSettings->get('default_role', 'user');
+        $this->availableRoles = (array) $rolesSettings->get(
+            'available_roles',
+            [ 'User' => 'user', 'Administrator' => 'administrator' ]
+        );
     }
 
     public function registerUser(array $values, $role = null)
@@ -301,6 +309,11 @@ class AccountService
         }
 
         $this->commandBus->post($result->get());
+    }
+
+    public function getAvailableRoles()
+    {
+        return $this->availableRoles;
     }
 
     protected function guardUserStatus(User $user)

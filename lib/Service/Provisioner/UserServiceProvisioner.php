@@ -48,6 +48,138 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
             ->alias(UserProviderInterface::CLASS, $service)
             ->make($service);
 
+        // setup firewalls
+        $securityFirewalls = array_replace_recursive(
+            [
+                'dev' => [
+                    'pattern' => '^/_(profiler|wdt)/',
+                    'security' => false // @todo set from environment
+                ],
+                'default' => [
+                    'pattern' => "^.*$",
+                    'anonymous' => true,
+                    'form' => [
+                        'login_path' => "$routingPrefix/login",
+                        'check_path' => "$routingPrefix/login/check",
+                        'default_target_path' => '/'
+                    ],
+                    'logout' => [
+                        'logout_path' => "$routingPrefix/logout",
+                        'target_url' => '/',
+                        'invalidate_session' => true,
+                        'with_csrf' => true
+                    ],
+                    'remember_me' => [
+                        'name' => 'HLX_SECURITY'
+                    ],
+                    'users' => $userService
+                ]
+            ],
+            $crateSettings->get('firewalls', new Settings)->toArray()
+        );
+
+        // register oauth services
+        if ($oauthSettings = $crateSettings->get('oauth')) {
+            $oauthServices = [];
+            if ($facebookSettings = $oauthSettings->get('facebook')) {
+                if ($facebookSettings->get('enabled')) {
+                    $oauthServices['Facebook'] = [
+                        'key' => (string) $facebookSettings->get('app_key'),
+                        'secret' => (string) $facebookSettings->get('app_secret'),
+                        'scope' => (array) $facebookSettings->get('scope'),
+                        'user_endpoint' => sprintf(
+                            'https://graph.facebook.com/me?fields=%s',
+                            implode(',', (array) $facebookSettings->get('fields', [ 'id', 'name', 'email' ]))
+                        )
+                    ];
+                }
+            }
+
+            if (!empty($oauthServices)) {
+                // merge oauth firewalls
+                $securityFirewalls = array_merge(
+                    [
+                        'oauth' => [
+                            // provide security context to specific firewall
+                            'context' => $oauthSettings->get('context', 'default'),
+                            'pattern' => "^$routingPrefix/auth/",
+                            'anonymous' => true,
+                            'oauth' => [
+                                'login_path' => "$routingPrefix/auth/{service}",
+                                'callback_path' => "$routingPrefix/auth/{service}/callback",
+                                'check_path' => "$routingPrefix/auth/{service}/check",
+                                'failure_path' => 'hlx.security.login',
+                                'default_target_path' => 'home',
+                                'with_csrf' => true
+                            ],
+                            'users' => $userService
+                        ]
+                    ],
+                    $securityFirewalls
+                );
+
+                $app->register(
+                    new OAuthServiceProvider,
+                    [
+                        'oauth.services' => $oauthServices,
+                        'oauth.user_info_listener' => function ($app) use ($oauthSettings) {
+                            return new OauthInfoListener($app['oauth'], $app['oauth.services'], $oauthSettings);
+                        }
+                    ]
+                );
+            }
+        }
+
+        // setup roles and rules
+        $roleHierarchy =  [
+            'ROLE_ADMIN' => [ 'ROLE_USER', 'ROLE_ALLOWED_TO_SWITCH' ],
+            'administrator' => [ 'ROLE_ADMIN' ],
+            'user' => [ 'ROLE_USER' ]
+        ];
+
+        $accessRules = [
+            [ "^$routingPrefix/login$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
+            [ "^$routingPrefix/password/(set|forgot)$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
+            [ "^$routingPrefix/registration$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
+            [ "^$routingPrefix/verify$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
+            [ "^$routingPrefix/user", 'ROLE_ADMIN' ],
+            [ "^$routingPrefix/auth", 'ROLE_USER' ]
+        ];
+
+        if ($rolesSettings = $crateSettings->get('roles', new Settings)) {
+            $roleHierarchy = array_merge(
+                $roleHierarchy,
+                $rolesSettings->get('role_hierarchy', new Settings)->toArray()
+            );
+            $accessRules = array_merge(
+                $rolesSettings->get('access_rules', new Settings)->toArray(),
+                $accessRules
+            );
+        }
+
+        // Api setup
+        if ($apiSettings = $crateSettings->get('api', new Settings)) {
+            if ($apiSettings->get('enabled')) {
+                $app['hlx.security.token_authenticator'] = function ($app) {
+                    return new TokenAuthenticator;
+                };
+            }
+        }
+
+        // register the security service
+        $app->register(
+            new SecurityServiceProvider,
+            [
+                'security.default_encoder' => $userService,
+                'security.firewalls' => $securityFirewalls,
+                'security.access_rules' => $accessRules,
+                'security.role_hierarchy' => $roleHierarchy
+            ]
+        );
+
+        // register after SecurityServiceProvider
+        $app->register(new RememberMeServiceProvider);
+
         // logout handler - 'default' matching firewall name
         $app['security.authentication.logout_handler.default'] = function ($app) use ($injector) {
             return $injector->share(UserLogoutListener::CLASS)->make(
@@ -64,127 +196,11 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
             );
         };
 
-        // api token authenticator
-        $app['hlx.security.token_authenticator'] = function ($app) {
-            return new TokenAuthenticator;
-        };
-
-        // oauth token authenticator
-        $app['hlx.security.oauth_authenticator'] = function ($app) {
-            return new OauthAuthenticator($app['security.token_storage'], $app['security.trust_resolver']);
-        };
-
-        // register oauth services
-        $oauth_services = [];
-        if ($oauthSettings = $crateSettings->get('oauth')) {
-            if ($facebook_settings = $oauthSettings->get('facebook')) {
-                $oauth_services['Facebook'] = [
-                    'key' => (string) $facebook_settings->get('app_key'),
-                    'secret' => (string) $facebook_settings->get('app_secret'),
-                    'scope' => (array) $facebook_settings->get('scope'),
-                    'user_endpoint' => sprintf(
-                        'https://graph.facebook.com/me?fields=%s',
-                        implode(',', (array) $facebook_settings->get('fields', [ 'id', 'name', 'email' ]))
-                    )
-                ];
-            }
-        }
-
-        $app->register(
-            new OAuthServiceProvider,
-            [
-                'oauth.services' => $oauth_services,
-                'oauth.user_info_listener' => function ($app) use ($oauthSettings) {
-                    return new OauthInfoListener($app['oauth'], $app['oauth.services'], $oauthSettings);
-                }
-            ]
-        );
-
-        // setup firewalls
-        $customFirewalls = $crateSettings->get('firewalls', new Settings)->toArray();
-        $oauthFirewalls = $oauthSettings ? [
-            'oauth' => [
-                // provide security context to default firewall
-                'context' => $oauthSettings->get('context', 'default'),
-                'pattern' => "^$routingPrefix/auth/",
-                'anonymous' => true,
-                'oauth' => [
-                    'login_path' => "$routingPrefix/auth/{service}",
-                    'callback_path' => "$routingPrefix/auth/{service}/callback",
-                    'check_path' => "$routingPrefix/auth/{service}/check",
-                    'failure_path' => 'hlx.security.login',
-                    'default_target_path' => 'home',
-                    'with_csrf' => true
-                ],
-                'users' => $userService
-            ]
-        ] : [];
-
-        $app->register(
-            new SecurityServiceProvider,
-            [
-                'security.default_encoder' => $userService,
-                'security.firewalls' => array_merge(
-                    $oauthFirewalls,
-                    array_replace_recursive(
-                        [
-                            'dev' => [
-                                'pattern' => '^/_(profiler|wdt)/',
-                                'security' => false // @todo set from environment
-                            ],
-                            'default' => [
-                                'pattern' => "^.*$",
-                                'anonymous' => true,
-                                'form' => [
-                                    'login_path' => "$routingPrefix/login",
-                                    'check_path' => "$routingPrefix/login/check",
-                                    'default_target_path' => '/'
-                                ],
-                                'logout' => [
-                                    'logout_path' => "$routingPrefix/logout",
-                                    'target_url' => '/',
-                                    'invalidate_session' => true,
-                                    'with_csrf' => true
-                                ],
-                                'remember_me' => [
-                                    'name' => 'HLX_SECURITY'
-                                ],
-                                'users' => $userService
-                            ]
-                        ],
-                        $customFirewalls
-                    )
-                ),
-                'security.access_rules' => array_merge(
-                    $crateSettings->get('access_rules', new Settings)->toArray(),
-                    [
-                        [ "^$routingPrefix/login$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
-                        [ "^$routingPrefix/password/(set|forgot)$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
-                        [ "^$routingPrefix/registration$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
-                        [ "^$routingPrefix/verify$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
-                        [ "^$routingPrefix/user", 'ROLE_ADMIN' ],
-                        [ "^$routingPrefix/auth", 'ROLE_USER' ]
-                    ]
-                ),
-                'security.role_hierarchy' => array_merge(
-                    [
-                        'ROLE_ADMIN' => [ 'ROLE_USER', 'ROLE_ALLOWED_TO_SWITCH' ],
-                        'administrator' => [ 'ROLE_ADMIN' ],
-                        'user' => [ 'ROLE_USER' ]
-                    ],
-                    $crateSettings->get('role_hierarchy', new Settings)->toArray()
-                )
-            ]
-        );
-
         // add ownership security voter
         $app['security.voters'] = $app->extend('security.voters', function ($voters) {
             $voters[] = new OwnershipVoter;
             return $voters;
         });
-
-        // register after SecurityServiceProvider
-        $app->register(new RememberMeServiceProvider);
 
         return $injector;
     }

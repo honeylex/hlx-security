@@ -121,6 +121,8 @@ class ModifyController
 
     protected function buildUserForm(array $data = [])
     {
+        $availableRoles = $this->accountService->getAvailableRoles();
+
         return $this->formFactory->createBuilder(FormType::CLASS, $data)
             ->add('username', TextType::CLASS, [ 'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ] ])
             ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
@@ -131,8 +133,8 @@ class ModifyController
                 'constraints' => new Choice([ 'en', 'de' ])
             ])
             ->add('role', ChoiceType::CLASS, [
-                'choices' => [ 'Administrator' => 'administrator', 'User' => 'user' ],
-                'constraints' => new Choice([ 'administrator', 'user' ]),
+                'choices' => $availableRoles,
+                'constraints' => new Choice(array_values($availableRoles)),
             ])
             ->getForm();
     }
