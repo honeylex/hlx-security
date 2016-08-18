@@ -180,6 +180,16 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
         // register after SecurityServiceProvider
         $app->register(new RememberMeServiceProvider);
 
+        $this->registerSecurityVoters($app);
+        $this->registerLogoutHandler($app, $injector);
+        $this->registerLoginHandler($app, $injector);
+
+        return $injector;
+    }
+
+
+    protected function registerLogoutHandler(Container $app, Injector $injector)
+    {
         // logout handler - 'default' matching firewall name
         $app['security.authentication.logout_handler.default'] = function ($app) use ($injector) {
             return $injector->share(UserLogoutListener::CLASS)->make(
@@ -187,22 +197,26 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
                 [ ':targetUrl' => $app['security.firewalls']['default']['logout']['target_url'] ]
             );
         };
+    }
 
-        // login success handler - 'default' matching firewall name
+    protected function registerLoginHandler(Container $app, Injector $injector)
+    {
+        // 'default' matching firewall name
         $app['security.authentication.success_handler.default'] = function ($app) use ($injector) {
             return $injector->share(UserLoginListener::CLASS)->make(
                 UserLoginListener::CLASS,
                 [ ':options' => $app['security.firewalls']['default']['form'] ]
             );
         };
+    }
 
-        // add ownership security voter
+    protected function registerSecurityVoters(Container $app)
+    {
         $app['security.voters'] = $app->extend('security.voters', function ($voters) {
             $voters[] = new OwnershipVoter;
             return $voters;
         });
 
-        return $injector;
     }
 
     public function subscribe(Container $app, EventDispatcherInterface $dispatcher)
