@@ -125,4 +125,9 @@ class User implements AdvancedUserInterface
     {
         return $this->state;
     }
+
+    public function createCopyWith(array $state)
+    {
+        return new static(array_merge($this->state, $state));
+    }
 }

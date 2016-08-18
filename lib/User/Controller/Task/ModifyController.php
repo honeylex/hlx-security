@@ -5,6 +5,7 @@ namespace Hlx\Security\User\Controller\Task;
 use Hlx\Security\Service\AccountService;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Silex\Application;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
@@ -15,8 +16,12 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
+use Symfony\Component\Security\Http\SecurityEvents;
 
 class ModifyController
 {
@@ -26,6 +31,10 @@ class ModifyController
 
     protected $urlGenerator;
 
+    protected $tokenStorage;
+
+    protected $eventDispatcher;
+
     protected $userService;
 
     protected $accountService;
@@ -34,12 +43,16 @@ class ModifyController
         TemplateRendererInterface $templateRenderer,
         FormFactoryInterface $formFactory,
         UrlGeneratorInterface $urlGenerator,
+        TokenStorageInterface $tokenStorage,
+        EventDispatcherInterface $eventDispatcher,
         UserProviderInterface $userService,
         AccountService $accountService
     ) {
         $this->templateRenderer = $templateRenderer;
         $this->formFactory = $formFactory;
         $this->urlGenerator = $urlGenerator;
+        $this->tokenStorage = $tokenStorage;
+        $this->eventDispatcher = $eventDispatcher;
         $this->userService = $userService;
         $this->accountService = $accountService;
     }
@@ -72,10 +85,24 @@ class ModifyController
         $formData = $form->getData();
         $username = $formData['username'];
         $email = $formData['email'];
+        $locale = $formData['locale'];
 
         try {
             if (!$this->userService->userExists($username, $email, [ $user->getIdentifier() ])) {
                 $this->accountService->updateUser($user, $formData);
+                $token = $this->tokenStorage->getToken();
+                if ($token->getUser()->getIdentifier() === $user->getIdentifier() && $user->getLocale() !== $locale) {
+                    // Current user locale changed
+                    $token = new UsernamePasswordToken(
+                        $user->createCopyWith([ 'locale' => $locale ]),
+                        null,
+                        $token->getProviderKey(),
+                        $user->getRoles()
+                    );
+                    $this->tokenStorage->setToken($token);
+                    $event = new InteractiveLoginEvent($request, $token);
+                    $this->eventDispatcher->dispatch(SecurityEvents::INTERACTIVE_LOGIN, $event);
+                }
                 return $app->redirect($this->urlGenerator->generate('hlx.security.user.list'));
             }
         } catch (AuthenticationException $error) {

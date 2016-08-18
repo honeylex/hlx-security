@@ -101,18 +101,13 @@ class UserService implements UserProviderInterface, PasswordEncoderInterface, OA
 
     public function refreshUser(UserInterface $user)
     {
-        $userClass = get_class($user);
-        if (!$this->supportsClass($userClass)) {
+        if (!$this->supportsClass(get_class($user))) {
             throw new UnsupportedUserException;
         }
 
         $refreshedUser = $this->loadUserByIdentifier($user->getIdentifier());
 
-        if ($user instanceof OauthUser) {
-            return new $userClass($refreshedUser->toArray(), $user->getService());
-        } else {
-            return new $userClass($user->toArray());
-        }
+        return $user->createCopyWith($refreshedUser->toArray());
     }
 
     public function supportsClass($class)

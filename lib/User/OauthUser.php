@@ -29,4 +29,9 @@ class OauthUser extends User
 
         return false;
     }
+
+    public function createCopyWith(array $state)
+    {
+        return new static(array_merge($this->state, $state), $this->service);
+    }
 }

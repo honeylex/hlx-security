@@ -109,7 +109,6 @@ class RegistrationController
                     $token = new UsernamePasswordToken($user, null, $firewall, $user->getRoles());
                     $this->tokenStorage->setToken($token);
                     $session->set('_security_'.$firewall, serialize($token));
-                    $session->save();
                     $targetPath = $this->autoLoginSettings->get('target_path', 'home');
                     return $app->redirect($this->urlGenerator->generate($targetPath));
                 } else {
