@@ -66,7 +66,7 @@ class RegistrationController
 
     public function read(Request $request, Application $app)
     {
-        $form = $this->buildRegistrationForm($this->formFactory);
+        $form = $this->buildForm();
 
         return $this->templateRenderer->render(
             '@hlx-security/registration.html.twig',
@@ -80,7 +80,7 @@ class RegistrationController
 
     public function write(Request $request, Application $app)
     {
-        $form = $this->buildRegistrationForm($this->formFactory);
+        $form = $this->buildForm();
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
@@ -141,9 +141,9 @@ class RegistrationController
         return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
     }
 
-    protected function buildRegistrationForm(FormFactoryInterface $formFactory)
+    protected function buildForm()
     {
-        return $this->formFactory->createBuilder(FormType::CLASS)
+        return $this->formFactory->createBuilder(FormType::CLASS, [], [ 'translation_domain' => 'form' ])
             ->add('username', TextType::CLASS, [ 'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ] ])
             ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
             ->add('password', RepeatedType::CLASS, [

@@ -14,6 +14,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -26,6 +27,8 @@ class CreateController
 
     protected $urlGenerator;
 
+    protected $translator;
+
     protected $userService;
 
     protected $accountService;
@@ -34,19 +37,21 @@ class CreateController
         FormFactoryInterface $formFactory,
         TemplateRendererInterface $templateRenderer,
         UrlGeneratorInterface $urlGenerator,
+        TranslatorInterface $translator,
         UserProviderInterface $userService,
         AccountService $accountService
     ) {
         $this->formFactory = $formFactory;
         $this->templateRenderer = $templateRenderer;
         $this->urlGenerator = $urlGenerator;
+        $this->translator = $translator;
         $this->userService = $userService;
         $this->accountService = $accountService;
     }
 
     public function read(Request $request)
     {
-        $form = $this->buildUserForm();
+        $form = $this->buildForm();
 
         return $this->templateRenderer->render(
             '@hlx-security/user/task/create.html.twig',
@@ -56,7 +61,7 @@ class CreateController
 
     public function write(Request $request, Application $app)
     {
-        $form = $this->buildUserForm();
+        $form = $this->buildForm();
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
@@ -88,22 +93,25 @@ class CreateController
         );
     }
 
-    protected function buildUserForm()
+    protected function buildForm()
     {
         $availableRoles = $this->accountService->getAvailableRoles();
+        $availableLocales = $this->translator->getFallbackLocales();
 
-        return $this->formFactory->createBuilder(FormType::CLASS)
+        return $this->formFactory->createBuilder(FormType::CLASS, [],  [ 'translation_domain' => 'form' ])
             ->add('username', TextType::CLASS, [ 'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ] ])
             ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
             ->add('locale', ChoiceType::CLASS, [
-                'choices' => [ 'English' => 'en', 'Deutsch' => 'de' ],
-                'constraints' => new Choice([ 'en', 'de' ]),
+                'choices' => array_combine($availableLocales, $availableLocales),
+                'constraints' => new Choice($availableLocales),
+                'translation_domain' => 'locale'
             ])
             ->add('firstname', TextType::CLASS, [ 'required' => false ])
             ->add('lastname', TextType::CLASS, [ 'required' => false ])
             ->add('role', ChoiceType::CLASS, [
-                'choices' => $availableRoles,
-                'constraints' => new Choice(array_values($availableRoles)),
+                'choices' => array_combine($availableRoles, $availableRoles),
+                'constraints' => new Choice($availableRoles),
+                'translation_domain' => 'role'
             ])
             ->getForm();
     }

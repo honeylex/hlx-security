@@ -10,18 +10,21 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Security\Http\SecurityEvents;
+use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ModifyController
 {
@@ -37,6 +40,8 @@ class ModifyController
 
     protected $userService;
 
+    protected $translator;
+
     protected $accountService;
 
     public function __construct(
@@ -46,6 +51,7 @@ class ModifyController
         TokenStorageInterface $tokenStorage,
         EventDispatcherInterface $eventDispatcher,
         UserProviderInterface $userService,
+        TranslatorInterface $translator,
         AccountService $accountService
     ) {
         $this->templateRenderer = $templateRenderer;
@@ -54,13 +60,14 @@ class ModifyController
         $this->tokenStorage = $tokenStorage;
         $this->eventDispatcher = $eventDispatcher;
         $this->userService = $userService;
+        $this->translator = $translator;
         $this->accountService = $accountService;
     }
 
     public function read(Request $request)
     {
         $user = $this->userService->loadUserByIdentifier($request->get('identifier'));
-        $form = $this->buildUserForm($user->toArray());
+        $form = $this->buildForm($user->toArray());
 
         return $this->templateRenderer->render(
             '@hlx-security/user/task/modify.html.twig',
@@ -72,7 +79,7 @@ class ModifyController
     {
         $user = $this->userService->loadUserByIdentifier($request->get('identifier'));
 
-        $form = $this->buildUserForm($user->toArray());
+        $form = $this->buildForm($user->toArray());
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
@@ -119,23 +126,31 @@ class ModifyController
         );
     }
 
-    protected function buildUserForm(array $data = [])
+    protected function buildForm(array $data = [])
     {
         $availableRoles = $this->accountService->getAvailableRoles();
+        $availableLocales = $this->translator->getFallbackLocales();
 
-        return $this->formFactory->createBuilder(FormType::CLASS, $data)
+        return $this->formFactory->createBuilder(FormType::CLASS, $data, [ 'translation_domain' => 'form' ])
             ->add('username', TextType::CLASS, [ 'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ] ])
             ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
             ->add('firstname', TextType::CLASS, [ 'required' => false ])
             ->add('lastname', TextType::CLASS, [ 'required' => false ])
             ->add('locale', ChoiceType::CLASS, [
-                'choices' => [ 'English' => 'en', 'Deutsch' => 'de' ],
-                'constraints' => new Choice([ 'en', 'de' ])
+                'choices' => array_combine($availableLocales, $availableLocales),
+                'constraints' => new Choice($availableLocales),
+                'translation_domain' => 'locale'
             ])
             ->add('role', ChoiceType::CLASS, [
-                'choices' => $availableRoles,
-                'constraints' => new Choice(array_values($availableRoles)),
+                'choices' => array_combine($availableRoles, $availableRoles),
+                'constraints' => new Choice($availableRoles),
+                'translation_domain' => 'role'
             ])
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+                $fields = $event->getForm()->all();
+                $data = array_intersect_key($event->getData(), $fields);
+                $event->setData($data);
+            })
             ->getForm();
     }
 }

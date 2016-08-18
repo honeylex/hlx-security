@@ -29,7 +29,7 @@ class LoginController
 
     public function read(Request $request, Application $app)
     {
-        $form = $this->buildLoginForm($this->formFactory);
+        $form = $this->buildForm();
 
         $error = $app['security.last_error']($request);
         $lastUsername = $request->getSession()->get('_security.last_username');
@@ -44,9 +44,9 @@ class LoginController
         );
     }
 
-    protected function buildLoginForm(FormFactoryInterface $formFactory)
+    protected function buildForm()
     {
-        return $formFactory->createNamedBuilder(null, FormType::CLASS)
+        return $this->formFactory->createNamedBuilder(null, FormType::CLASS, [], [ 'translation_domain' => 'form' ])
             ->add('_username', TextType::CLASS, [
                 'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ],
                 'label' => 'Username or Email'

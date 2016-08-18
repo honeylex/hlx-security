@@ -61,10 +61,7 @@ class AccountService
         $crateSettings = $configProvider->getCrateMap()->getItem('hlx.security')->getSettings();
         $rolesSettings = $crateSettings->get('roles', new Settings);
         $this->defaultRole = $rolesSettings->get('default_role', 'user');
-        $this->availableRoles = (array) $rolesSettings->get(
-            'available_roles',
-            [ 'User' => 'user', 'Administrator' => 'administrator' ]
-        );
+        $this->availableRoles = (array) $rolesSettings->get('available_roles', [ 'user', 'administrator' ]);
     }
 
     public function registerUser(array $values, $role = null)

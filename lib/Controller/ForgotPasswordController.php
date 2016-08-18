@@ -52,7 +52,7 @@ class ForgotPasswordController
 
     public function read(Request $request, Application $app)
     {
-        $form = $this->buildForm($this->formFactory);
+        $form = $this->buildForm();
 
         return $this->templateRenderer->render(
             '@hlx-security/forgot_password.html.twig',
@@ -66,7 +66,7 @@ class ForgotPasswordController
 
     public function write(Request $request, Application $app)
     {
-        $form = $this->buildForm($this->formFactory);
+        $form = $this->buildForm();
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
@@ -102,9 +102,9 @@ class ForgotPasswordController
         return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
     }
 
-    protected function buildForm(FormFactoryInterface $formFactory, array $data = [])
+    protected function buildForm()
     {
-        return $formFactory->createBuilder(FormType::CLASS, $data)
+        return $this->formFactory->createBuilder(FormType::CLASS, [], [ 'translation_domain' => 'form' ])
             ->add('username', TextType::CLASS, [
                 'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ],
                 'label' => 'Username or Email'

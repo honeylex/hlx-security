@@ -46,7 +46,7 @@ class SetPasswordController
     {
         $token = $request->get('token');
 
-        $form = $this->buildForm($this->formFactory, [ 'token' => $token ]);
+        $form = $this->buildForm([ 'token' => $token ]);
 
         return $this->templateRenderer->render(
             '@hlx-security/set_password.html.twig',
@@ -56,7 +56,7 @@ class SetPasswordController
 
     public function write(Request $request, Application $app)
     {
-        $form = $this->buildForm($this->formFactory);
+        $form = $this->buildForm();
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
@@ -88,9 +88,9 @@ class SetPasswordController
         return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
     }
 
-    protected function buildForm(FormFactoryInterface $formFactory, array $data = [])
+    protected function buildForm(array $data = [])
     {
-        return $formFactory->createBuilder(FormType::CLASS, $data)
+        return $this->formFactory->createBuilder(FormType::CLASS, $data, [ 'translation_domain' => 'form' ])
             ->add('token', HiddenType::CLASS, [ 'constraints' => new NotBlank ])
             ->add('password', RepeatedType::CLASS, [
                 'type' => PasswordType::CLASS,
