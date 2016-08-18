@@ -2,68 +2,46 @@
 
 namespace Hlx\Security\User\Controller\Task;
 
-use Hlx\Security\User\Model\Aggregate\UserType;
-use Hlx\Security\User\Model\Task\ProceedUserWorkflow\ProceedUserWorkflowCommand;
-use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
-use Honeybee\Infrastructure\DataAccess\Finder\FinderMap;
-use Honeybee\Model\Command\AggregateRootCommandBuilder;
-use Shrink0r\Monatic\Success;
+use Hlx\Security\Service\AccountService;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Exception\RuntimeException;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class ProceedWorkflowController
 {
-    protected $userType;
+    protected $userService;
 
-    protected $finderMap;
-
-    protected $commandBus;
+    protected $accountService;
 
     protected $urlGenerator;
 
     public function __construct(
-        UserType $userType,
-        FinderMap $finderMap,
-        CommandBusInterface $commandBus,
+        UserProviderInterface $userService,
+        AccountService $accountService,
         UrlGeneratorInterface $urlGenerator
     ) {
-        $this->userType = $userType;
-        $this->finderMap = $finderMap;
-        $this->commandBus = $commandBus;
+        $this->userService = $userService;
+        $this->accountService = $accountService;
         $this->urlGenerator = $urlGenerator;
     }
 
     public function write(Request $request, Application $app)
     {
-        if ($request->getMethod() !== 'POST') {
-            return 'Method not allowed.';
-        }
+        $user = $this->userService->loadUserByIdentifier($request->get('identifier'));
+        $currentStateName = $request->get('from');
+        $eventName = $request->get('via');
 
-        $user = $this->fetchUser($request->get('identifier'));
-
-        $result = (new AggregateRootCommandBuilder($this->userType, ProceedUserWorkflowCommand::CLASS))
-            ->fromEntity($user)
-            ->withCurrentStateName($request->get('from'))
-            ->withEventName($request->get('via'))
-            ->build();
-
-        if (!$result instanceof Success) {
+        try {
+            $this->accountService->proceedUserWorkflow($user, $currentStateName, $eventName);
+        } catch (RuntimeException $error) {
             return $this->templateRenderer->render(
                 '@hlx-security/user/list.html.twig',
-                [ 'errors' => $result->get() ]
+                [ 'errors' => (array) $error->getMessageKey() ]
             );
         }
 
-        $this->commandBus->post($result->get());
-
         return $app->redirect($this->urlGenerator->generate('hlx.security.user.list'));
-    }
-
-    protected function fetchUser($identifier)
-    {
-        $finder = $this->finderMap->getItem($this->userType->getPrefix().'::projection.standard::view_store::finder');
-        $results = $finder->getByIdentifier($identifier);
-        return $results->getFirstResult();
     }
 }

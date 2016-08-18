@@ -81,7 +81,7 @@ class HistoryController
             $type = 'modify';
             $sentiment = 'success';
             $title = 'User was connected via Oauth';
-            $icon = 'glyphicon-pencil';
+            $icon = 'glyphicon-flash';
         } elseif ($event instanceof UserWorkflowProceededEvent) {
             $title = 'User was ';
             if ($event->getWorkflowState() === 'verified') {
@@ -89,6 +89,11 @@ class HistoryController
                 $type = 'promote';
                 $title .= 'verified';
                 $icon = 'glyphicon-ok';
+            } elseif ($event->getWorkflowState() === 'unverified') {
+                $sentiment = 'warning';
+                $title .= 'unverified';
+                $type = 'demote';
+                $icon = 'glyphicon-lock';
             } elseif ($event->getWorkflowState() === 'deactivated') {
                 $sentiment = 'warning';
                 $type = 'demote';
@@ -98,7 +103,7 @@ class HistoryController
                 $sentiment = 'danger';
                 $title .= 'deleted';
                 $type = 'delete';
-                $icon = 'glyphicon-trash';
+                $icon = 'glyphicon-remove';
             }
         } elseif ($event instanceof UserPasswordSetStartedEvent) {
             $type = 'modify';
@@ -158,11 +163,15 @@ class HistoryController
             }
             $embeddedData[] = [
                 'title' => $title,
-                'changes' => json_encode(
-                    array_merge(
-                        [ '@type' => $embeddedEvent->getEmbeddedEntityType() ],
-                        $embeddedEvent->getData()
-                    ),
+                'changes' => json_encode([
+                    $embeddedEvent->getParentAttributeName() => [
+                        array_merge([
+                                '@type' => $embeddedEvent->getEmbeddedEntityType(),
+                                'identifier' => $embeddedEvent->getEmbeddedEntityIdentifier()
+                            ],
+                            $embeddedEvent->getData()
+                        )]
+                    ],
                     JSON_PRETTY_PRINT
                 )
             ];

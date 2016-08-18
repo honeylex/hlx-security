@@ -1,3 +1,4 @@
+
 {% extends "layout.html.twig" %}
 
 {% block view_classes %}resource-history-view{% endblock %}
@@ -16,7 +17,7 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-xs-12 col-md-8">
+    <div class="col-xs-12 col-md-12">
         <ul class="timeline">
             {% for event in history %}
             <li class="{% if not loop.index0 % 2 == 0 %}timeline-inverted{% endif %}">
@@ -32,8 +33,6 @@
                         {% if event.changes != '[]' %}
                         <h5>Values changed:</h5>
                         <dd><pre class="json-highlight">{{ event.changes }}</pre></dd>
-                        {% else %}
-                        <h5>No values changed</h5>
                         {% endif %}
                     </div>
                     {% for embedded_event in event.embedded_events %}

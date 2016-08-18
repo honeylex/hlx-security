@@ -9,6 +9,7 @@ use Hlx\Security\User\Model\Task\LoginUser\LoginOauthUserCommand;
 use Hlx\Security\User\Model\Task\LoginUser\LoginUserCommand;
 use Hlx\Security\User\Model\Task\LogoutUser\LogoutUserCommand;
 use Hlx\Security\User\Model\Task\ModifyUser\ModifyUserCommand;
+use Hlx\Security\User\Model\Task\ProceedUserWorkflow\ProceedUserWorkflowCommand;
 use Hlx\Security\User\Model\Task\RegisterUser\RegisterOauthUserCommand;
 use Hlx\Security\User\Model\Task\RegisterUser\RegisterUserCommand;
 use Hlx\Security\User\Model\Task\SetUserPassword\SetUserPasswordCommand;
@@ -180,6 +181,26 @@ class AccountService
         if (!$result instanceof Success) {
             throw new CustomUserMessageAuthenticationException(
                 sprintf('Error connecting user "%s" to %s.', $user->getUsername(), $serviceName)
+            );
+        }
+
+        $this->commandBus->post($result->get());
+    }
+
+    public function proceedUserWorkflow(User $user, $currentStateName, $eventName)
+    {
+        $this->guardUserStatus($user);
+
+        $result = (new AggregateRootCommandBuilder($this->userType, ProceedUserWorkflowCommand::CLASS))
+            ->withAggregateRootIdentifier($user->getIdentifier())
+            ->withKnownRevision($user->getRevision())
+            ->withCurrentStateName($currentStateName)
+            ->withEventName($eventName)
+            ->build();
+
+        if (!$result instanceof Success) {
+            throw new RuntimeException(
+                sprintf('Error proceeding user workflow from "%s" via "%s".', $currentStateName, $eventName)
             );
         }
 
