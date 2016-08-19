@@ -98,7 +98,7 @@ class CreateController
         $availableRoles = $this->accountService->getAvailableRoles();
         $availableLocales = $this->translator->getFallbackLocales();
 
-        return $this->formFactory->createBuilder(FormType::CLASS, [],  [ 'translation_domain' => 'form' ])
+        return $this->formFactory->createBuilder(FormType::CLASS, [], [ 'translation_domain' => 'form' ])
             ->add('username', TextType::CLASS, [ 'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ] ])
             ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
             ->add('locale', ChoiceType::CLASS, [

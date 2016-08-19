@@ -49,12 +49,16 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
             ->make($service);
 
         // setup firewalls
+        $devFirewall = $app['debug'] ? [
+            'dev' => [
+                'pattern' => '^/_(profiler|wdt)/',
+                'security' => false
+            ]
+        ] : [];
+
         $securityFirewalls = array_replace_recursive(
+            $devFirewall,
             [
-                'dev' => [
-                    'pattern' => '^/_(profiler|wdt)/',
-                    'security' => false // @todo set from environment
-                ],
                 'default' => [
                     'pattern' => "^.*$",
                     'anonymous' => true,

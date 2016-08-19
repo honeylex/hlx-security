@@ -163,14 +163,17 @@ class HistoryController
             }
             $embeddedData[] = [
                 'title' => $title,
-                'changes' => json_encode([
-                    $embeddedEvent->getParentAttributeName() => [
-                        array_merge([
-                                '@type' => $embeddedEvent->getEmbeddedEntityType(),
-                                'identifier' => $embeddedEvent->getEmbeddedEntityIdentifier()
-                            ],
-                            $embeddedEvent->getData()
-                        )]
+                'changes' => json_encode(
+                    [
+                        $embeddedEvent->getParentAttributeName() => [
+                            array_merge(
+                                [
+                                    '@type' => $embeddedEvent->getEmbeddedEntityType(),
+                                    'identifier' => $embeddedEvent->getEmbeddedEntityIdentifier()
+                                ],
+                                $embeddedEvent->getData()
+                            )
+                        ]
                     ],
                     JSON_PRETTY_PRINT
                 )
