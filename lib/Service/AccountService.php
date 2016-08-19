@@ -184,8 +184,6 @@ class AccountService
 
     public function proceedUserWorkflow(User $user, $currentStateName, $eventName)
     {
-        $this->guardUserStatus($user);
-
         $result = (new AggregateRootCommandBuilder($this->userType, ProceedUserWorkflowCommand::CLASS))
             ->withAggregateRootIdentifier($user->getIdentifier())
             ->withKnownRevision($user->getRevision())
