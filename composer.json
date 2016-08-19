@@ -1,6 +1,6 @@
 {
     "name": "honeylex/hlx-security",
-    "description": "Honeylex crate for managing security, users and roles.",
+    "description": "Security & user administration crate for Honeylex.",
     "license": "MIT",
     "type": "library",
     "require": {
