@@ -38,13 +38,11 @@ class AccountService
 
     protected $authService;
 
+    protected $configProvider;
+
     protected $translator;
 
     protected $logger;
-
-    protected $defaultRole;
-
-    protected $availableRoles;
 
     public function __construct(
         UserType $userType,
@@ -57,12 +55,9 @@ class AccountService
         $this->userType = $userType;
         $this->commandBus = $commandBus;
         $this->authService = $authService;
+        $this->configProvider = $configProvider;
         $this->translator = $translator;
         $this->logger = $logger;
-        $crateSettings = $configProvider->getCrateMap()->getItem('hlx.security')->getSettings();
-        $rolesSettings = $crateSettings->get('roles', new Settings);
-        $this->defaultRole = $rolesSettings->get('default_role', 'user');
-        $this->availableRoles = (array) $rolesSettings->get('available_roles', [ 'user', 'administrator' ]);
     }
 
     public function registerUser(array $values, $role = null)
@@ -79,7 +74,7 @@ class AccountService
 
         $result = (new AggregateRootCommandBuilder($this->userType, RegisterUserCommand::CLASS))
             ->withValues($values)
-            ->withRole($role ?: $this->defaultRole)
+            ->withRole($role ?: $this->getDefaultRole())
             ->withExpiresAt(date(
                 RegisterUserCommand::DATE_ISO8601_WITH_MICROS,
                 time() + (86400 * 30) // 30 days
@@ -108,7 +103,7 @@ class AccountService
             ->withId($token->getUid())
             ->withService($serviceName)
             ->withToken($token->getCredentials())
-            ->withRole($role ?: $this->defaultRole)
+            ->withRole($role ?: $this->getDefaultRole())
             ->withExpiresAt(date(
                 RegisterOauthUserCommand::DATE_ISO8601_WITH_MICROS,
                 $token->getAccessToken()->getEndOfLife()
@@ -329,9 +324,17 @@ class AccountService
         $this->commandBus->post($result->get());
     }
 
+    public function getDefaultRole()
+    {
+        return $this->configProvider->getSetting('hlx.security.roles.default_role');
+    }
+
     public function getAvailableRoles()
     {
-        return $this->availableRoles;
+        return (array) $this->configProvider->getSetting(
+            'hlx.security.roles.available_roles',
+            [ 'user', 'administrator' ]
+        );
     }
 
     protected function guardUserStatus(User $user)

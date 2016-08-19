@@ -4,7 +4,6 @@ namespace Hlx\Security\Controller;
 
 use Hlx\Security\Service\AccountService;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
-use Honeybee\Infrastructure\Config\Settings;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use ReCaptcha\ReCaptcha;
 use Silex\Application;
@@ -31,7 +30,7 @@ class ForgotPasswordController
 
     protected $urlGenerator;
 
-    protected $recaptchaSettings;
+    protected $configProvider;
 
     public function __construct(
         FormFactoryInterface $formFactory,
@@ -46,8 +45,7 @@ class ForgotPasswordController
         $this->userService = $userService;
         $this->accountService = $accountService;
         $this->urlGenerator = $urlGenerator;
-        $crateSettings = $configProvider->getCrateMap()->getItem('hlx.security')->getSettings();
-        $this->recaptchaSettings = $crateSettings->get('recaptcha', new Settings);
+        $this->configProvider = $configProvider;
     }
 
     public function read(Request $request, Application $app)
@@ -56,11 +54,7 @@ class ForgotPasswordController
 
         return $this->templateRenderer->render(
             '@hlx-security/forgot_password.html.twig',
-            [
-                'form' => $form->createView(),
-                'recaptcha_enabled' => $this->recaptchaSettings->get('enabled'),
-                'recaptcha_site_key' => $this->recaptchaSettings->get('site_key')
-            ]
+            [ 'form' => $form->createView() ]
         );
     }
 
@@ -72,11 +66,7 @@ class ForgotPasswordController
         if (!$form->isValid()) {
             return $this->templateRenderer->render(
                 '@hlx-security/forgot_password.html.twig',
-                [
-                    'form' => $form->createView(),
-                    'recaptcha_enabled' => $this->recaptchaSettings->get('enabled'),
-                    'recaptcha_site_key' => $this->recaptchaSettings->get('site_key')
-                ]
+                [ 'form' => $form->createView() ]
             );
         }
 
@@ -92,8 +82,6 @@ class ForgotPasswordController
                 '@hlx-security/forgot_password.html.twig',
                 [
                     'form' => $this->buildForm($this->formFactory)->createView(),
-                    'recaptcha_enabled' => $this->recaptchaSettings->get('enabled'),
-                    'recaptcha_site_key' => $this->recaptchaSettings->get('site_key'),
                     'errors' => (array) $error->getMessageKey()
                 ]
             );
@@ -114,8 +102,8 @@ class ForgotPasswordController
 
     protected function validateRecaptcha($gRecaptchaResponse, $remoteIp = null)
     {
-        if ($this->recaptchaSettings->get('enabled')) {
-            $recaptcha = new ReCaptcha($this->recaptchaSettings->get('secret_key'));
+        if ($this->configProvider->getSetting('hlx.security.recaptcha.enabled')) {
+            $recaptcha = new ReCaptcha($this->configProvider->getSetting('hlx.security.recaptcha.secret_key'));
             $response = $recaptcha->verify($gRecaptchaResponse, $remoteIp);
             if (!$response->isSuccess()) {
                 $errors = $response->getErrorCodes();

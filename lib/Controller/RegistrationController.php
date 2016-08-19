@@ -5,7 +5,6 @@ namespace Hlx\Security\Controller;
 use Hlx\Security\Service\AccountService;
 use Honeybee\Common\Util\StringToolkit;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
-use Honeybee\Infrastructure\Config\Settings;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use ReCaptcha\ReCaptcha;
 use Silex\Application;
@@ -40,9 +39,7 @@ class RegistrationController
 
     protected $tokenStorage;
 
-    protected $recaptchaSettings;
-
-    protected $autoLoginSettings;
+    protected $configProvider;
 
     public function __construct(
         FormFactoryInterface $formFactory,
@@ -50,8 +47,8 @@ class RegistrationController
         UrlGeneratorInterface $urlGenerator,
         AccountService $accountService,
         UserProviderInterface $userService,
-        ConfigProviderInterface $configProvider,
-        TokenStorageInterface $tokenStorage
+        TokenStorageInterface $tokenStorage,
+        ConfigProviderInterface $configProvider
     ) {
         $this->formFactory = $formFactory;
         $this->templateRenderer = $templateRenderer;
@@ -59,9 +56,7 @@ class RegistrationController
         $this->accountService = $accountService;
         $this->userService = $userService;
         $this->tokenStorage = $tokenStorage;
-        $crateSettings = $configProvider->getCrateMap()->getItem('hlx.security')->getSettings();
-        $this->recaptchaSettings = $crateSettings->get('recaptcha', new Settings);
-        $this->autoLoginSettings = $crateSettings->get('auto_login', new Settings);
+        $this->configProvider = $configProvider;
     }
 
     public function read(Request $request, Application $app)
@@ -70,11 +65,7 @@ class RegistrationController
 
         return $this->templateRenderer->render(
             '@hlx-security/registration.html.twig',
-            [
-                'form' => $form->createView(),
-                'recaptcha_enabled' => $this->recaptchaSettings->get('enabled'),
-                'recaptcha_site_key' => $this->recaptchaSettings->get('site_key')
-            ]
+            [ 'form' => $form->createView() ]
         );
     }
 
@@ -86,11 +77,7 @@ class RegistrationController
         if (!$form->isValid()) {
             return $this->templateRenderer->render(
                 '@hlx-security/registration.html.twig',
-                [
-                    'form' => $form->createView(),
-                    'recaptcha_enabled' => $this->recaptchaSettings->get('enabled'),
-                    'recaptcha_site_key' => $this->recaptchaSettings->get('site_key')
-                ]
+                [ 'form' => $form->createView() ]
             );
         }
 
@@ -103,13 +90,15 @@ class RegistrationController
             if (!$this->userService->userExists($username, $email)) {
                 $this->accountService->registerUser($formData);
                 // auto login handling - requires sync registration
-                if ($this->autoLoginSettings->get('enabled') && $session = $request->getSession()) {
-                    $firewall = $this->autoLoginSettings->get('firewall', 'default');
+                if ($this->configProvider->getSetting('hlx.security.auto_login.enabled')
+                    && $session = $request->getSession()
+                ) {
+                    $firewall = $this->configProvider->getSetting('hlx.security.auto_login.firewall', 'default');
                     $user = $this->userService->loadUserByEmail($email);
                     $token = new UsernamePasswordToken($user, null, $firewall, $user->getRoles());
                     $this->tokenStorage->setToken($token);
                     $session->set('_security_'.$firewall, serialize($token));
-                    $targetPath = $this->autoLoginSettings->get('target_path', 'home');
+                    $targetPath = $this->configProvider->getSetting('hlx.security.auto_login.target_path', 'home');
                     return $app->redirect($this->urlGenerator->generate($targetPath));
                 } else {
                     return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
@@ -123,8 +112,6 @@ class RegistrationController
             '@hlx-security/registration.html.twig',
             [
                 'form' => $form->createView(),
-                'recaptcha_enabled' => $this->recaptchaSettings->get('enabled'),
-                'recaptcha_site_key' => $this->recaptchaSettings->get('site_key'),
                 'errors' => isset($errors) ? $errors : [ 'This user is already registered.' ]
             ]
         );
@@ -161,12 +148,12 @@ class RegistrationController
 
     protected function validateRecaptcha($gRecaptchaResponse, $remoteIp = null)
     {
-        if ($this->recaptchaSettings->get('enabled')) {
-            $recaptcha = new ReCaptcha($this->recaptchaSettings->get('secret_key'));
+        if ($this->configProvider->getSetting('hlx.security.recaptcha.enabled')) {
+            $recaptcha = new ReCaptcha($this->configProvider->getSetting('hlx.security.recaptcha.secret_key'));
             $response = $recaptcha->verify($gRecaptchaResponse, $remoteIp);
             if (!$response->isSuccess()) {
                 $errors = $response->getErrorCodes();
-                throw new CustomUserMessageAuthenticationException('Recaptcha failure.');
+                throw new CustomUserMessageAuthenticationException('Recaptcha failed.');
             }
         }
     }

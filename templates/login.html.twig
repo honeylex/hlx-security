@@ -23,7 +23,9 @@
             </div>
             <div class="form-actions">
                 <button class="btn btn-success" type="submit">{{ 'Login'|trans }}</button>
+                {% if config('hlx.security.oauth.facebook.enabled') %}
                 <a href="/auth/facebook" class="btn btn-primary">Facebook</a>
+                {% endif %}
                 <a href="{{ path('hlx.security.registration') }}" class="btn btn-primary">Register</a>
                 <a href="{{ path('hlx.security.password.forgot') }}">{{ 'Forgot your password?'|trans }}<a/>
             </div>
