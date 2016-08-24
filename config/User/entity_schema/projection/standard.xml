@@ -6,7 +6,7 @@
         <implementor>\Honeybee\Projection\ProjectionType</implementor>
         <entity_implementor>\Honeybee\Projection\Projection</entity_implementor>
         <description>
-            Defines the (normalized) structure of Standard User projection.
+            Defines the normalized structure of the Standard User projection.
         </description>
         <options>
             <option name="vendor">Hlx</option>
