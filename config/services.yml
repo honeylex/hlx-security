@@ -1,5 +1,5 @@
 #
-# service configuration for the Security crate
+# Services configuration for the Security crate
 ---
 hlx.security.authentication_service:
   class: Hlx\Security\Service\AuthenticationService
@@ -32,7 +32,6 @@ hlx.security.mail_service:
   provisioner:
     class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\DefaultProvisioner
   options:
-    project_name: ${project.name}
     from_email: ${project.email.from_email}
     from_name: ${project.email.from_name}
     sender_email: ${project.email.sender_email}

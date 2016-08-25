@@ -1,6 +1,6 @@
 Willkommen {{ username }},
 
-Vielen Dank für Ihre Registrierung mit {{project_name}}. Bitte folgen Sie dem Link zur Verfügung gestellt
+Vielen Dank für Ihre Registrierung mit {{ config('project.name') }}. Bitte folgen Sie dem Link zur Verfügung gestellt
 Überprüfung Ihrer E-Mail-Adresse zu bestätigen.
 
 {{ url('hlx.security.verify', { token: verification_token }) }}

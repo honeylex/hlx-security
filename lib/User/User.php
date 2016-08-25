@@ -39,6 +39,16 @@ class User implements AdvancedUserInterface
         return $this->state['username'];
     }
 
+    public function getFirstname()
+    {
+        return $this->state['firstname'];
+    }
+
+    public function getLastname()
+    {
+        return $this->state['lastname'];
+    }
+
     public function getPassword()
     {
         return $this->state['password_hash'];

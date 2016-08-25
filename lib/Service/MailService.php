@@ -46,8 +46,6 @@ class MailService
             [
                 'username' => $this->getName($user),
                 'verification_token' => $token->getToken(),
-                // @todo get global setting from environment
-                'project_name' => $this->config->get('project_name')
             ]
         );
 
