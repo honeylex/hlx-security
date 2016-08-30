@@ -9,23 +9,22 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class OwnershipVoter extends Voter
 {
+    const PERMISSION_VIEW = 'PERMISSION_VIEW';
+    const PERMISSION_EDIT = 'PERMISSION_EDIT';
+
     public function supports($attribute, $subject)
     {
-        return in_array($attribute, [ 'ROLE_OWNER' ]) && $subject instanceof Request;
+        return in_array($attribute, [ self::PERMISSION_VIEW, self::PERMISSION_EDIT ]) && $subject instanceof User;
     }
 
-    protected function voteOnAttribute($attribute, $request, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $user, TokenInterface $token)
     {
-        $user = $token->getUser();
+        $currentUser = $token->getUser();
 
-        if (!$user instanceof User) {
+        if (!$currentUser instanceof User) {
             return false;
         }
 
-        $routeParams = $request->attributes->get('_route_params');
-
-        return isset($routeParams['identifier'])
-            ? $user->getIdentifier() === $routeParams['identifier']
-            : false;
+        return $user->getIdentifier() === $currentUser->getIdentifier();
     }
 }

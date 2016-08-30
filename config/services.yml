@@ -27,6 +27,15 @@ hlx.security.token_storage:
       share: true
       alias: Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
 
+hlx.security.authorization_checker:
+  class: Symfony\Component\Security\Core\Authorization\AuthorizationChecker
+  provisioner:
+    class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\SilexServiceProvisioner
+    settings:
+      app_key: security.authorization_checker
+      share: true
+      alias: Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface
+
 hlx.security.mail_service:
   class: Hlx\Security\Service\MailService
   provisioner:

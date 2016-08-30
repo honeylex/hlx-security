@@ -78,7 +78,6 @@ class ModifyController
     public function write(Request $request, Application $app)
     {
         $user = $this->userService->loadUserByIdentifier($request->get('identifier'));
-
         $form = $this->buildForm($user->toArray());
         $form->handleRequest($request);
 

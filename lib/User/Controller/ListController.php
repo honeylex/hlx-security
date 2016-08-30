@@ -99,12 +99,14 @@ class ListController
             'next_url' => false,
             'prev_url' => false
         ];
+
         if (($page + 1) * $limit <= $search->getTotalCount()) {
             $pager['next_url'] = $this->urlGenerator->generate(
                 'hlx.security.user.list',
                 [ 'page' => $page + 1, 'limit' => $limit, 'q' => $query ]
             );
         }
+
         if (($page - 1) / $limit > 0) {
             $pager['prev_url'] = $this->urlGenerator->generate(
                 'hlx.security.user.list',

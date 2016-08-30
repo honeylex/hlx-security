@@ -184,7 +184,7 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
         // register after SecurityServiceProvider
         $app->register(new RememberMeServiceProvider);
 
-        $this->registerSecurityVoters($app);
+        $this->registerSecurityVoters($app, $injector, $crateSettings->get('voters', new Settings));
         $this->registerLogoutHandler($app, $injector);
         $this->registerLoginHandler($app, $injector);
 
@@ -214,10 +214,12 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
         };
     }
 
-    protected function registerSecurityVoters(Container $app)
+    protected function registerSecurityVoters(Container $app, Injector $injector, SettingsInterface $voterSettings)
     {
-        $app['security.voters'] = $app->extend('security.voters', function ($voters) {
-            $voters[] = new OwnershipVoter;
+        $app['security.voters'] = $app->extend('security.voters', function ($voters) use ($injector, $voterSettings) {
+            foreach ($voterSettings as $voter) {
+                $voters[] = $injector->make($voter);
+            }
             return $voters;
         });
     }
