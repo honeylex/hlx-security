@@ -34,7 +34,7 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
     ) {
         $service = $serviceDefinition->getClass();
         $crate = $configProvider->getCrateMap()->getItem('hlx.security');
-        $crateSettings = $crate->getSettings();
+        $crateSettings = $configProvider->getCrateSettings('hlx.security');
 
         // allow override of routing prefix from crate settings
         $routingPrefix = $crate->getRoutingPrefix();
