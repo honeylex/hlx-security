@@ -16,7 +16,7 @@
                 "images": []
             },
             "role": "administrator",
-            "expires_at": "2016-08-17T12:30:00.000000+00:00"
+            "expires_at": "2030-01-01T00:00:00.000000+00:00"
         },
         {
             "@command": "Hlx\\Security\\User\\Model\\Task\\ProceedUserWorkflow\\ProceedUserWorkflowCommand",
