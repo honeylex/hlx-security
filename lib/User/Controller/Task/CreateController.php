@@ -3,7 +3,8 @@
 namespace Hlx\Security\User\Controller\Task;
 
 use Hlx\Security\Service\AccountService;
-use Honeybee\Infrastructure\Template\TemplateRendererInterface;
+use Hlx\Security\User\View\Task\CreateInputView;
+use Hlx\Security\User\View\Task\CreateSuccessView;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -11,7 +12,6 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -23,10 +23,6 @@ class CreateController
 {
     protected $formFactory;
 
-    protected $templateRenderer;
-
-    protected $urlGenerator;
-
     protected $translator;
 
     protected $userService;
@@ -35,15 +31,11 @@ class CreateController
 
     public function __construct(
         FormFactoryInterface $formFactory,
-        TemplateRendererInterface $templateRenderer,
-        UrlGeneratorInterface $urlGenerator,
         TranslatorInterface $translator,
         UserProviderInterface $userService,
         AccountService $accountService
     ) {
         $this->formFactory = $formFactory;
-        $this->templateRenderer = $templateRenderer;
-        $this->urlGenerator = $urlGenerator;
         $this->translator = $translator;
         $this->userService = $userService;
         $this->accountService = $accountService;
@@ -52,23 +44,19 @@ class CreateController
     public function read(Request $request)
     {
         $form = $this->buildForm();
+        $request->attributes->set('form', $form);
 
-        return $this->templateRenderer->render(
-            '@hlx-security/user/task/create.html.twig',
-            [ 'form' => $form->createView() ]
-        );
+        return [ CreateInputView::CLASS ];
     }
 
     public function write(Request $request, Application $app)
     {
         $form = $this->buildForm();
         $form->handleRequest($request);
+        $request->attributes->set('form', $form);
 
         if (!$form->isValid()) {
-            return $this->templateRenderer->render(
-                '@hlx-security/user/task/create.html.twig',
-                [ 'form' => $form->createView() ]
-            );
+            return [ CreateInputView::CLASS ];
         }
 
         $formData = $form->getData();
@@ -78,19 +66,14 @@ class CreateController
         try {
             if (!$this->userService->userExists($username, $email)) {
                 $this->accountService->registerUser($formData);
-                return $app->redirect($this->urlGenerator->generate('hlx.security.user.list'));
+                return [ CreateSuccessView::CLASS ];
             }
         } catch (AuthenticationException $error) {
             $errors = (array) $error->getMessageKey();
         }
 
-        return $this->templateRenderer->render(
-            '@hlx-security/user/task/create.html.twig',
-            [
-                'form' => $form->createView(),
-                'errors' => isset($errors) ? $errors : [ 'This user is already registered.' ]
-            ]
-        );
+        $request->attributes->set('errors', isset($errors) ? $errors : [ 'This user is already registered.' ]);
+        return [ CreateInputView::CLASS ];
     }
 
     protected function buildForm()

@@ -3,7 +3,8 @@
 namespace Hlx\Security\User\Controller\Task;
 
 use Hlx\Security\Service\AccountService;
-use Honeybee\Infrastructure\Template\TemplateRendererInterface;
+use Hlx\Security\User\View\Task\ModifyInputView;
+use Hlx\Security\User\View\Task\ModifySuccessView;
 use Silex\Application;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -14,7 +15,6 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -28,11 +28,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ModifyController
 {
-    protected $templateRenderer;
-
     protected $formFactory;
-
-    protected $urlGenerator;
 
     protected $tokenStorage;
 
@@ -45,18 +41,14 @@ class ModifyController
     protected $accountService;
 
     public function __construct(
-        TemplateRendererInterface $templateRenderer,
         FormFactoryInterface $formFactory,
-        UrlGeneratorInterface $urlGenerator,
         TokenStorageInterface $tokenStorage,
         EventDispatcherInterface $eventDispatcher,
         UserProviderInterface $userService,
         TranslatorInterface $translator,
         AccountService $accountService
     ) {
-        $this->templateRenderer = $templateRenderer;
         $this->formFactory = $formFactory;
-        $this->urlGenerator = $urlGenerator;
         $this->tokenStorage = $tokenStorage;
         $this->eventDispatcher = $eventDispatcher;
         $this->userService = $userService;
@@ -68,11 +60,10 @@ class ModifyController
     {
         $user = $this->userService->loadUserByIdentifier($request->get('identifier'));
         $form = $this->buildForm($user->toArray());
+        $request->attributes->set('form', $form);
+        $request->attributes->set('user', $user);
 
-        return $this->templateRenderer->render(
-            '@hlx-security/user/task/modify.html.twig',
-            [ 'form' => $form->createView(), 'user' => $user ]
-        );
+        return [ ModifyInputView::CLASS ];
     }
 
     public function write(Request $request, Application $app)
@@ -80,12 +71,11 @@ class ModifyController
         $user = $this->userService->loadUserByIdentifier($request->get('identifier'));
         $form = $this->buildForm($user->toArray());
         $form->handleRequest($request);
+        $request->attributes->set('form', $form);
+        $request->attributes->set('user', $user);
 
         if (!$form->isValid()) {
-            return $this->templateRenderer->render(
-                '@hlx-security/user/task/modify.html.twig',
-                [ 'form' => $form->createView(), 'user' => $user ]
-            );
+            return [ ModifyInputView::CLASS ];
         }
 
         $formData = $form->getData();
@@ -109,20 +99,14 @@ class ModifyController
                     $event = new InteractiveLoginEvent($request, $token);
                     $this->eventDispatcher->dispatch(SecurityEvents::INTERACTIVE_LOGIN, $event);
                 }
-                return $app->redirect($this->urlGenerator->generate('hlx.security.user.list'));
+                return [ ModifySuccessView::CLASS ];
             }
         } catch (AuthenticationException $error) {
             $errors = (array) $error->getMessageKey();
         }
 
-        return $this->templateRenderer->render(
-            '@hlx-security/user/task/modify.html.twig',
-            [
-                'form' => $form->createView(),
-                'user' => $user,
-                'errors' => isset($errors) ? $errors : [ 'This user is already registered.' ]
-            ]
-        );
+        $request->attributes->set('errors', isset($errors) ? $errors : [ 'This user is already registered.' ]);
+        return [ ModifyInputView::CLASS ];
     }
 
     protected function buildForm(array $data = [])

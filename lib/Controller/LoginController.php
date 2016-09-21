@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\Controller;
 
-use Honeybee\Infrastructure\Template\TemplateRendererInterface;
+use Hlx\Security\View\LoginInputView;
 use Silex\Application;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
@@ -17,31 +17,17 @@ class LoginController
 {
     protected $formFactory;
 
-    protected $templateRenderer;
-
-    public function __construct(
-        FormFactoryInterface $formFactory,
-        TemplateRendererInterface $templateRenderer
-    ) {
+    public function __construct(FormFactoryInterface $formFactory)
+    {
         $this->formFactory = $formFactory;
-        $this->templateRenderer = $templateRenderer;
     }
 
     public function read(Request $request, Application $app)
     {
         $form = $this->buildForm();
+        $request->attributes->set('form', $form);
 
-        $error = $app['security.last_error']($request);
-        $lastUsername = $request->getSession()->get('_security.last_username');
-
-        return $this->templateRenderer->render(
-            '@hlx-security/login.html.twig',
-            [
-                'form' => $form->createView(),
-                'last_username' => $lastUsername,
-                'errors' => (array) $error
-            ]
-        );
+        return [ LoginInputView::CLASS ];
     }
 
     protected function buildForm()

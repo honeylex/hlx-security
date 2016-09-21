@@ -3,7 +3,8 @@
 namespace Hlx\Security\Controller;
 
 use Hlx\Security\Service\AccountService;
-use Honeybee\Infrastructure\Template\TemplateRendererInterface;
+use Hlx\Security\View\SetPasswordInputView;
+use Hlx\Security\View\SetPasswordSuccessView;
 use Silex\Application;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -11,7 +12,6 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -20,50 +20,37 @@ class SetPasswordController
 {
     protected $formFactory;
 
-    protected $templateRenderer;
-
     protected $userService;
-
-    protected $urlGenerator;
 
     protected $accountService;
 
     public function __construct(
         FormFactoryInterface $formFactory,
-        TemplateRendererInterface $templateRenderer,
         UserProviderInterface $userService,
-        UrlGeneratorInterface $urlGenerator,
         AccountService $accountService
     ) {
         $this->formFactory = $formFactory;
-        $this->templateRenderer = $templateRenderer;
         $this->userService = $userService;
-        $this->urlGenerator = $urlGenerator;
         $this->accountService = $accountService;
     }
 
     public function read(Request $request, Application $app)
     {
         $token = $request->get('token');
-
         $form = $this->buildForm([ 'token' => $token ]);
+        $request->attributes->set('form', $form);
 
-        return $this->templateRenderer->render(
-            '@hlx-security/set_password.html.twig',
-            [ 'form' => $form->createView() ]
-        );
+        return [ SetPasswordInputView::CLASS ];
     }
 
     public function write(Request $request, Application $app)
     {
         $form = $this->buildForm();
         $form->handleRequest($request);
+        $request->attributes->set('form', $form);
 
         if (!$form->isValid()) {
-            return $this->templateRenderer->render(
-                '@hlx-security/set_password.html.twig',
-                [ 'form' => $form->createView() ]
-            );
+            return [ SetPasswordInputView::CLASS ];
         }
 
         $formData = $form->getData();
@@ -76,16 +63,12 @@ class SetPasswordController
             // We can verify the user at this point if required
             $this->accountService->verifyUser($user);
         } catch (AuthenticationException $error) {
-            return $this->templateRenderer->render(
-                '@hlx-security/set_password.html.twig',
-                [
-                    'form' => $this->buildForm($this->formFactory, [ 'token' => $token ])->createView(),
-                    'errors' => (array) $error->getMessageKey()
-                ]
-            );
+            $request->attributes->set('form', $this->buildForm($this->formFactory, [ 'token' => $token ]));
+            $request->attributes->set('errors', (array) $error->getMessageKey());
+            return [ SetPasswordInputView::CLASS ];
         }
 
-        return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
+        return [ SetPasswordSuccessView::CLASS ];
     }
 
     protected function buildForm(array $data = [])

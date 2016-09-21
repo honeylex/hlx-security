@@ -3,15 +3,15 @@
 namespace Hlx\Security\Controller;
 
 use Hlx\Security\Service\AccountService;
+use Hlx\Security\View\ForgotPasswordInputView;
+use Hlx\Security\View\ForgotPasswordSuccessView;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
-use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use ReCaptcha\ReCaptcha;
 use Silex\Application;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -22,52 +22,40 @@ class ForgotPasswordController
 {
     protected $formFactory;
 
-    protected $templateRenderer;
-
     protected $userService;
 
     protected $accountService;
-
-    protected $urlGenerator;
 
     protected $configProvider;
 
     public function __construct(
         FormFactoryInterface $formFactory,
-        TemplateRendererInterface $templateRenderer,
         UserProviderInterface $userService,
         AccountService $accountService,
-        UrlGeneratorInterface $urlGenerator,
         ConfigProviderInterface $configProvider
     ) {
         $this->formFactory = $formFactory;
-        $this->templateRenderer = $templateRenderer;
         $this->userService = $userService;
         $this->accountService = $accountService;
-        $this->urlGenerator = $urlGenerator;
         $this->configProvider = $configProvider;
     }
 
     public function read(Request $request, Application $app)
     {
         $form = $this->buildForm();
+        $request->attributes->set('form', $form);
 
-        return $this->templateRenderer->render(
-            '@hlx-security/forgot_password.html.twig',
-            [ 'form' => $form->createView() ]
-        );
+        return [ ForgotPasswordInputView::CLASS ];
     }
 
     public function write(Request $request, Application $app)
     {
         $form = $this->buildForm();
         $form->handleRequest($request);
+        $request->attributes->set('form', $form);
 
         if (!$form->isValid()) {
-            return $this->templateRenderer->render(
-                '@hlx-security/forgot_password.html.twig',
-                [ 'form' => $form->createView() ]
-            );
+            return [ ForgotPasswordInputView::CLASS ];
         }
 
         $formData = $form->getData();
@@ -78,16 +66,12 @@ class ForgotPasswordController
             $user = $this->userService->loadUserByUsername($username);
             $this->accountService->startSetUserPassword($user);
         } catch (AuthenticationException $error) {
-            return $this->templateRenderer->render(
-                '@hlx-security/forgot_password.html.twig',
-                [
-                    'form' => $this->buildForm($this->formFactory)->createView(),
-                    'errors' => (array) $error->getMessageKey()
-                ]
-            );
+            $request->attributes->set('form', $this->buildForm($this->formFactory));
+            $request->attributes->set('errors', (array) $error->getMessageKey());
+            return [ ForgotPasswordInputView::CLASS ];
         }
 
-        return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
+        return [ ForgotPasswordSuccessView::CLASS ];
     }
 
     protected function buildForm()

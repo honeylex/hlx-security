@@ -3,9 +3,10 @@
 namespace Hlx\Security\Controller;
 
 use Hlx\Security\Service\AccountService;
+use Hlx\Security\View\RegistrationInputView;
+use Hlx\Security\View\RegistrationSuccessView;
 use Honeybee\Common\Util\StringToolkit;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
-use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use ReCaptcha\ReCaptcha;
 use Silex\Application;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -15,7 +16,6 @@ use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -29,10 +29,6 @@ class RegistrationController
 {
     protected $formFactory;
 
-    protected $templateRenderer;
-
-    protected $urlGenerator;
-
     protected $accountService;
 
     protected $userService;
@@ -43,16 +39,12 @@ class RegistrationController
 
     public function __construct(
         FormFactoryInterface $formFactory,
-        TemplateRendererInterface $templateRenderer,
-        UrlGeneratorInterface $urlGenerator,
         AccountService $accountService,
         UserProviderInterface $userService,
         TokenStorageInterface $tokenStorage,
         ConfigProviderInterface $configProvider
     ) {
         $this->formFactory = $formFactory;
-        $this->templateRenderer = $templateRenderer;
-        $this->urlGenerator = $urlGenerator;
         $this->accountService = $accountService;
         $this->userService = $userService;
         $this->tokenStorage = $tokenStorage;
@@ -62,23 +54,19 @@ class RegistrationController
     public function read(Request $request, Application $app)
     {
         $form = $this->buildForm();
+        $request->attributes->set('form', $form);
 
-        return $this->templateRenderer->render(
-            '@hlx-security/registration.html.twig',
-            [ 'form' => $form->createView() ]
-        );
+        return [ RegistrationInputView::CLASS ];
     }
 
     public function write(Request $request, Application $app)
     {
         $form = $this->buildForm();
         $form->handleRequest($request);
+        $request->attributes->set('form', $form);
 
         if (!$form->isValid()) {
-            return $this->templateRenderer->render(
-                '@hlx-security/registration.html.twig',
-                [ 'form' => $form->createView() ]
-            );
+            return [ RegistrationInputView::CLASS ];
         }
 
         $formData = $form->getData();
@@ -98,23 +86,15 @@ class RegistrationController
                     $token = new UsernamePasswordToken($user, null, $firewall, $user->getRoles());
                     $this->tokenStorage->setToken($token);
                     $session->set('_security_'.$firewall, serialize($token));
-                    $targetPath = $this->configProvider->getSetting('hlx.security.auto_login.target_path', 'home');
-                    return $app->redirect($this->urlGenerator->generate($targetPath));
-                } else {
-                    return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
                 }
+                return [ RegistrationSuccessView::CLASS ];
             }
         } catch (AuthenticationException $error) {
             $errors = (array) $error->getMessageKey();
         }
 
-        return $this->templateRenderer->render(
-            '@hlx-security/registration.html.twig',
-            [
-                'form' => $form->createView(),
-                'errors' => isset($errors) ? $errors : [ 'This user is already registered.' ]
-            ]
-        );
+        $request->attributes->set('errors', isset($errors) ? $errors : [ 'This user is already registered.' ]);
+        return [ RegistrationInputView::CLASS ];
     }
 
     public function verify(Request $request, Application $app)
@@ -125,7 +105,7 @@ class RegistrationController
 
         $this->accountService->verifyUser($user);
 
-        return $app->redirect($this->urlGenerator->generate('hlx.security.login'));
+        return [ RegistrationSuccessView::CLASS ];
     }
 
     protected function buildForm()
