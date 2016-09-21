@@ -146,7 +146,7 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
             [ "^$routingPrefix/password/(set|forgot)$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
             [ "^$routingPrefix/registration$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
             [ "^$routingPrefix/verify$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
-            [ "^$routingPrefix/user", 'ROLE_ADMIN' ],
+            [ "^$routingPrefix/users", 'ROLE_ADMIN' ],
             [ "^$routingPrefix/auth", 'ROLE_USER' ]
         ];
 

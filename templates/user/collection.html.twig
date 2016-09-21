@@ -41,25 +41,25 @@
                             -->
                             <div class="col-xs-12 col-sm-6 col-md-6" style="text-align: right">
                                 <div class="input-group">
-                                    {% if pager.prev_url == false %}
+                                    {% if users.hasPreviousPage == false %}
                                     <span class="input-group-btn">
                                         <a class="btn btn-default disabled" href="#">&laquo; prev</a>
                                     </span>
                                     {% else %}
                                     <span class="input-group-btn">
-                                        <a class="btn btn-default" href="{{ pager.prev_url }}" type="submit" title="goto previous page">&laquo; prev</a>
+                                        <a class="btn btn-default" href="{{ path('hlx.security.users', { q:q, page:users.previousPage, limit:users.maxPerPage }) }}" type="submit" title="goto previous page">&laquo; prev</a>
                                     </span>
                                     {% endif %}
                                     <span class="input-group-addon" id="basic-addon1">page </span>
-                                    <input class="form-control cur-offset" name="page" type="number" min="1" max="{{ max(pager.total,1) }}" value="{{ pager.current }}">
-                                    <span class="input-group-addon">of {{ max(pager.total,1) }}</span>
-                                    {% if pager.next_url == false %}
+                                    <input class="form-control cur-offset" name="page" type="number" min="1" max="{{ max(users.nbPages,1) }}" value="{{ users.currentPage }}">
+                                    <span class="input-group-addon">of {{ max(users.nbPages,1) }}</span>
+                                    {% if users.hasNextPage == false %}
                                     <span class="input-group-btn">
                                         <a class="btn btn-default disabled" href="#" type="submit">next &raquo;</a>
                                     </span>
                                     {% else %}
                                     <span class="input-group-btn">
-                                        <a class="btn btn-default" href="{{ pager.next_url }}" type="submit" title="goto next page">next &raquo;</a>
+                                        <a class="btn btn-default" href="{{ path('hlx.security.users', { q:q, page:users.nextPage, limit:users.maxPerPage }) }}" type="submit" title="goto next page">next &raquo;</a>
                                     </span>
                                     {% endif %}
                                 </div>
@@ -88,7 +88,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for user in user_list.results %}
+                    {% for user in users.currentPageResults %}
                     <tr>
                         <td>
                             <!--
@@ -96,8 +96,8 @@
                             -->
                             {% if user|accepts_event('edit') %}
                             <a href="{{ path(
-                                'hlx.security.user.tasks.modify',
-                                { 'identifier': user.identifier}
+                                'hlx.security.users.tasks.modify',
+                                { 'userId': user.identifier}
                             ) }}" title="modify user">{{ user.username }}</a>
                             {% else %}
                                 {{ user.username }}
@@ -113,8 +113,8 @@
                                 demote action
                                 -->
                                 <form method="post" class="form-inline" action="{{ path(
-                                        'hlx.security.user.tasks.proceed',
-                                        { 'identifier': user.identifier }
+                                        'hlx.security.users.tasks.proceed',
+                                        { 'userId': user.identifier }
                                 ) }}">
                                     <input type="hidden" name="revision" value="{{ user.revision }}" />
                                     <input type="hidden" name="via" value="demote" />
@@ -129,8 +129,8 @@
                                 promote action
                                 -->
                                 <form class="form-inline" method="post" action="{{ path(
-                                        'hlx.security.user.tasks.proceed',
-                                        { 'identifier': user.identifier }
+                                        'hlx.security.users.tasks.proceed',
+                                        { 'userId': user.identifier }
                                 ) }}">
                                     <input type="hidden" name="revision" value="{{ user.revision }}" />
                                     <input type="hidden" name="via" value="promote" />
@@ -147,8 +147,8 @@
                             history link
                             -->
                             <a href="{{ path(
-                                'hlx.security.user.history',
-                                { 'identifier': user.identifier }
+                                'hlx.security.users.history',
+                                { 'userId': user.identifier }
                             ) }}" class="btn btn-primary btn-xs" title="view user history">
                                 <span class="glyphicon glyphicon-book"></span> history
                             </a>
@@ -159,8 +159,8 @@
                                 delete action
                                 -->
                                 <form method="post" action="{{ path(
-                                        'hlx.security.user.tasks.proceed',
-                                        { 'identifier': user.identifier }
+                                        'hlx.security.users.tasks.proceed',
+                                        { 'userId': user.identifier }
                                 ) }}">
                                     <input type="hidden" name="revision" class="revision-val" value="{{ user.revision }}" />
                                     <input type="hidden" name="via" value="delete" />
@@ -180,7 +180,7 @@
             </div>
         </div>
         <div class="pull-right">
-            <a href="{{ path('hlx.security.user.tasks.create') }}" class="btn btn-primary">create user</a>
+            <a href="{{ path('hlx.security.users.tasks.create') }}" class="btn btn-primary">create user</a>
         </div>
     </div>
 </div>

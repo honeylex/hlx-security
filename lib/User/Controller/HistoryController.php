@@ -24,7 +24,7 @@ class HistoryController
     {
         $eventStream = $this->storageReaderMap
             ->getItem($this->userType->getPrefix().'::event_stream::event_source::reader')
-            ->read($request->get('identifier'));
+            ->read($request->get('userId'));
 
 
         $request->attributes->set('event_stream', $eventStream);

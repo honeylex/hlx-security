@@ -22,7 +22,7 @@ class ProceedWorkflowController
 
     public function write(Request $request, Application $app)
     {
-        $user = $this->userService->loadUserByIdentifier($request->get('identifier'));
+        $user = $this->userService->loadUserByIdentifier($request->get('userId'));
         $currentStateName = $request->get('from');
         $eventName = $request->get('via');
 

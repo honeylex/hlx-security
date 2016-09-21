@@ -58,7 +58,7 @@ class ModifyController
 
     public function read(Request $request)
     {
-        $user = $this->userService->loadUserByIdentifier($request->get('identifier'));
+        $user = $this->userService->loadUserByIdentifier($request->get('userId'));
         $form = $this->buildForm($user->toArray());
         $request->attributes->set('form', $form);
         $request->attributes->set('user', $user);
@@ -68,7 +68,7 @@ class ModifyController
 
     public function write(Request $request, Application $app)
     {
-        $user = $this->userService->loadUserByIdentifier($request->get('identifier'));
+        $user = $this->userService->loadUserByIdentifier($request->get('userId'));
         $form = $this->buildForm($user->toArray());
         $form->handleRequest($request);
         $request->attributes->set('form', $form);

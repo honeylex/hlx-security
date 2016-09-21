@@ -1,26 +1,26 @@
 <?php
 
+use Hlx\Security\User\Controller\CollectionController;
 use Hlx\Security\User\Controller\HistoryController;
-use Hlx\Security\User\Controller\ListController;
 use Hlx\Security\User\Controller\Task\CreateController;
 use Hlx\Security\User\Controller\Task\ModifyController;
 use Hlx\Security\User\Controller\Task\ProceedWorkflowController;
 
-$routing->mount('/user', function ($routing) {
-    $routing->get('/list', [ ListController::CLASS, 'read' ])
-        ->bind($this->getPrefix().'.user.list');
+$routing->mount('/users', function ($routing) {
+    $routing->get('/', [ CollectionController::CLASS, 'read' ])
+        ->bind($this->getPrefix().'.users');
 
     $routing->post('/tasks/create', [ CreateController::CLASS, 'write' ]);
     $routing->get('/tasks/create', [ CreateController::CLASS, 'read' ])
-        ->bind($this->getPrefix().'.user.tasks.create');
+        ->bind($this->getPrefix().'.users.tasks.create');
 
-    $routing->post('/{identifier}/tasks/edit', [ ModifyController::CLASS, 'write' ]);
-    $routing->get('/{identifier}/tasks/edit', [ ModifyController::CLASS, 'read' ])
-        ->bind($this->getPrefix().'.user.tasks.modify');
+    $routing->post('/{userId}/tasks/edit', [ ModifyController::CLASS, 'write' ]);
+    $routing->get('/{userId}/tasks/edit', [ ModifyController::CLASS, 'read' ])
+        ->bind($this->getPrefix().'.users.tasks.modify');
 
-    $routing->match('/{identifier}/tasks/proceed', [ ProceedWorkflowController::CLASS, 'write' ])
-        ->bind($this->getPrefix().'.user.tasks.proceed');
+    $routing->match('/{userId}/tasks/proceed', [ ProceedWorkflowController::CLASS, 'write' ])
+        ->bind($this->getPrefix().'.users.tasks.proceed');
 
-    $routing->get('/{identifier}/history', [ HistoryController::CLASS, 'read' ])
-        ->bind($this->getPrefix().'.user.history');
+    $routing->get('/{userId}/history', [ HistoryController::CLASS, 'read' ])
+        ->bind($this->getPrefix().'.users.history');
 });

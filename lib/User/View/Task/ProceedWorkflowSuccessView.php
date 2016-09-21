@@ -18,7 +18,7 @@ class ProceedWorkflowSuccessView
 
     public function renderHtml(Request $request, Application $app)
     {
-        return $app->redirect($this->urlGenerator->generate('hlx.security.user.list'));
+        return $app->redirect($this->urlGenerator->generate('hlx.security.users'));
     }
 
     public function renderJson(Request $request, Application $app)
