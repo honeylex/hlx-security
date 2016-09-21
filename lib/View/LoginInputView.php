@@ -27,7 +27,7 @@ class LoginInputView
             [
                 'form' => $form->createView(),
                 'last_username' => $lastUsername,
-                'errors' => (array) $error
+                'errors' => (array)$error
             ]
         );
     }

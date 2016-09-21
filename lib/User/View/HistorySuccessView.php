@@ -18,6 +18,7 @@ use Hlx\Security\User\Model\Task\SetUserPassword\UserPasswordSetStartedEvent;
 use Hlx\Security\User\Model\Task\ConnectService\OauthServiceConnectedEvent;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Honeybee\Model\Event\AggregateRootEventInterface;
+use Honeybee\Model\Event\EventStreamInterface;
 use Honeybee\Model\Event\EmbeddedEntityEventList;
 use Honeybee\Model\Task\ModifyAggregateRoot\AddEmbeddedEntity\EmbeddedEntityAddedEvent;
 use Honeybee\Model\Task\ModifyAggregateRoot\ModifyEmbeddedEntity\EmbeddedEntityModifiedEvent;
@@ -25,34 +26,54 @@ use Honeybee\Model\Task\ModifyAggregateRoot\RemoveEmbeddedEntity\EmbeddedEntityR
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class HistorySuccessView
 {
     protected $templateRenderer;
 
-    public function __construct(TemplateRendererInterface $templateRenderer)
-    {
+    protected $serializer;
+
+    public function __construct(
+        TemplateRendererInterface $templateRenderer,
+        SerializerInterface $serializer
+    ) {
         $this->templateRenderer = $templateRenderer;
+        $this->serializer = $serializer;
     }
 
     public function renderHtml(Request $request, Application $app)
     {
         $eventStream = $request->attributes->get('event_stream');
-
-        $historyData = [];
-        foreach ($eventStream->getEvents()->reverse() as $event) {
-            $historyData[] = $this->getEventData($event);
-        }
+        $history = $this->buildHistory($eventStream);
 
         return $this->templateRenderer->render(
             '@hlx-security/user/history.html.twig',
-            [ 'history' => $historyData ]
+            [ 'history' => $history ]
         );
     }
 
     public function renderJson(Request $request, Application $app)
     {
-        return new JsonResponse(null, JsonResponse::HTTP_NOT_ACCEPTABLE);
+        $eventStream = $request->attributes->get('event_stream');
+        $history = $this->buildHistory($eventStream);
+
+        return new JsonResponse(
+            $this->serializer->serialize($history, 'json'),
+            JsonResponse::HTTP_OK,
+            [],
+            true
+        );
+    }
+
+    protected function buildHistory(EventStreamInterface $eventStream)
+    {
+        $historyData = [];
+        foreach ($eventStream->getEvents()->reverse() as $event) {
+            $historyData[] = $this->getEventData($event);
+        }
+
+        return $historyData;
     }
 
     protected function getEventData(AggregateRootEventInterface $event)

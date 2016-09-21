@@ -33,6 +33,6 @@ class RegistrationSuccessView
 
     public function renderJson(Request $request, Application $app)
     {
-        return new JsonResponse(null, JsonResponse::HTTP_NOT_ACCEPTABLE);
+        return new JsonResponse(null, JsonResponse::HTTP_CREATED);
     }
 }

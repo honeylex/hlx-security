@@ -7,19 +7,20 @@ use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class CollectionSuccessView
 {
     protected $templateRenderer;
 
-    protected $urlGenerator;
+    protected $serializer;
 
     public function __construct(
         TemplateRendererInterface $templateRenderer,
-        UrlGeneratorInterface $urlGenerator
+        SerializerInterface $serializer
     ) {
         $this->templateRenderer = $templateRenderer;
-        $this->urlGenerator = $urlGenerator;
+        $this->serializer = $serializer;
     }
 
     public function renderHtml(Request $request, Application $app)
@@ -34,6 +35,13 @@ class CollectionSuccessView
 
     public function renderJson(Request $request, Application $app)
     {
-        return new JsonResponse(null, JsonResponse::HTTP_NOT_ACCEPTABLE);
+        $users = $request->attributes->get('users');
+
+        return new JsonResponse(
+            $this->serializer->serialize($users, 'json'),
+            JsonResponse::HTTP_OK,
+            [],
+            true
+        );
     }
 }
