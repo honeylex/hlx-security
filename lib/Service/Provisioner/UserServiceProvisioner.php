@@ -49,8 +49,8 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
             ->make($service);
 
         // setup firewalls
-        $devFirewall = $app['debug'] ? [
-            'dev' => [
+        $devFirewall = $app['debug'] && $configProvider->getAppContext() === 'web' ? [
+            'development' => [
                 'pattern' => '^/_(profiler|wdt)/',
                 'security' => false
             ]
