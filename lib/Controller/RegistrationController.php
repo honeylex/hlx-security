@@ -77,20 +77,18 @@ class RegistrationController
             $this->validateRecaptcha($request->request->get('g-recaptcha-response'));
             if (!$this->userService->userExists($username, $email)) {
                 $this->accountService->registerUser($formData);
-                // auto login handling - requires sync registration
-                if ($this->configProvider->getSetting('hlx.security.auto_login.enabled')
-                    && $session = $request->getSession()
-                ) {
+                // auto login handling - expects registration to be synchronous
+                if ($this->configProvider->getSetting('hlx.security.auto_login.enabled') && $request->hasSession()) {
                     $firewall = $this->configProvider->getSetting('hlx.security.auto_login.firewall', 'default');
                     $user = $this->userService->loadUserByEmail($email);
                     $token = new UsernamePasswordToken($user, null, $firewall, $user->getRoles());
                     $this->tokenStorage->setToken($token);
-                    $session->set('_security_'.$firewall, serialize($token));
+                    $request->getSession()->set('_security_'.$firewall, serialize($token));
                 }
                 return [ RegistrationSuccessView::CLASS ];
             }
         } catch (AuthenticationException $error) {
-            $errors = (array) $error->getMessageKey();
+            $errors = (array)$error->getMessageKey();
         }
 
         $request->attributes->set('errors', isset($errors) ? $errors : [ 'This user is already registered.' ]);
@@ -110,7 +108,13 @@ class RegistrationController
 
     protected function buildForm()
     {
-        return $this->formFactory->createBuilder(FormType::CLASS, [], [ 'translation_domain' => 'form' ])
+        return $this->formFactory->createNamedBuilder(
+            null,
+            FormType::CLASS,
+            [],
+            // @todo remove allow_extra_fields when recaptcha is optionally created in form builder
+            [ 'translation_domain' => 'form', 'allow_extra_fields' => true ]
+        )
             ->add('username', TextType::CLASS, [ 'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ] ])
             ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
             ->add('password', RepeatedType::CLASS, [
