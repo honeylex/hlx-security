@@ -6,6 +6,7 @@ use Honeybee\Infrastructure\Template\TemplateRendererInterface;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Security;
 
 class LoginInputView
 {
@@ -19,8 +20,18 @@ class LoginInputView
     public function renderHtml(Request $request, Application $app)
     {
         $form = $request->attributes->get('form');
-        $error = $app['security.last_error']($request);
-        $lastUsername = $request->getSession()->get('_security.last_username');
+        $lastUsername = null;
+        $error = null;
+
+        if ($request->hasSession()) {
+            $session = $request->getSession();
+            $lastUsername = $session->get(Security::LAST_USERNAME);
+            if ($exception = $session->get(Security::AUTHENTICATION_ERROR)) {
+                $error = $exception->getMessage();
+                $error = $error ?: $exception->getMessageKey();
+                $session->remove(Security::AUTHENTICATION_ERROR);
+            }
+        }
 
         return $this->templateRenderer->render(
             '@hlx-security/login.html.twig',

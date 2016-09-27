@@ -4,7 +4,6 @@ namespace Hlx\Security\Service\Provisioner;
 
 use Auryn\Injector;
 use Gigablah\Silex\OAuth\OAuthServiceProvider;
-use Hlx\Security\Authenticator\OauthAuthenticator;
 use Hlx\Security\Authenticator\TokenAuthenticator;
 use Hlx\Security\EventListener\OauthInfoListener;
 use Hlx\Security\EventListener\UserLocaleListener;
@@ -62,20 +61,6 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
                 'default' => [
                     'pattern' => "^.*$",
                     'anonymous' => true,
-                    'form' => [
-                        'login_path' => "$routingPrefix/login",
-                        'check_path' => "$routingPrefix/login/check",
-                        'default_target_path' => '/'
-                    ],
-                    'logout' => [
-                        'logout_path' => "$routingPrefix/logout",
-                        'target_url' => '/',
-                        'invalidate_session' => true,
-                        'with_csrf' => true
-                    ],
-                    'remember_me' => [
-                        'name' => 'HLX_SECURITY'
-                    ],
                     'users' => $userService
                 ]
             ],
@@ -106,12 +91,13 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
                         'oauth' => [
                             // provide security context to specific firewall
                             'context' => $oauthSettings->get('context', 'default'),
-                            'pattern' => "^$routingPrefix/auth/",
+                            'pattern' => "^$routingPrefix/oauth/",
                             'anonymous' => true,
                             'oauth' => [
-                                'login_path' => "$routingPrefix/auth/{service}",
-                                'callback_path' => "$routingPrefix/auth/{service}/callback",
-                                'check_path' => "$routingPrefix/auth/{service}/check",
+                                'login_path' => "$routingPrefix/oauth/{service}",
+                                'callback_path' => "$routingPrefix/oauth/{service}/callback",
+                                'check_path' => "$routingPrefix/oauth/{service}/check",
+                                // @todo check the following are properly generated paths
                                 'failure_path' => 'hlx.security.login',
                                 'default_target_path' => 'home',
                                 'with_csrf' => true
@@ -135,19 +121,11 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
         }
 
         // setup roles and rules
+        $accessRules = [];
         $roleHierarchy =  [
             'ROLE_ADMIN' => [ 'ROLE_USER', 'ROLE_ALLOWED_TO_SWITCH' ],
             'administrator' => [ 'ROLE_ADMIN' ],
             'user' => [ 'ROLE_USER' ]
-        ];
-
-        $accessRules = [
-            [ "^$routingPrefix/login$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
-            [ "^$routingPrefix/password/(set|forgot)$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
-            [ "^$routingPrefix/registration$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
-            [ "^$routingPrefix/verify$", 'IS_AUTHENTICATED_ANONYMOUSLY' ],
-            [ "^$routingPrefix/users", 'ROLE_ADMIN' ],
-            [ "^$routingPrefix/auth", 'ROLE_USER' ]
         ];
 
         if ($rolesSettings = $crateSettings->get('roles', new Settings)) {
@@ -159,15 +137,6 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
                 $rolesSettings->get('access_rules', new Settings)->toArray(),
                 $accessRules
             );
-        }
-
-        // Api setup
-        if ($apiSettings = $crateSettings->get('api', new Settings)) {
-            if ($apiSettings->get('enabled')) {
-                $app['hlx.security.token_authenticator'] = function ($app) {
-                    return new TokenAuthenticator;
-                };
-            }
         }
 
         // register the security service
@@ -184,6 +153,7 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
         // register after SecurityServiceProvider
         $app->register(new RememberMeServiceProvider);
 
+        $this->registerAuthenticators($app, $injector, $crateSettings->get('authenticators', new Settings));
         $this->registerSecurityVoters($app, $injector, $crateSettings->get('voters', new Settings));
         $this->registerLogoutHandler($app, $injector);
         $this->registerLoginHandler($app, $injector);
@@ -222,6 +192,18 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
             }
             return $voters;
         });
+    }
+
+    protected function registerAuthenticators(
+        Container $app,
+        Injector $injector,
+        SettingsInterface $authenticatorSettings
+    ) {
+        foreach ($authenticatorSettings as $name => $authenticator) {
+            $app[$name] = function ($app) use ($injector, $authenticator) {
+                return $injector->make($authenticator);
+            };
+        }
     }
 
     public function subscribe(Container $app, EventDispatcherInterface $dispatcher)

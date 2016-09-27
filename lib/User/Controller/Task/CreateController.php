@@ -72,7 +72,7 @@ class CreateController
             $errors = (array) $error->getMessageKey();
         }
 
-        $request->attributes->set('errors', isset($errors) ? $errors : [ 'This user is already registered.' ]);
+        $request->attributes->set('errors', isset($errors) ? $errors : [ 'User is already registered.' ]);
         return [ CreateInputView::CLASS ];
     }
 

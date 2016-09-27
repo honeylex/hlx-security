@@ -20,7 +20,6 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -91,7 +90,7 @@ class RegistrationController
             $errors = (array)$error->getMessageKey();
         }
 
-        $request->attributes->set('errors', isset($errors) ? $errors : [ 'This user is already registered.' ]);
+        $request->attributes->set('errors', isset($errors) ? $errors : [ 'User is already registered.' ]);
         return [ RegistrationInputView::CLASS ];
     }
 

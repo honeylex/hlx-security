@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
@@ -36,12 +37,17 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
     public function getUser($credentials, UserProviderInterface $userService)
     {
         $user = $userService->loadUserByToken($credentials['token'], 'authentication');
+
         return new ApiUser($user->toArray());
     }
 
     public function checkCredentials($credentials, UserInterface $user)
     {
-        return $user->getUsername() === $credentials['username'];
+        if ($user->getUsername() !== $credentials['username']) {
+            throw new BadCredentialsException;
+        }
+
+        return true;
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
@@ -50,21 +56,21 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        $data = [
-            'message' => strtr($exception->getMessageKey(), $exception->getMessageData()),
-        ];
+        $message = $exception->getMessage();
+        $message = $message ?: $exception->getMessageKey();
+        $content = [ 'errors' => [ 'code' => 403, 'message' => $message ] ];
 
-        return new JsonResponse($data, JsonResponse::HTTP_FORBIDDEN);
+        // @todo translate response
+        return new JsonResponse($content, JsonResponse::HTTP_FORBIDDEN);
     }
 
     // Called when authentication is needed, but it's not sent
     public function start(Request $request, AuthenticationException $authException = null)
     {
-        $data = [
-            'message' => 'Authentication Required',
-        ];
+        $content = [ 'errors' => [ 'code' => 401, 'message' => 'Authentication required.' ] ];
 
-        return new JsonResponse($data, JsonResponse::HTTP_UNAUTHORIZED);
+        // @todo translate response
+        return new JsonResponse($content, JsonResponse::HTTP_UNAUTHORIZED);
     }
 
     public function supportsRememberMe()

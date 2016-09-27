@@ -9,6 +9,9 @@ en:
     'Verification required': 'Verification required'
     'Password setting instructions': 'Password setting instructions'
     'Your password was set': 'Your password was set'
+  errors:
+    'Username could not be found.': 'User could not be found'
+    'Invalid credentials.': 'User could not be found'
   role:
     'administrator': 'Administrator'
     'user': 'User'
@@ -20,6 +23,9 @@ de:
     'Forgot your password?': 'Haben Sie Ihr Passwort vergessen?'
     'My Account': 'Mein Konto'
     'Register': Anmelden
+  errors:
+    'Username could not be found.': 'Benutzer wurde nicht gefunden'
+    'Invalid credentials.': 'Benutzer wurde nicht gefunden'
   email:
     'Verification required': 'Bestätigung notwendig'
     'Password setting instructions': 'Passwort-Einstellung Anweisungen'

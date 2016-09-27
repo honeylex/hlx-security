@@ -17,14 +17,14 @@
 {% block content %}
 <div class="row">
     <div class="col-xs-12 col-md-6">
-        <form method="post" class="tab-content" action="{{ path('hlx.security.login.check') }}">
+        <form method="post" class="tab-content" action="{{ path('hlx.security.authenticate') }}">
             <div class="tab-pane active" id="login">
                 {{ form_widget(form) }}
             </div>
             <div class="form-actions">
                 <button class="btn btn-success" type="submit">{{ 'Login'|trans }}</button>
                 {% if config('hlx.security.oauth.facebook.enabled') %}
-                <a href="/auth/facebook" class="btn btn-primary">Facebook</a>
+                <a href="/oauth/facebook" class="btn btn-primary">Facebook</a>
                 {% endif %}
                 <a href="{{ path('hlx.security.registration') }}" class="btn btn-primary">Register</a>
                 <a href="{{ path('hlx.security.password.forgot') }}">{{ 'Forgot your password?'|trans }}</a>
