@@ -11,9 +11,17 @@ use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class TokenAuthenticator extends AbstractGuardAuthenticator
 {
+    protected $translator;
+
+    public function __construct(TranslatorInterface $translator)
+    {
+        $this->translator = $translator;
+    }
+
     public function getCredentials(Request $request)
     {
         // Checks if the credential header is provided
@@ -58,18 +66,26 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
     {
         $message = $exception->getMessage();
         $message = $message ?: $exception->getMessageKey();
-        $content = [ 'errors' => [ 'code' => 403, 'message' => $message ] ];
+        $content = [
+            'errors' => [
+                'code' => 403,
+                'message' => $this->translator->trans($message, [], 'errors')
+            ]
+        ];
 
-        // @todo translate response
         return new JsonResponse($content, JsonResponse::HTTP_FORBIDDEN);
     }
 
     // Called when authentication is needed, but it's not sent
     public function start(Request $request, AuthenticationException $authException = null)
     {
-        $content = [ 'errors' => [ 'code' => 401, 'message' => 'Authentication required.' ] ];
+        $content = [
+            'errors' => [
+                'code' => 401,
+                'message' => $this->translator->trans('Authentication credentials required.', [], 'errors')
+            ]
+        ];
 
-        // @todo translate response
         return new JsonResponse($content, JsonResponse::HTTP_UNAUTHORIZED);
     }
 
