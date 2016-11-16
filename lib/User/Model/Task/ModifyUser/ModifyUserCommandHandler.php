@@ -3,19 +3,21 @@
 namespace Hlx\Security\User\Model\Task\ModifyUser;
 
 use Hlx\Security\User\Model\Aggregate\UserType;
-use Honeybee\Infrastructure\Event\Bus\EventBusInterface;
-use Honeybee\Model\Task\ModifyAggregateRoot\ModifyAggregateRootCommandHandler;
 use Honeybee\Infrastructure\DataAccess\DataAccessServiceInterface;
+use Honeybee\Infrastructure\Event\Bus\EventBusInterface;
+use Honeybee\Infrastructure\Workflow\WorkflowServiceInterface;
+use Honeybee\Model\Task\ModifyAggregateRoot\ModifyAggregateRootCommandHandler;
 use Psr\Log\LoggerInterface;
 
 class ModifyUserCommandHandler extends ModifyAggregateRootCommandHandler
 {
     public function __construct(
-        UserType $userType,
-        DataAccessServiceInterface $dataAccessService,
-        EventBusInterface $eventBus,
+        UserType $user_type,
+        DataAccessServiceInterface $data_access_service,
+        EventBusInterface $event_bus,
+        WorkflowServiceInterface $workflow_service,
         LoggerInterface $logger
     ) {
-        parent::__construct($userType, $dataAccessService, $eventBus, $logger);
+        parent::__construct($user_type, $data_access_service, $event_bus, $workflow_service, $logger);
     }
 }
