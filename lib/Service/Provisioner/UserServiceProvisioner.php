@@ -41,11 +41,11 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
             $routingPrefix = '';
         }
 
-        // Make the user service upfront for the security provider
-        $userService = $injector
-            ->share($service)
-            ->alias(UserProviderInterface::CLASS, $service)
-            ->make($service);
+        // Define the user service and delegate upfront for the security provider
+        $injector->share($service)->alias(UserProviderInterface::CLASS, $service);
+        $userProviderDelegate = function () use ($injector, $service) {
+            return $injector->make($service);
+        };
 
         // setup firewalls
         $devFirewall = $app['debug'] ? [
@@ -61,7 +61,7 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
                 'default' => [
                     'pattern' => "^.*$",
                     'anonymous' => true,
-                    'users' => $userService
+                    'users' => $userProviderDelegate
                 ]
             ],
             $crateSettings->get('firewalls', new Settings)->toArray()
@@ -102,7 +102,7 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
                                 'default_target_path' => 'home',
                                 'with_csrf' => true
                             ],
-                            'users' => $userService
+                            'users' => $userProviderDelegate
                         ]
                     ],
                     $securityFirewalls
@@ -143,7 +143,7 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
         $app->register(
             new SecurityServiceProvider,
             [
-                'security.default_encoder' => $userService,
+                'security.default_encoder' => $userProviderDelegate,
                 'security.firewalls' => $securityFirewalls,
                 'security.access_rules' => $accessRules,
                 'security.role_hierarchy' => $roleHierarchy
@@ -200,7 +200,7 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
         SettingsInterface $authenticatorSettings
     ) {
         foreach ($authenticatorSettings as $name => $authenticator) {
-            $app[$name] = function ($app) use ($injector, $authenticator) {
+            $app[$name] = function () use ($injector, $authenticator) {
                 return $injector->make($authenticator);
             };
         }
