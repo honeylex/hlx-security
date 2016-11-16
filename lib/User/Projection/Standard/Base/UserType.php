@@ -21,10 +21,8 @@
 
 namespace Hlx\Security\User\Projection\Standard\Base;
 
-use Trellis\Common\Options;
-use Workflux\StateMachine\StateMachineInterface;
-use Hlx\Security\User\Projection\Standard\Base;
 use Honeybee\Projection\ProjectionType;
+use Trellis\Common\Options;
 
 /**
  * Serves as the base class to the 'User' type skeleton.
@@ -32,19 +30,10 @@ use Honeybee\Projection\ProjectionType;
 abstract class UserType extends ProjectionType
 {
     /**
-     * StateMachineInterface $workflow_state_machine
-     */
-    protected $workflow_state_machine;
-
-    /**
      * Creates a new 'UserType' instance.
-     *
-     * @param StateMachineInterface $workflow_state_machine
      */
-    public function __construct(StateMachineInterface $workflow_state_machine)
+    public function __construct()
     {
-        $this->workflow_state_machine = $workflow_state_machine;
-
         parent::__construct(
             'User',
             [
@@ -110,16 +99,6 @@ abstract class UserType extends ProjectionType
                 )
             )
         );
-    }
-
-    /**
-     * Returns an (immutable) state-machine instance responseable for controlling an entity's workflow.
-     *
-     * @return StateMachineInterface
-     */
-    public function getWorkflowStateMachine()
-    {
-        return $this->workflow_state_machine;
     }
 
     /**
