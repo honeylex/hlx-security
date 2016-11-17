@@ -36,6 +36,7 @@ use Honeybee\Model\Aggregate\WorkflowSubject;
 use Honeybee\Model\Event\EmbeddedEntityEventList;
 use Honeybee\Model\Task\CreateAggregateRoot\CreateAggregateRootCommand;
 use Ramsey\Uuid\Uuid;
+use Workflux\StateMachine\StateMachineInterface;
 
 /**
  * This class may be used to customize the behaviour of the
@@ -65,14 +66,14 @@ class User extends BaseUser
     /*
      * Create a user
      */
-    public function create(CreateAggregateRootCommand $command)
+    public function create(CreateAggregateRootCommand $command, StateMachineInterface $stateMachine)
     {
         switch (get_class($command)) {
             case RegisterUserCommand::CLASS:
-                $this->registerUser($command);
+                $this->registerUser($command, $stateMachine);
                 break;
             case RegisterOauthUserCommand::CLASS:
-                $this->registerOauthUser($command);
+                $this->registerOauthUser($command, $stateMachine);
                 break;
             default:
                 throw new RuntimeError('Unsupported User registration command: '.get_class($command));
@@ -82,9 +83,9 @@ class User extends BaseUser
     /*
      * Register a standard user
      */
-    protected function registerUser(RegisterUserCommand $command)
+    protected function registerUser(RegisterUserCommand $command, StateMachineInterface $stateMachine)
     {
-        $initialData = $this->createInitialData($command);
+        $initialData = $this->createInitialData($command, $stateMachine);
         $initialData['role'] = $command->getRole();
         $authenticationTokenUuid = Uuid::uuid4()->toString();
         $verificationTokenUuid = Uuid::uuid4()->toString();
@@ -127,9 +128,9 @@ class User extends BaseUser
     /*
      * Register a user via Oauth
      */
-    protected function registerOauthUser(RegisterOauthUserCommand $command)
+    protected function registerOauthUser(RegisterOauthUserCommand $command, StateMachineInterface $stateMachine)
     {
-        $initialData = $this->createInitialData($command);
+        $initialData = $this->createInitialData($command, $stateMachine);
         $initialData['role'] = $command->getRole();
         $authenticationTokenUuid = Uuid::uuid4()->toString();
         $serviceTokenUuid = Uuid::uuid4()->toString();
@@ -324,7 +325,7 @@ class User extends BaseUser
     /*
      * Verify user account and remove verification token if present
      */
-    public function verifyUser(VerifyUserCommand $command)
+    public function verifyUser(VerifyUserCommand $command, StateMachineInterface $stateMachine)
     {
         $this->guardCommandPreConditions($command);
 
@@ -339,8 +340,8 @@ class User extends BaseUser
             );
         }
 
-        $workflowSubject = new WorkflowSubject($this->state_machine->getName(), $this);
-        $this->state_machine->execute($workflowSubject, $command->getEventName());
+        $workflowSubject = new WorkflowSubject($stateMachine->getName(), $this);
+        $stateMachine->execute($workflowSubject, $command->getEventName());
 
         $eventData = [
             'metadata' => $command->getMetadata(),

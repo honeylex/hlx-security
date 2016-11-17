@@ -10,6 +10,8 @@ class VerifyUserCommandHandler extends ProceedUserWorkflowCommandHandler
 {
     protected function doExecute(CommandInterface $command, AggregateRootInterface $user)
     {
-        return $user->verifyUser($command);
+        $stateMachine = $this->workflow_service->getStateMachine($user);
+
+        return $user->verifyUser($command, $stateMachine);
     }
 }
