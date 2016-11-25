@@ -18,7 +18,6 @@ use Hlx\Security\User\Model\Task\VerifyUser\VerifyUserCommand;
 use Hlx\Security\User\User;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
-use Honeybee\Infrastructure\Config\Settings;
 use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Honeybee\Model\Command\AggregateRootCommandBuilder;
 use Psr\Log\LoggerInterface;

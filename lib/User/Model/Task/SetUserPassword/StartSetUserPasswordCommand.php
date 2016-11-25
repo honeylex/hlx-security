@@ -3,7 +3,6 @@
 namespace Hlx\Security\User\Model\Task\SetUserPassword;
 
 use Assert\Assertion;
-use Honeybee\Infrastructure\Command\Command;
 use Honeybee\Model\Task\ModifyAggregateRoot\ModifyAggregateRootCommand;
 
 class StartSetUserPasswordCommand extends ModifyAggregateRootCommand

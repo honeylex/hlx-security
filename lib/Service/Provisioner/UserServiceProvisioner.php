@@ -4,12 +4,10 @@ namespace Hlx\Security\Service\Provisioner;
 
 use Auryn\Injector;
 use Gigablah\Silex\OAuth\OAuthServiceProvider;
-use Hlx\Security\Authenticator\TokenAuthenticator;
 use Hlx\Security\EventListener\OauthInfoListener;
 use Hlx\Security\EventListener\UserLocaleListener;
 use Hlx\Security\EventListener\UserLoginListener;
 use Hlx\Security\EventListener\UserLogoutListener;
-use Hlx\Security\Voter\OwnershipVoter;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
 use Honeybee\FrameworkBinding\Silex\Service\Provisioner\ProvisionerInterface;
 use Honeybee\Infrastructure\Config\Settings;

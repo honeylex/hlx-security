@@ -5,7 +5,6 @@ namespace Hlx\Security\Controller;
 use Hlx\Security\Service\AccountService;
 use Hlx\Security\View\RegistrationInputView;
 use Hlx\Security\View\RegistrationSuccessView;
-use Honeybee\Common\Util\StringToolkit;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
 use ReCaptcha\ReCaptcha;
 use Silex\Application;

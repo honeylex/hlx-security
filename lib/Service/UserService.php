@@ -8,7 +8,6 @@ use Hlx\Security\User\OauthUser;
 use Hlx\Security\User\User;
 use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
-use Symfony\Component\Security\Core\Exception\LockedException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;

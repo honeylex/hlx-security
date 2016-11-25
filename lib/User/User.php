@@ -2,7 +2,6 @@
 
 namespace Hlx\Security\User;
 
-use DateTime;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 
 class User implements AdvancedUserInterface

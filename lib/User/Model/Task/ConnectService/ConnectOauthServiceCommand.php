@@ -3,7 +3,6 @@
 namespace Hlx\Security\User\Model\Task\ConnectService;
 
 use Assert\Assertion;
-use Honeybee\Model\Event\AggregateRootEventInterface;
 use Honeybee\Model\Task\ModifyAggregateRoot\ModifyAggregateRootCommand;
 
 class ConnectOauthServiceCommand extends ModifyAggregateRootCommand
