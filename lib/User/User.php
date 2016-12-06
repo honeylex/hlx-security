@@ -18,6 +18,11 @@ class User implements AdvancedUserInterface
         return $this->getIdentifier();
     }
 
+    public function getPrefix()
+    {
+        return $this->state['@type'];
+    }
+
     public function getIdentifier()
     {
         return $this->state['identifier'];
@@ -28,9 +33,29 @@ class User implements AdvancedUserInterface
         return $this->state['revision'];
     }
 
+    public function getUuid()
+    {
+        return $this->state['uuid'];
+    }
+
     public function getLanguage()
     {
         return $this->state['language'];
+    }
+
+    public function getVersion()
+    {
+        return $this->state['version'];
+    }
+
+    public function getCreatedAt()
+    {
+        return $this->state['created_at'];
+    }
+
+    public function getModifiedAt()
+    {
+        return $this->state['modified_at'];
     }
 
     public function getUsername()
