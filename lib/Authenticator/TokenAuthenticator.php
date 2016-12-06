@@ -76,13 +76,20 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
         return new JsonResponse($content, JsonResponse::HTTP_FORBIDDEN);
     }
 
-    // Called when authentication is needed, but it's not sent
-    public function start(Request $request, AuthenticationException $authException = null)
+    // Called when authentication is needed, but it's not sent or is invalid
+    public function start(Request $request, AuthenticationException $exception = null)
     {
+        if ($exception) {
+            $message = $exception->getMessage();
+            $message = $message ?: $exception->getMessageKey();
+        }  else {
+            $message = 'Full authentication is required to access this resource.';
+        }
+
         $content = [
             'errors' => [
                 'code' => 401,
-                'message' => $this->translator->trans('Authentication credentials required.', [], 'errors')
+                'message' => $this->translator->trans($message, [], 'errors')
             ]
         ];
 
