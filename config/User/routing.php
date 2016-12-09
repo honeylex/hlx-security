@@ -2,6 +2,7 @@
 
 use Hlx\Security\User\Controller\CollectionController;
 use Hlx\Security\User\Controller\HistoryController;
+use Hlx\Security\User\Controller\ResourceController;
 use Hlx\Security\User\Controller\Task\CreateController;
 use Hlx\Security\User\Controller\Task\ModifyController;
 use Hlx\Security\User\Controller\Task\ProceedWorkflowController;
@@ -13,6 +14,9 @@ $routing->mount('/users', function ($routing) {
     $routing->post('/tasks/create', [ CreateController::CLASS, 'write' ]);
     $routing->get('/tasks/create', [ CreateController::CLASS, 'read' ])
         ->bind($this->getPrefix().'.users.tasks.create');
+
+    $routing->get('/{userId}', [ ResourceController::CLASS, 'read' ])
+        ->bind($this->getPrefix().'.users.user');
 
     $routing->post('/{userId}/tasks/edit', [ ModifyController::CLASS, 'write' ]);
     $routing->get('/{userId}/tasks/edit', [ ModifyController::CLASS, 'read' ])

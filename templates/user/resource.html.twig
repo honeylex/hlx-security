@@ -1,0 +1,27 @@
+{% extends "@project/layout.html.twig" %}
+
+{% block view_classes %}resource-view{% endblock %}
+
+{% block header %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12 col-md-12">
+            <div class="page-header">
+              <h1>User <small>view-resource</small></h1>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xs-12 col-md-6">
+        <ul>
+            <li><dt>Identifier</dt><dd>{{ user.identifier }}</dd></li>
+            <li><dt>Username</dt><dd>{{ user.username }}</dd></li>
+            <li><dt>Email</dt><dd>{{ user.email }}</dd></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

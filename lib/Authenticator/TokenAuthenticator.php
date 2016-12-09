@@ -82,7 +82,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
         if ($exception) {
             $message = $exception->getMessage();
             $message = $message ?: $exception->getMessageKey();
-        }  else {
+        } else {
             $message = 'Full authentication is required to access this resource.';
         }
 

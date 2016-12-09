@@ -100,7 +100,10 @@
                                 { 'userId': user.identifier}
                             ) }}" title="modify user">{{ user.username }}</a>
                             {% else %}
-                                {{ user.username }}
+                            <a href="{{ path(
+                                'hlx.security.users.user',
+                                { 'userId': user.identifier}
+                            ) }}" title="view user">{{ user.username }}</a>
                             {% endif %}
                         </td>
                         <td>{{ user.firstname }} {{ user.lastname }}</td>
