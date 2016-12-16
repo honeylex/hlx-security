@@ -110,7 +110,7 @@ class RegistrationController
             null,
             FormType::CLASS,
             [],
-            // @todo remove allow_extra_fields when recaptcha is optionally created in form builder
+            // @todo remove allow_extra_fields when recaptcha can be created via form builder
             [ 'translation_domain' => 'form', 'allow_extra_fields' => true ]
         )
             ->add('username', TextType::CLASS, [ 'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ] ])

@@ -76,7 +76,13 @@ class ForgotPasswordController
 
     protected function buildForm()
     {
-        return $this->formFactory->createBuilder(FormType::CLASS, [], [ 'translation_domain' => 'form' ])
+        return $this->formFactory->createNamedBuilder(
+            null,
+            FormType::CLASS,
+            [],
+            // @todo remove allow_extra_fields when recaptcha can be created via form builder
+            [ 'translation_domain' => 'form', 'allow_extra_fields' => true ]
+        )
             ->add('username', TextType::CLASS, [
                 'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ],
                 'label' => 'Username or Email'
