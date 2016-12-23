@@ -7,9 +7,9 @@ use Hlx\Security\View\LoginInputView;
 use Hlx\Security\View\LoginSuccessView;
 use Silex\Application;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
@@ -72,9 +72,10 @@ class LoginController
             [ 'username' => $lastUsername ],
             [ 'translation_domain' => 'form' ]
         )
-            ->add('username', TextType::CLASS, [
-                'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ],
-                'label' => 'Username or Email'
+            ->add('username', EmailType::CLASS, [
+                // constrain to email because of potential Oauth related username duplication
+                'constraints' => new NotBlank,
+                'label' => 'Email Address'
             ])
             ->add('password', PasswordType::CLASS, [ 'constraints' => new NotBlank ])
             ->add('remember_me', CheckboxType::CLASS, [ 'data' => true, 'required' => false ])
