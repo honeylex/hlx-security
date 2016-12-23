@@ -117,7 +117,7 @@ class RegistrationController
             ->add('email', EmailType::CLASS, [ 'constraints' => new NotBlank ])
             ->add('password', RepeatedType::CLASS, [
                 'type' => PasswordType::CLASS,
-                'constraints' => new NotBlank,
+                'constraints' => [ new NotBlank, new Length([ 'min' => 5 ]) ],
                 'invalid_message' => 'The password fields must match.',
                 'required' => true,
                 'first_options'  => [ 'label' => 'Password' ],

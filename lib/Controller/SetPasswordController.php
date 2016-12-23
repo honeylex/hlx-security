@@ -14,6 +14,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class SetPasswordController
@@ -77,7 +78,7 @@ class SetPasswordController
             ->add('token', HiddenType::CLASS, [ 'constraints' => new NotBlank ])
             ->add('password', RepeatedType::CLASS, [
                 'type' => PasswordType::CLASS,
-                'constraints' => new NotBlank,
+                'constraints' => [ new NotBlank, new Length([ 'min' => 5 ]) ],
                 'invalid_message' => 'The password fields must match.',
                 'required' => true,
                 'first_options'  => [ 'label' => 'Password' ],
