@@ -145,7 +145,8 @@ class User extends BaseUser
                     'data' => [
                         'identifier' => $authenticationTokenUuid,
                         'token' => StringToolkit::generateRandomToken(),
-                        'expires_at' => date('Y-m-d\TH:i:s.uP')
+                        // hardcoding auth token expiry until command guarantees a long-lived token
+                        'expires_at' => time() + (86400 * 30)
                     ],
                     'position' => 0,
                     'embedded_entity_identifier' => $authenticationTokenUuid,
@@ -206,7 +207,7 @@ class User extends BaseUser
     }
 
     /*
-     * Refresh service token when a user logs in
+     * Refresh service & authentication token when a user logs in via Oauth
      */
     public function loginOauthUser(LoginOauthUserCommand $command)
     {
@@ -235,7 +236,27 @@ class User extends BaseUser
                         ])
                     ])
                 ]));
-                break;
+            } elseif ($token instanceof Authentication) {
+                $this->applyEvent(new UserLoggedInEvent([
+                    'metadata' => $command->getMetadata(),
+                    'uuid' => $this->getUuid(),
+                    'seq_number' => $this->getRevision() + 1,
+                    'aggregate_root_type' => $this->getType()->getPrefix(),
+                    'aggregate_root_identifier' => $this->getIdentifier(),
+                    'data' => [],
+                    'embedded_entity_events' => new EmbeddedEntityEventList([
+                        new TokenModifiedEvent([
+                            'data' => [
+                                'expires_at' => $command->getExpiresAt()
+                            ],
+                            'position' => $position,
+                            'embedded_entity_identifier' => $token->getIdentifier(),
+                            'embedded_entity_type' => 'authentication',
+                            'parent_attribute_name' => 'tokens',
+                            'embedded_entity_events' => []
+                        ])
+                    ])
+                ]));
             }
         }
     }
