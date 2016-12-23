@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LoginController
@@ -74,7 +73,7 @@ class LoginController
         )
             ->add('username', EmailType::CLASS, [
                 // constrain to email because of potential Oauth related username duplication
-                'constraints' => new NotBlank,
+                'constraints' => [ new NotBlank ],
                 'label' => 'Email Address'
             ])
             ->add('password', PasswordType::CLASS, [ 'constraints' => new NotBlank ])

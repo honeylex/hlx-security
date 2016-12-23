@@ -8,14 +8,13 @@ use Hlx\Security\View\ForgotPasswordSuccessView;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
 use ReCaptcha\ReCaptcha;
 use Silex\Application;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ForgotPasswordController
@@ -83,9 +82,9 @@ class ForgotPasswordController
             // @todo remove allow_extra_fields when recaptcha can be created via form builder
             [ 'translation_domain' => 'form', 'allow_extra_fields' => true ]
         )
-            ->add('username', TextType::CLASS, [
-                'constraints' => [ new NotBlank, new Length([ 'min' => 4 ]) ],
-                'label' => 'Username or Email'
+            ->add('username', EmailType::CLASS, [
+                'constraints' => [ new NotBlank ],
+                'label' => 'Email Address'
             ])
             ->getForm();
     }
