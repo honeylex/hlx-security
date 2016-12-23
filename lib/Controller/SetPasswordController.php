@@ -74,7 +74,7 @@ class SetPasswordController
 
     protected function buildForm(array $data = [])
     {
-        return $this->formFactory->createBuilder(FormType::CLASS, $data, [ 'translation_domain' => 'form' ])
+        return $this->formFactory->createNamedBuilder(null, FormType::CLASS, $data, [ 'translation_domain' => 'form' ])
             ->add('token', HiddenType::CLASS, [ 'constraints' => new NotBlank ])
             ->add('password', RepeatedType::CLASS, [
                 'type' => PasswordType::CLASS,
