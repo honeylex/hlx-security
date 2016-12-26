@@ -61,6 +61,8 @@ use Workflux\StateMachine\StateMachineInterface;
  */
 class User extends BaseUser
 {
+    const DATE_ISO8601_WITH_MICROS = 'Y-m-d\TH:i:s.uP';
+
     /*
      * Create a user
      */
@@ -145,8 +147,8 @@ class User extends BaseUser
                     'data' => [
                         'identifier' => $authenticationTokenUuid,
                         'token' => StringToolkit::generateRandomToken(),
-                        // hardcoding auth token expiry until command guarantees a long-lived token
-                        'expires_at' => time() + (86400 * 30)
+                        // hardcoding auth token expiry until command delivers a long-lived token
+                        'expires_at' => date(self::DATE_ISO8601_WITH_MICROS, time() + (86400 * 30))
                     ],
                     'position' => 0,
                     'embedded_entity_identifier' => $authenticationTokenUuid,
@@ -281,7 +283,7 @@ class User extends BaseUser
                         new TokenModifiedEvent([
                             'data' => [
                                 'token' => StringToolkit::generateRandomToken(),
-                                'expires_at' => date('Y-m-d\TH:i:s.uP')
+                                'expires_at' => date(self::DATE_ISO8601_WITH_MICROS)
                             ],
                             'position' => $position,
                             'embedded_entity_identifier' => $token->getIdentifier(),
