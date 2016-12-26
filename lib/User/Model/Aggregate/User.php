@@ -147,8 +147,7 @@ class User extends BaseUser
                     'data' => [
                         'identifier' => $authenticationTokenUuid,
                         'token' => StringToolkit::generateRandomToken(),
-                        // hardcoding auth token expiry until command delivers a long-lived token
-                        'expires_at' => date(self::DATE_ISO8601_WITH_MICROS, time() + (86400 * 30))
+                        'expires_at' => $command->getExpiresAt()
                     ],
                     'position' => 0,
                     'embedded_entity_identifier' => $authenticationTokenUuid,
