@@ -58,6 +58,8 @@ class LoginController
         }
 
         $this->accountService->loginUser($user);
+        // get latest revision of user
+        $user = $this->userService->loadUserByIdentifier($user->getIdentifier());
         $request->attributes->set('user', $user);
 
         return [ LoginSuccessView::CLASS ];
