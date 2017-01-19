@@ -6,6 +6,7 @@ use Hlx\Security\User\Projection\Standard\Embed\SetPassword;
 use Hlx\Security\User\Projection\Standard\Embed\Verification;
 use Hlx\Security\User\Projection\Standard\User;
 use Honeybee\Infrastructure\Config\ConfigInterface;
+use Honeybee\Infrastructure\Mail\MailInterface;
 use Honeybee\Infrastructure\Mail\MailServiceInterface;
 use Honeybee\Infrastructure\Mail\Message;
 use Honeybee\Infrastructure\Template\TemplateRendererInterface;
@@ -51,7 +52,7 @@ class MailService
 
         $message->setSubject($this->trans('Verification required', $user));
 
-        $result = $this->mailService->send($message);
+        $result = $this->send($message);
     }
 
     public function sendSetPasswordInstructions(SetPassword $token, User $user)
@@ -67,7 +68,7 @@ class MailService
 
         $message->setSubject($this->trans('Password setting instructions', $user));
 
-        $result = $this->mailService->send($message);
+        $result = $this->send($message);
     }
 
     public function sendPasswordSetNotification(User $user)
@@ -80,7 +81,15 @@ class MailService
 
         $message->setSubject($this->trans('Your password was set', $user));
 
+        $result = $this->send($message);
+    }
+
+    protected function send(MailInterface $message)
+    {
+        // Handling for persistent transport connections
         $result = $this->mailService->send($message);
+        $this->mailService->getMailer()->getTransport()->stop();
+        return $result;
     }
 
     protected function getName(User $user)
