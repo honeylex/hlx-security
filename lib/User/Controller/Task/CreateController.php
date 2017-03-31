@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\User\Controller\Task;
 
-use Hlx\Security\Service\AccountService;
+use Hlx\Security\Service\UserManager;
 use Hlx\Security\User\View\Task\CreateInputView;
 use Hlx\Security\User\View\Task\CreateSuccessView;
 use Silex\Application;
@@ -27,18 +27,18 @@ class CreateController
 
     protected $userProvider;
 
-    protected $accountService;
+    protected $userManager;
 
     public function __construct(
         FormFactoryInterface $formFactory,
         TranslatorInterface $translator,
         UserProviderInterface $userProvider,
-        AccountService $accountService
+        UserManager $userManager
     ) {
         $this->formFactory = $formFactory;
         $this->translator = $translator;
         $this->userProvider = $userProvider;
-        $this->accountService = $accountService;
+        $this->userManager = $userManager;
     }
 
     public function read(Request $request)
@@ -65,7 +65,7 @@ class CreateController
 
         try {
             if (!$this->userProvider->userExists($username, $email)) {
-                $this->accountService->registerUser($formData);
+                $this->userManager->registerUser($formData);
                 return [ CreateSuccessView::CLASS ];
             }
         } catch (AuthenticationException $error) {
@@ -78,7 +78,7 @@ class CreateController
 
     protected function buildForm()
     {
-        $availableRoles = $this->accountService->getAvailableRoles();
+        $availableRoles = $this->userManager->getAvailableRoles();
         $availableLocales = $this->translator->getFallbackLocales();
 
         return $this->formFactory->createBuilder(FormType::CLASS, [], [ 'translation_domain' => 'form' ])

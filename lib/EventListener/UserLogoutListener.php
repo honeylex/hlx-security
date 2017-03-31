@@ -3,7 +3,7 @@
 namespace Hlx\Security\EventListener;
 
 use Honeybee\Common\Error\RuntimeError;
-use Hlx\Security\Service\AccountService;
+use Hlx\Security\Service\UserManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -16,19 +16,19 @@ class UserLogoutListener implements LogoutSuccessHandlerInterface
 
     protected $tokenStorage;
 
-    protected $accountService;
+    protected $userManager;
 
     protected $targetUrl;
 
     public function __construct(
         HttpUtils $httpUtils,
         TokenStorageInterface $tokenStorage,
-        AccountService $accountService,
+        UserManager $userManager,
         $targetUrl = '/'
     ) {
         $this->httpUtils = $httpUtils;
         $this->tokenStorage = $tokenStorage;
-        $this->accountService = $accountService;
+        $this->userManager = $userManager;
         $this->targetUrl = $targetUrl;
     }
 
@@ -39,7 +39,7 @@ class UserLogoutListener implements LogoutSuccessHandlerInterface
         if ($token instanceof TokenInterface) {
             $user = $token->getUser();
             try {
-                $this->accountService->logoutUser($user);
+                $this->userManager->logoutUser($user);
             } catch (RuntimeError $error) {
             }
         }

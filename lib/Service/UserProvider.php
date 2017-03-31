@@ -23,16 +23,16 @@ class UserProvider implements UserProviderInterface, OAuthUserProviderInterface
 
     protected $finderMap;
 
-    protected $accountService;
+    protected $userManager;
 
     public function __construct(
         QueryServiceMap $queryServiceMap,
         FinderMap $finderMap,
-        AccountService $accountService
+        UserManager $userManager
     ) {
         $this->queryServiceMap = $queryServiceMap;
         $this->finderMap = $finderMap;
-        $this->accountService = $accountService;
+        $this->userManager = $userManager;
     }
 
     public function loadUserByIdentifier($identifier)
@@ -126,14 +126,14 @@ class UserProvider implements UserProviderInterface, OAuthUserProviderInterface
 
         try {
             $user = $this->loadUserByEmail($email);
-            $this->accountService->handleOauthUser($user, $token);
+            $this->userManager->handleOauthUser($user, $token);
         } catch (UsernameNotFoundException $error) {
-            $this->accountService->registerOauthUser($token);
+            $this->userManager->registerOauthUser($token);
         }
 
         // load again to get updated token and proceed workflow
         $user = $this->loadUserByEmail($email);
-        $this->accountService->verifyUser($user);
+        $this->userManager->verifyUser($user);
 
         // @note may need to refresh workflow state although refreshUser is
         // typically called by framework on next page load anyway

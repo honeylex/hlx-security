@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\Authenticator;
 
-use Hlx\Security\Service\AccountService;
+use Hlx\Security\Service\UserManager;
 use Hlx\Security\User\User;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,19 +24,19 @@ class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
 
     protected $passwordEncoder;
 
-    protected $accountService;
+    protected $userManager;
 
     protected $urlGenerator;
 
     public function __construct(
         UserProviderInterface $userProvider,
         PasswordEncoderInterface $passwordEncoder,
-        AccountService $accountService,
+        UserManager $userManager,
         UrlGeneratorInterface $urlGenerator
     ) {
         $this->userProvider = $userProvider;
         $this->passwordEncoder = $passwordEncoder;
-        $this->accountService = $accountService;
+        $this->userManager = $userManager;
         $this->urlGenerator = $urlGenerator;
     }
 
@@ -75,7 +75,7 @@ class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        $this->accountService->loginUser($token->getUser());
+        $this->userManager->loginUser($token->getUser());
 
         // @todo configurable target path
         $targetPath = null;

@@ -29,7 +29,7 @@ use Symfony\Component\Security\Core\Exception\LogoutException;
 use Symfony\Component\Security\Core\Exception\RuntimeException;
 use Symfony\Component\Translation\TranslatorInterface;
 
-class AccountService
+class UserManager
 {
     protected $userType;
 

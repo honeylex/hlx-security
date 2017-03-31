@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\User\Controller\Task;
 
-use Hlx\Security\Service\AccountService;
+use Hlx\Security\Service\UserManager;
 use Hlx\Security\User\View\Task\ProceedWorkflowSuccessView;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,12 +12,12 @@ class ProceedWorkflowController
 {
     protected $userProvider;
 
-    protected $accountService;
+    protected $userManager;
 
-    public function __construct(UserProviderInterface $userProvider, AccountService $accountService)
+    public function __construct(UserProviderInterface $userProvider, UserManager $userManager)
     {
         $this->userProvider = $userProvider;
-        $this->accountService = $accountService;
+        $this->userManager = $userManager;
     }
 
     public function write(Request $request, Application $app)
@@ -26,7 +26,7 @@ class ProceedWorkflowController
         $currentStateName = $request->get('from');
         $eventName = $request->get('via');
 
-        $this->accountService->proceedUserWorkflow($user, $currentStateName, $eventName);
+        $this->userManager->proceedUserWorkflow($user, $currentStateName, $eventName);
 
         return [ ProceedWorkflowSuccessView::CLASS ];
     }

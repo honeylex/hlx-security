@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\Controller;
 
-use Hlx\Security\Service\AccountService;
+use Hlx\Security\Service\UserManager;
 use Hlx\Security\View\RegistrationInputView;
 use Hlx\Security\View\RegistrationSuccessView;
 use Honeylex\Config\ConfigProviderInterface;
@@ -27,7 +27,7 @@ class RegistrationController
 {
     protected $formFactory;
 
-    protected $accountService;
+    protected $userManager;
 
     protected $userProvider;
 
@@ -37,13 +37,13 @@ class RegistrationController
 
     public function __construct(
         FormFactoryInterface $formFactory,
-        AccountService $accountService,
+        UserManager $userManager,
         UserProviderInterface $userProvider,
         TokenStorageInterface $tokenStorage,
         ConfigProviderInterface $configProvider
     ) {
         $this->formFactory = $formFactory;
-        $this->accountService = $accountService;
+        $this->userManager = $userManager;
         $this->userProvider = $userProvider;
         $this->tokenStorage = $tokenStorage;
         $this->configProvider = $configProvider;
@@ -74,7 +74,7 @@ class RegistrationController
         try {
             $this->validateRecaptcha($request->request->get('g-recaptcha-response'));
             if (!$this->userProvider->userExists($username, $email)) {
-                $this->accountService->registerUser($formData);
+                $this->userManager->registerUser($formData);
                 // auto login handling - expects registration to be synchronous
                 if ($this->configProvider->getSetting('hlx.security.auto_login.enabled') && $request->hasSession()) {
                     $firewall = $this->configProvider->getSetting('hlx.security.auto_login.firewall', 'default');
@@ -99,7 +99,7 @@ class RegistrationController
 
         $user = $this->userProvider->loadUserByToken($token, 'verification');
 
-        $this->accountService->verifyUser($user);
+        $this->userManager->verifyUser($user);
 
         return [ RegistrationSuccessView::CLASS ];
     }

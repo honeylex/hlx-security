@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\Controller;
 
-use Hlx\Security\Service\AccountService;
+use Hlx\Security\Service\UserManager;
 use Hlx\Security\View\LoginInputView;
 use Hlx\Security\View\LoginSuccessView;
 use Silex\Application;
@@ -23,16 +23,16 @@ class LoginController
 
     protected $userProvider;
 
-    protected $accountService;
+    protected $userManager;
 
     public function __construct(
         FormFactoryInterface $formFactory,
         UserProviderInterface $userProvider,
-        AccountService $accountService
+        UserManager $userManager
     ) {
         $this->formFactory = $formFactory;
         $this->userProvider = $userProvider;
-        $this->accountService = $accountService;
+        $this->userManager = $userManager;
     }
 
     public function read(Request $request, Application $app)
@@ -57,7 +57,7 @@ class LoginController
             throw new BadCredentialsException;
         }
 
-        $this->accountService->loginUser($user);
+        $this->userManager->loginUser($user);
         // get latest revision of user
         $user = $this->userProvider->loadUserByIdentifier($user->getIdentifier());
         $request->attributes->set('user', $user);

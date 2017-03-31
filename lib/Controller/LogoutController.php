@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\Controller;
 
-use Hlx\Security\Service\AccountService;
+use Hlx\Security\Service\UserManager;
 use Hlx\Security\View\LogoutSuccessView;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,19 +12,19 @@ class LogoutController
 {
     protected $tokenStorage;
 
-    protected $accountService;
+    protected $userManager;
 
-    public function __construct(TokenStorageInterface $tokenStorage, AccountService $accountService)
+    public function __construct(TokenStorageInterface $tokenStorage, UserManager $userManager)
     {
         $this->tokenStorage = $tokenStorage;
-        $this->accountService = $accountService;
+        $this->userManager = $userManager;
     }
 
     public function write(Request $request, Application $app)
     {
         $token = $this->tokenStorage->getToken();
 
-        $this->accountService->logoutUser($token->getUser());
+        $this->userManager->logoutUser($token->getUser());
 
         return [ LogoutSuccessView::CLASS ];
     }

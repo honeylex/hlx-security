@@ -7,8 +7,8 @@ hlx.security.user_provider:
   provisioner:
     class: Hlx\Security\Service\Provisioner\UserProviderProvisioner
 
-hlx.security.account_service:
-  class: Hlx\Security\Service\AccountService
+hlx.security.user_manager:
+  class: Hlx\Security\Service\UserManager
   provisioner:
     class: Honeylex\Service\Provisioner\DefaultProvisioner
 

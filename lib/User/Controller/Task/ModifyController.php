@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\User\Controller\Task;
 
-use Hlx\Security\Service\AccountService;
+use Hlx\Security\Service\UserManager;
 use Hlx\Security\User\View\Task\ModifyInputView;
 use Hlx\Security\User\View\Task\ModifySuccessView;
 use Silex\Application;
@@ -38,7 +38,7 @@ class ModifyController
 
     protected $translator;
 
-    protected $accountService;
+    protected $userManager;
 
     public function __construct(
         FormFactoryInterface $formFactory,
@@ -46,14 +46,14 @@ class ModifyController
         EventDispatcherInterface $eventDispatcher,
         UserProviderInterface $userProvider,
         TranslatorInterface $translator,
-        AccountService $accountService
+        UserManager $userManager
     ) {
         $this->formFactory = $formFactory;
         $this->tokenStorage = $tokenStorage;
         $this->eventDispatcher = $eventDispatcher;
         $this->userProvider = $userProvider;
         $this->translator = $translator;
-        $this->accountService = $accountService;
+        $this->userManager = $userManager;
     }
 
     public function read(Request $request)
@@ -85,7 +85,7 @@ class ModifyController
 
         try {
             if (!$this->userProvider->userExists($username, $email, [ $user->getIdentifier() ])) {
-                $this->accountService->updateUser($user, $formData);
+                $this->userManager->updateUser($user, $formData);
                 $token = $this->tokenStorage->getToken();
                 if ($token->getUser()->getIdentifier() === $user->getIdentifier() && $user->getLocale() !== $locale) {
                     // Current user locale changed
@@ -111,7 +111,7 @@ class ModifyController
 
     protected function buildForm(array $data = [])
     {
-        $availableRoles = $this->accountService->getAvailableRoles();
+        $availableRoles = $this->userManager->getAvailableRoles();
         $availableLocales = $this->translator->getFallbackLocales();
 
         return $this->formFactory->createBuilder(FormType::CLASS, $data, [ 'translation_domain' => 'form' ])

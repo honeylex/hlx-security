@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\Controller;
 
-use Hlx\Security\Service\AccountService;
+use Hlx\Security\Service\UserManager;
 use Hlx\Security\View\ForgotPasswordInputView;
 use Hlx\Security\View\ForgotPasswordSuccessView;
 use Honeylex\Config\ConfigProviderInterface;
@@ -23,19 +23,19 @@ class ForgotPasswordController
 
     protected $userProvider;
 
-    protected $accountService;
+    protected $userManager;
 
     protected $configProvider;
 
     public function __construct(
         FormFactoryInterface $formFactory,
         UserProviderInterface $userProvider,
-        AccountService $accountService,
+        UserManager $userManager,
         ConfigProviderInterface $configProvider
     ) {
         $this->formFactory = $formFactory;
         $this->userProvider = $userProvider;
-        $this->accountService = $accountService;
+        $this->userManager = $userManager;
         $this->configProvider = $configProvider;
     }
 
@@ -63,7 +63,7 @@ class ForgotPasswordController
         try {
             $this->validateRecaptcha($request->request->get('g-recaptcha-response'));
             $user = $this->userProvider->loadUserByUsername($username);
-            $this->accountService->startSetUserPassword($user);
+            $this->userManager->startSetUserPassword($user);
         } catch (AuthenticationException $error) {
             $request->attributes->set('form', $this->buildForm($this->formFactory));
             $request->attributes->set('errors', (array) $error->getMessageKey());

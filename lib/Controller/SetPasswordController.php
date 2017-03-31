@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\Controller;
 
-use Hlx\Security\Service\AccountService;
+use Hlx\Security\Service\UserManager;
 use Hlx\Security\View\SetPasswordInputView;
 use Hlx\Security\View\SetPasswordSuccessView;
 use Silex\Application;
@@ -23,16 +23,16 @@ class SetPasswordController
 
     protected $userProvider;
 
-    protected $accountService;
+    protected $userManager;
 
     public function __construct(
         FormFactoryInterface $formFactory,
         UserProviderInterface $userProvider,
-        AccountService $accountService
+        UserManager $userManager
     ) {
         $this->formFactory = $formFactory;
         $this->userProvider = $userProvider;
-        $this->accountService = $accountService;
+        $this->userManager = $userManager;
     }
 
     public function read(Request $request, Application $app)
@@ -60,9 +60,9 @@ class SetPasswordController
 
         try {
             $user = $this->userProvider->loadUserByToken($formData['token'], 'set_password');
-            $this->accountService->setUserPassword($user, $password);
+            $this->userManager->setUserPassword($user, $password);
             // We can verify the user at this point if required
-            $this->accountService->verifyUser($user);
+            $this->userManager->verifyUser($user);
         } catch (AuthenticationException $error) {
             $request->attributes->set('form', $this->buildForm($this->formFactory, [ 'token' => $token ]));
             $request->attributes->set('errors', (array) $error->getMessageKey());
