@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "23447b0cde054e2de97024faaee2ae35",
+    "content-hash": "3007150d8e99d9615c8e0fec1f3fb2b1",
     "packages": [
         {
             "name": "gigablah/silex-oauth",
