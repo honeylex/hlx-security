@@ -5,7 +5,7 @@ namespace Hlx\Security\Controller;
 use Hlx\Security\Service\AccountService;
 use Hlx\Security\View\ForgotPasswordInputView;
 use Hlx\Security\View\ForgotPasswordSuccessView;
-use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
+use Honeylex\Config\ConfigProviderInterface;
 use ReCaptcha\ReCaptcha;
 use Silex\Application;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;

@@ -10,12 +10,12 @@ hlx.security.user_provider:
 hlx.security.account_service:
   class: Hlx\Security\Service\AccountService
   provisioner:
-    class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\DefaultProvisioner
+    class: Honeylex\Service\Provisioner\DefaultProvisioner
 
 hlx.security.password_encoder:
   class: Symfony\Component\Security\Core\Encoder\BCryptPasswordEncoder
   provisioner:
-    class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\SilexServiceProvisioner
+    class: Honeylex\Service\Provisioner\SilexServiceProvisioner
     settings:
       app_key: security.encoder.bcrypt
       share: true
@@ -24,7 +24,7 @@ hlx.security.password_encoder:
 hlx.security.token_storage:
   class: Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage
   provisioner:
-    class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\SilexServiceProvisioner
+    class: Honeylex\Service\Provisioner\SilexServiceProvisioner
     settings:
       app_key: security.token_storage
       share: true
@@ -33,7 +33,7 @@ hlx.security.token_storage:
 hlx.security.authorization_checker:
   class: Symfony\Component\Security\Core\Authorization\AuthorizationChecker
   provisioner:
-    class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\SilexServiceProvisioner
+    class: Honeylex\Service\Provisioner\SilexServiceProvisioner
     settings:
       app_key: security.authorization_checker
       share: true
@@ -42,7 +42,7 @@ hlx.security.authorization_checker:
 hlx.security.mail_service:
   class: Hlx\Security\Service\MailService
   provisioner:
-    class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\DefaultProvisioner
+    class: Honeylex\Service\Provisioner\DefaultProvisioner
   options:
     from_email: ${project.email.from_email}
     from_name: ${project.email.from_name}

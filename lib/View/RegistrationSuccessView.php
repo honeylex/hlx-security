@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\View;
 
-use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
+use Honeylex\Config\ConfigProviderInterface;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

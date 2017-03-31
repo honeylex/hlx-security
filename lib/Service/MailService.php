@@ -6,10 +6,10 @@ use Hlx\Security\User\Projection\Standard\Embed\SetPassword;
 use Hlx\Security\User\Projection\Standard\Embed\Verification;
 use Hlx\Security\User\Projection\Standard\User;
 use Honeybee\Infrastructure\Config\ConfigInterface;
-use Honeybee\FrameworkBinding\Silex\Mail\MailInterface;
-use Honeybee\FrameworkBinding\Silex\Mail\MailServiceInterface;
-use Honeybee\FrameworkBinding\Silex\Mail\Message;
-use Honeybee\FrameworkBinding\Silex\Renderer\TemplateRendererInterface;
+use Honeylex\Mail\MailInterface;
+use Honeylex\Mail\MailServiceInterface;
+use Honeylex\Mail\Message;
+use Honeylex\Renderer\TemplateRendererInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 

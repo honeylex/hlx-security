@@ -2,7 +2,7 @@
 
 namespace Hlx\Security;
 
-use Honeybee\FrameworkBinding\Silex\Crate\Crate;
+use Honeylex\Crate\Crate;
 use Silex\Application;
 use Silex\ControllerCollection;
 
