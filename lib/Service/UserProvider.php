@@ -193,6 +193,6 @@ class UserProvider implements UserProviderInterface, OAuthUserProviderInterface
 
     protected function getQueryService()
     {
-        return $this->queryServiceMap->getItem('hlx.security.user::projection.standard::query_service');
+        return $this->queryServiceMap->getItem('hlx.security.user::projection.standard::view_store::query_service');
     }
 }

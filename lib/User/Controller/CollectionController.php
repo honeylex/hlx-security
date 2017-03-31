@@ -70,7 +70,7 @@ class CollectionController
         );
 
         $finderResult = $this->queryServiceMap
-            ->getItem('hlx.security.user::projection.standard::query_service')
+            ->getItem('hlx.security.user::projection.standard::view_store::query_service')
             ->find($query);
 
         return (new Pagerfanta(new FixedAdapter($finderResult->getTotalCount(), $finderResult->getResults())))

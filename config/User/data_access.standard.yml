@@ -32,7 +32,7 @@ finders:
       log_search_query: false
 
 query_services:
-  hlx.security.user::projection.standard::query_service:
+  hlx.security.user::projection.standard::view_store::query_service:
     class: Honeybee\Infrastructure\DataAccess\Query\ProjectionQueryService
     finder_mappings:
       default:
