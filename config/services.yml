@@ -1,22 +1,25 @@
 #
 # Services configuration for the Security crate
 ---
-hlx.security.authentication_service:
-  class: Hlx\Security\Service\AuthenticationService
+hlx.security.user_provider:
+  class: Hlx\Security\Service\UserProvider
+  settings:
   provisioner:
-    class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\DefaultProvisioner
-    settings:
-      alias: Honeybee\Infrastructure\Security\Auth\AuthServiceInterface
+    class: Hlx\Security\Service\Provisioner\UserProviderProvisioner
 
 hlx.security.account_service:
   class: Hlx\Security\Service\AccountService
   provisioner:
     class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\DefaultProvisioner
 
-hlx.security.user_service:
-  class: Hlx\Security\Service\UserService
+hlx.security.password_encoder:
+  class: Symfony\Component\Security\Core\Encoder\BCryptPasswordEncoder
   provisioner:
-    class: Hlx\Security\Service\Provisioner\UserServiceProvisioner
+    class: Honeybee\FrameworkBinding\Silex\Service\Provisioner\SilexServiceProvisioner
+    settings:
+      app_key: security.encoder.bcrypt
+      share: true
+      alias: Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface
 
 hlx.security.token_storage:
   class: Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage

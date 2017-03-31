@@ -20,7 +20,7 @@ use Silex\Provider\SecurityServiceProvider;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class UserServiceProvisioner implements ProvisionerInterface, EventListenerProviderInterface
+class UserProviderProvisioner implements ProvisionerInterface, EventListenerProviderInterface
 {
     public function provision(
         Container $app,
@@ -141,7 +141,6 @@ class UserServiceProvisioner implements ProvisionerInterface, EventListenerProvi
         $app->register(
             new SecurityServiceProvider,
             [
-                'security.default_encoder' => $userProviderDelegate,
                 'security.firewalls' => $securityFirewalls,
                 'security.access_rules' => $accessRules,
                 'security.role_hierarchy' => $roleHierarchy

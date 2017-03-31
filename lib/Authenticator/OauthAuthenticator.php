@@ -32,7 +32,7 @@ class OauthAuthenticator extends AbstractGuardAuthenticator
         return [];
     }
 
-    public function getUser($credentials, UserProviderInterface $userService)
+    public function getUser($credentials, UserProviderInterface $userProvider)
     {
         $token = $this->tokenStorage->getToken();
         if ($token && !$this->trustResolver->isAnonymous($token)) {

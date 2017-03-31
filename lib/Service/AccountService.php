@@ -18,10 +18,10 @@ use Hlx\Security\User\Model\Task\VerifyUser\VerifyUserCommand;
 use Hlx\Security\User\User;
 use Honeybee\FrameworkBinding\Silex\Config\ConfigProviderInterface;
 use Honeybee\Infrastructure\Command\Bus\CommandBusInterface;
-use Honeybee\Infrastructure\Security\Auth\AuthServiceInterface;
 use Honeybee\Model\Command\AggregateRootCommandBuilder;
 use Psr\Log\LoggerInterface;
 use Shrink0r\Monatic\Success;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\DisabledException;
 use Symfony\Component\Security\Core\Exception\LockedException;
@@ -35,9 +35,9 @@ class AccountService
 
     protected $commandBus;
 
-    protected $authService;
-
     protected $configProvider;
+
+    protected $passwordEncoder;
 
     protected $translator;
 
@@ -46,15 +46,15 @@ class AccountService
     public function __construct(
         UserType $userType,
         CommandBusInterface $commandBus,
-        AuthServiceInterface $authService,
         ConfigProviderInterface $configProvider,
+        PasswordEncoderInterface $passwordEncoder,
         TranslatorInterface $translator,
         LoggerInterface $logger
     ) {
         $this->userType = $userType;
         $this->commandBus = $commandBus;
-        $this->authService = $authService;
         $this->configProvider = $configProvider;
+        $this->passwordEncoder = $passwordEncoder;
         $this->translator = $translator;
         $this->logger = $logger;
     }
@@ -62,7 +62,7 @@ class AccountService
     public function registerUser(array $values, $role = null)
     {
         if (isset($values['password'])) {
-            $values['password_hash'] = $this->authService->encodePassword($values['password']);
+            $values['password_hash'] = $this->passwordEncoder->encodePassword($values['password'], null);
             unset($values['password']);
         }
 
@@ -250,7 +250,7 @@ class AccountService
         $result = (new AggregateRootCommandBuilder($this->userType, SetUserPasswordCommand::CLASS))
             ->withAggregateRootIdentifier($user->getIdentifier())
             ->withKnownRevision($user->getRevision())
-            ->withPasswordHash($this->authService->encodePassword($password))
+            ->withPasswordHash($this->passwordEncoder->encodePassword($password, null))
             ->build();
 
         if (!$result instanceof Success) {

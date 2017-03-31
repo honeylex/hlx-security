@@ -29,7 +29,7 @@ class RegistrationController
 
     protected $accountService;
 
-    protected $userService;
+    protected $userProvider;
 
     protected $tokenStorage;
 
@@ -38,13 +38,13 @@ class RegistrationController
     public function __construct(
         FormFactoryInterface $formFactory,
         AccountService $accountService,
-        UserProviderInterface $userService,
+        UserProviderInterface $userProvider,
         TokenStorageInterface $tokenStorage,
         ConfigProviderInterface $configProvider
     ) {
         $this->formFactory = $formFactory;
         $this->accountService = $accountService;
-        $this->userService = $userService;
+        $this->userProvider = $userProvider;
         $this->tokenStorage = $tokenStorage;
         $this->configProvider = $configProvider;
     }
@@ -73,12 +73,12 @@ class RegistrationController
 
         try {
             $this->validateRecaptcha($request->request->get('g-recaptcha-response'));
-            if (!$this->userService->userExists($username, $email)) {
+            if (!$this->userProvider->userExists($username, $email)) {
                 $this->accountService->registerUser($formData);
                 // auto login handling - expects registration to be synchronous
                 if ($this->configProvider->getSetting('hlx.security.auto_login.enabled') && $request->hasSession()) {
                     $firewall = $this->configProvider->getSetting('hlx.security.auto_login.firewall', 'default');
-                    $user = $this->userService->loadUserByEmail($email);
+                    $user = $this->userProvider->loadUserByEmail($email);
                     $token = new UsernamePasswordToken($user, null, $firewall, $user->getRoles());
                     $this->tokenStorage->setToken($token);
                     $request->getSession()->set('_security_'.$firewall, serialize($token));
@@ -97,7 +97,7 @@ class RegistrationController
     {
         $token = $request->get('token');
 
-        $user = $this->userService->loadUserByToken($token, 'verification');
+        $user = $this->userProvider->loadUserByToken($token, 'verification');
 
         $this->accountService->verifyUser($user);
 

@@ -16,7 +16,7 @@ use Hlx\Security\User\Model\Task\RemoveToken\TokenRemovedEvent;
 use Hlx\Security\User\Model\Task\SetUserPassword\UserPasswordSetEvent;
 use Hlx\Security\User\Model\Task\SetUserPassword\UserPasswordSetStartedEvent;
 use Hlx\Security\User\Model\Task\ConnectService\OauthServiceConnectedEvent;
-use Honeybee\Infrastructure\Template\TemplateRendererInterface;
+use Honeybee\FrameworkBinding\Silex\Renderer\TemplateRendererInterface;
 use Honeybee\Model\Event\AggregateRootEventInterface;
 use Honeybee\Model\Event\EventStreamInterface;
 use Honeybee\Model\Event\EmbeddedEntityEventList;

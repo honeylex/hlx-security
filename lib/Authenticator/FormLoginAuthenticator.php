@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -19,18 +20,22 @@ class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
 {
     use TargetPathTrait;
 
-    protected $userService;
+    protected $userProvider;
+
+    protected $passwordEncoder;
 
     protected $accountService;
 
     protected $urlGenerator;
 
     public function __construct(
-        UserProviderInterface $userService,
+        UserProviderInterface $userProvider,
+        PasswordEncoderInterface $passwordEncoder,
         AccountService $accountService,
         UrlGeneratorInterface $urlGenerator
     ) {
-        $this->userService = $userService;
+        $this->userProvider = $userProvider;
+        $this->passwordEncoder = $passwordEncoder;
         $this->accountService = $accountService;
         $this->urlGenerator = $urlGenerator;
     }
@@ -48,16 +53,20 @@ class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
         return $username && $password ? [ 'username' => $username, 'password' => $password ] : null;
     }
 
-    public function getUser($credentials, UserProviderInterface $userService)
+    public function getUser($credentials, UserProviderInterface $userProvider)
     {
-        $user = $userService->loadUserByUsername($credentials['username']);
+        $user = $userProvider->loadUserByUsername($credentials['username']);
 
         return new User($user->toArray());
     }
 
     public function checkCredentials($credentials, UserInterface $user)
     {
-        if (!$this->userService->isPasswordValid($user->getPassword(), $credentials['password'], $user->getSalt())) {
+        if (!$this->passwordEncoder->isPasswordValid(
+            $user->getPassword(),
+            $credentials['password'],
+            $user->getSalt()
+        )) {
             throw new BadCredentialsException;
         }
 

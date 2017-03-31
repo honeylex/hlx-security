@@ -42,9 +42,9 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
         ];
     }
 
-    public function getUser($credentials, UserProviderInterface $userService)
+    public function getUser($credentials, UserProviderInterface $userProvider)
     {
-        $user = $userService->loadUserByToken($credentials['token'], 'authentication');
+        $user = $userProvider->loadUserByToken($credentials['token'], 'authentication');
 
         return new ApiUser($user->toArray());
     }

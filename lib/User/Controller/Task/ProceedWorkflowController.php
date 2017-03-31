@@ -10,19 +10,19 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class ProceedWorkflowController
 {
-    protected $userService;
+    protected $userProvider;
 
     protected $accountService;
 
-    public function __construct(UserProviderInterface $userService, AccountService $accountService)
+    public function __construct(UserProviderInterface $userProvider, AccountService $accountService)
     {
-        $this->userService = $userService;
+        $this->userProvider = $userProvider;
         $this->accountService = $accountService;
     }
 
     public function write(Request $request, Application $app)
     {
-        $user = $this->userService->loadUserByIdentifier($request->get('userId'));
+        $user = $this->userProvider->loadUserByIdentifier($request->get('userId'));
         $currentStateName = $request->get('from');
         $eventName = $request->get('via');
 

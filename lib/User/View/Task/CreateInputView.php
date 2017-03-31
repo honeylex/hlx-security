@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\User\View\Task;
 
-use Honeybee\Infrastructure\Template\TemplateRendererInterface;
+use Honeybee\FrameworkBinding\Silex\Renderer\TemplateRendererInterface;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

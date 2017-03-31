@@ -21,17 +21,17 @@ class LoginController
 {
     protected $formFactory;
 
-    protected $userService;
+    protected $userProvider;
 
     protected $accountService;
 
     public function __construct(
         FormFactoryInterface $formFactory,
-        UserProviderInterface $userService,
+        UserProviderInterface $userProvider,
         AccountService $accountService
     ) {
         $this->formFactory = $formFactory;
-        $this->userService = $userService;
+        $this->userProvider = $userProvider;
         $this->accountService = $accountService;
     }
 
@@ -52,14 +52,14 @@ class LoginController
         $username = $request->request->get('username');
         $password = $request->request->get('password');
 
-        $user = $this->userService->loadUserByUsername($username);
-        if (!$this->userService->isPasswordValid($user->getPassword(), $password, $user->getSalt())) {
+        $user = $this->userProvider->loadUserByUsername($username);
+        if (!$this->userProvider->isPasswordValid($user->getPassword(), $password, $user->getSalt())) {
             throw new BadCredentialsException;
         }
 
         $this->accountService->loginUser($user);
         // get latest revision of user
-        $user = $this->userService->loadUserByIdentifier($user->getIdentifier());
+        $user = $this->userProvider->loadUserByIdentifier($user->getIdentifier());
         $request->attributes->set('user', $user);
 
         return [ LoginSuccessView::CLASS ];

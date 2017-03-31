@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\View;
 
-use Honeybee\Infrastructure\Template\TemplateRendererInterface;
+use Honeybee\FrameworkBinding\Silex\Renderer\TemplateRendererInterface;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,6 +29,15 @@ class ForgotPasswordInputView
 
     public function renderJson(Request $request, Application $app)
     {
-        return new JsonResponse(null, JsonResponse::HTTP_NOT_ACCEPTABLE);
+        // @todo extract form validation errors for JSON response
+        $errors = $request->attributes->get('errors');
+
+        if ($errors) {
+            $jsonResponse = new JsonResponse($errors, JsonResponse::HTTP_BAD_REQUEST);
+        } else {
+            $jsonResponse = new JsonResponse(null, JsonResponse::HTTP_NOT_ACCEPTABLE);
+        }
+
+        return $jsonResponse;
     }
 }

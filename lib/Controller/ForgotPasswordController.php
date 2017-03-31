@@ -21,7 +21,7 @@ class ForgotPasswordController
 {
     protected $formFactory;
 
-    protected $userService;
+    protected $userProvider;
 
     protected $accountService;
 
@@ -29,12 +29,12 @@ class ForgotPasswordController
 
     public function __construct(
         FormFactoryInterface $formFactory,
-        UserProviderInterface $userService,
+        UserProviderInterface $userProvider,
         AccountService $accountService,
         ConfigProviderInterface $configProvider
     ) {
         $this->formFactory = $formFactory;
-        $this->userService = $userService;
+        $this->userProvider = $userProvider;
         $this->accountService = $accountService;
         $this->configProvider = $configProvider;
     }
@@ -62,7 +62,7 @@ class ForgotPasswordController
 
         try {
             $this->validateRecaptcha($request->request->get('g-recaptcha-response'));
-            $user = $this->userService->loadUserByUsername($username);
+            $user = $this->userProvider->loadUserByUsername($username);
             $this->accountService->startSetUserPassword($user);
         } catch (AuthenticationException $error) {
             $request->attributes->set('form', $this->buildForm($this->formFactory));

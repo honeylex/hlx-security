@@ -34,7 +34,7 @@ class ModifyController
 
     protected $eventDispatcher;
 
-    protected $userService;
+    protected $userProvider;
 
     protected $translator;
 
@@ -44,21 +44,21 @@ class ModifyController
         FormFactoryInterface $formFactory,
         TokenStorageInterface $tokenStorage,
         EventDispatcherInterface $eventDispatcher,
-        UserProviderInterface $userService,
+        UserProviderInterface $userProvider,
         TranslatorInterface $translator,
         AccountService $accountService
     ) {
         $this->formFactory = $formFactory;
         $this->tokenStorage = $tokenStorage;
         $this->eventDispatcher = $eventDispatcher;
-        $this->userService = $userService;
+        $this->userProvider = $userProvider;
         $this->translator = $translator;
         $this->accountService = $accountService;
     }
 
     public function read(Request $request)
     {
-        $user = $this->userService->loadUserByIdentifier($request->get('userId'));
+        $user = $this->userProvider->loadUserByIdentifier($request->get('userId'));
         $form = $this->buildForm($user->toArray());
         $request->attributes->set('form', $form);
         $request->attributes->set('user', $user);
@@ -68,7 +68,7 @@ class ModifyController
 
     public function write(Request $request, Application $app)
     {
-        $user = $this->userService->loadUserByIdentifier($request->get('userId'));
+        $user = $this->userProvider->loadUserByIdentifier($request->get('userId'));
         $form = $this->buildForm($user->toArray());
         $form->handleRequest($request);
         $request->attributes->set('form', $form);
@@ -84,7 +84,7 @@ class ModifyController
         $locale = $formData['locale'];
 
         try {
-            if (!$this->userService->userExists($username, $email, [ $user->getIdentifier() ])) {
+            if (!$this->userProvider->userExists($username, $email, [ $user->getIdentifier() ])) {
                 $this->accountService->updateUser($user, $formData);
                 $token = $this->tokenStorage->getToken();
                 if ($token->getUser()->getIdentifier() === $user->getIdentifier() && $user->getLocale() !== $locale) {

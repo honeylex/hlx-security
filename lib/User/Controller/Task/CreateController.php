@@ -25,19 +25,19 @@ class CreateController
 
     protected $translator;
 
-    protected $userService;
+    protected $userProvider;
 
     protected $accountService;
 
     public function __construct(
         FormFactoryInterface $formFactory,
         TranslatorInterface $translator,
-        UserProviderInterface $userService,
+        UserProviderInterface $userProvider,
         AccountService $accountService
     ) {
         $this->formFactory = $formFactory;
         $this->translator = $translator;
-        $this->userService = $userService;
+        $this->userProvider = $userProvider;
         $this->accountService = $accountService;
     }
 
@@ -64,7 +64,7 @@ class CreateController
         $email = $formData['email'];
 
         try {
-            if (!$this->userService->userExists($username, $email)) {
+            if (!$this->userProvider->userExists($username, $email)) {
                 $this->accountService->registerUser($formData);
                 return [ CreateSuccessView::CLASS ];
             }

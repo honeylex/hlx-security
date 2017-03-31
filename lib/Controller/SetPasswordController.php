@@ -21,17 +21,17 @@ class SetPasswordController
 {
     protected $formFactory;
 
-    protected $userService;
+    protected $userProvider;
 
     protected $accountService;
 
     public function __construct(
         FormFactoryInterface $formFactory,
-        UserProviderInterface $userService,
+        UserProviderInterface $userProvider,
         AccountService $accountService
     ) {
         $this->formFactory = $formFactory;
-        $this->userService = $userService;
+        $this->userProvider = $userProvider;
         $this->accountService = $accountService;
     }
 
@@ -59,7 +59,7 @@ class SetPasswordController
         $password = $formData['password'];
 
         try {
-            $user = $this->userService->loadUserByToken($formData['token'], 'set_password');
+            $user = $this->userProvider->loadUserByToken($formData['token'], 'set_password');
             $this->accountService->setUserPassword($user, $password);
             // We can verify the user at this point if required
             $this->accountService->verifyUser($user);
