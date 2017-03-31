@@ -57,6 +57,7 @@ class OauthAuthenticator extends AbstractGuardAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
+        sleep(1);
     }
 
     public function start(Request $request, AuthenticationException $authException = null)
