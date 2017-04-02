@@ -18,7 +18,6 @@ hlx.security.password_encoder:
     class: Honeylex\Service\Provisioner\SilexServiceProvisioner
     settings:
       app_key: security.encoder.bcrypt
-      share: true
       alias: Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface
 
 hlx.security.token_storage:
@@ -27,7 +26,6 @@ hlx.security.token_storage:
     class: Honeylex\Service\Provisioner\SilexServiceProvisioner
     settings:
       app_key: security.token_storage
-      share: true
       alias: Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
 
 hlx.security.authorization_checker:
@@ -36,7 +34,6 @@ hlx.security.authorization_checker:
     class: Honeylex\Service\Provisioner\SilexServiceProvisioner
     settings:
       app_key: security.authorization_checker
-      share: true
       alias: Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface
 
 hlx.security.mail_service:

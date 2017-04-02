@@ -2,6 +2,7 @@
 
 namespace Hlx\Security\User;
 
+use DateTime;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 
 class User implements AdvancedUserInterface
@@ -132,9 +133,29 @@ class User implements AdvancedUserInterface
         return $this->getWorkflowState() !== 'deleted';
     }
 
+    /*
+     * Login event is applied after symfony authentication so performing token
+     * checks here will block valid login. UserTokenAuthenticator handles
+     * checks instead. RememberMe services do not do post-auth checks,
+     * so in any case this is not executed for auto-logins via cookie...
+     */
     public function isCredentialsNonExpired()
     {
         return true;
+    }
+
+    /*
+     * So instead we have a method for doing additional checks outside the
+     * standard symfony flow...
+     */
+    public function isAuthenticationTokenNonExpired()
+    {
+        /*
+         * @todo need to invalidate on token string changes as well but that should be
+         * done somehow in the AbstractToken::hasUserChanged() method, which is private..
+         */
+        $token = $this->getToken('authentication');
+        return new DateTime('now') < new DateTime($token['expires_at']);
     }
 
     public function isEnabled()

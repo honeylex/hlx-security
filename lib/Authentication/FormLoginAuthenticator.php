@@ -1,6 +1,6 @@
 <?php
 
-namespace Hlx\Security\Authenticator;
+namespace Hlx\Security\Authentication;
 
 use Hlx\Security\Service\UserManager;
 use Hlx\Security\User\User;
@@ -48,8 +48,11 @@ class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
         }
 
         $username = $request->request->get('username');
-        $request->getSession()->set(Security::LAST_USERNAME, $username);
         $password = $request->request->get('password');
+
+        if ($request->hasSession()) {
+            $request->getSession()->set(Security::LAST_USERNAME, $username);
+        }
 
         return $username && $password ? [ 'username' => $username, 'password' => $password ] : null;
     }

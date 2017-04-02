@@ -4,6 +4,7 @@ namespace Hlx\Security\Service\Provisioner;
 
 use Auryn\Injector;
 use Gigablah\Silex\OAuth\OAuthServiceProvider;
+use Hlx\Security\Authentication\UserTokenBasedRememberMeServices;
 use Hlx\Security\EventListener\OauthInfoListener;
 use Hlx\Security\EventListener\UserLocaleListener;
 use Hlx\Security\EventListener\UserLoginListener;
@@ -56,6 +57,7 @@ class UserProviderProvisioner implements ProvisionerInterface, EventListenerProv
         $securityFirewalls = array_replace_recursive(
             $devFirewall,
             [
+                // @todo better default firewall config
                 'default' => [
                     'pattern' => "^.*$",
                     'anonymous' => true,
@@ -150,6 +152,7 @@ class UserProviderProvisioner implements ProvisionerInterface, EventListenerProv
         // register after SecurityServiceProvider
         $app->register(new RememberMeServiceProvider);
 
+        $this->registerRememberMeServices($app);
         $this->registerAuthenticators($app, $injector, $crateSettings->get('authenticators', new Settings));
         $this->registerSecurityVoters($app, $injector, $crateSettings->get('voters', new Settings));
         $this->registerLogoutHandler($app, $injector);
@@ -201,6 +204,35 @@ class UserProviderProvisioner implements ProvisionerInterface, EventListenerProv
                 return $injector->make($authenticator);
             };
         }
+    }
+
+    /*
+     * Overriding default to support Honeylex user token validation within cookie auto login flow
+     */
+    protected function registerRememberMeServices(Container $app)
+    {
+        $app['security.remember_me.service._proto'] = $app->protect(function ($providerKey, $options) use ($app) {
+            return function () use ($providerKey, $options, $app) {
+                $options = array_replace([
+                    'name' => 'REMEMBERME',
+                    'lifetime' => 31536000,
+                    'path' => '/',
+                    'domain' => null,
+                    'secure' => false,
+                    'httponly' => true,
+                    'always_remember_me' => false,
+                    'remember_me_parameter' => '_remember_me',
+                ], $options);
+
+                return new UserTokenBasedRememberMeServices(
+                    [ $app['security.user_provider.'.$providerKey] ],
+                    $options['key'],
+                    $providerKey,
+                    $options,
+                    $app['logger']
+                );
+            };
+        });
     }
 
     public function subscribe(Container $app, EventDispatcherInterface $dispatcher)

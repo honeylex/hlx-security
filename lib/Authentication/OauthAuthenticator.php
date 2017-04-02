@@ -1,6 +1,6 @@
 <?php
 
-namespace Hlx\Security\Authenticator;
+namespace Hlx\Security\Authentication;
 
 use Hlx\Security\User\OauthUser;
 use Symfony\Component\HttpFoundation\RedirectResponse;

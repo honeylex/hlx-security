@@ -1,6 +1,6 @@
 <?php
 
-namespace Hlx\Security\Authenticator;
+namespace Hlx\Security\Authentication;
 
 use Hlx\Security\User\ApiUser;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use Symfony\Component\Translation\TranslatorInterface;
 
-class TokenAuthenticator extends AbstractGuardAuthenticator
+class HeaderTokenAuthenticator extends AbstractGuardAuthenticator
 {
     protected $translator;
 
@@ -25,7 +25,10 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
     public function getCredentials(Request $request)
     {
         // Checks if the credential header is provided
-        if (!$credentials = $request->headers->get('X-AUTH-TOKEN')) {
+        $accept = $request->headers->get('ACCEPT');
+        $credentials = $request->headers->get('X-AUTH-TOKEN');
+
+        if (!$credentials || $accept !== 'application/json') {
             return;
         }
 

@@ -12,6 +12,7 @@ use Honeybee\Infrastructure\DataAccess\Query\Comparison\Equals;
 use Honeybee\Infrastructure\DataAccess\Query\CriteriaList;
 use Honeybee\Infrastructure\DataAccess\Query\CriteriaQuery;
 use Honeybee\Infrastructure\DataAccess\Query\QueryServiceMap;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -28,11 +29,13 @@ class UserProvider implements UserProviderInterface, OAuthUserProviderInterface
     public function __construct(
         QueryServiceMap $queryServiceMap,
         FinderMap $finderMap,
-        UserManager $userManager
+        UserManager $userManager,
+        TokenStorageInterface $tokenStorage
     ) {
         $this->queryServiceMap = $queryServiceMap;
         $this->finderMap = $finderMap;
         $this->userManager = $userManager;
+        $this->tokenStorage = $tokenStorage;
     }
 
     public function loadUserByIdentifier($identifier)
