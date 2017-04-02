@@ -2,7 +2,7 @@
     "name": "honeylex/hlx-security",
     "type": "library",
     "description": "Security & user administration crate for Honeylex.",
-    "license": "MIT",
+    "license": "MPL-2.0",
     "prefer-stable": true,
     "require": {
         "symfony/security": "^2.7|^3.1",
