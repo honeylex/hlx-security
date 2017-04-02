@@ -1,4 +1,4 @@
 ---
 vendor: Hlx
 name: Security
-description: Honeylex create for managing security, users and roles.
+description: Security & User administration crate for Honeylex
