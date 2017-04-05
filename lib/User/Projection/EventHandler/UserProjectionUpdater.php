@@ -11,7 +11,6 @@ use Hlx\Security\User\Projection\Standard\Embed\Verification;
 use Hlx\Security\User\Projection\Standard\User;
 use Honeybee\Infrastructure\Config\ConfigInterface;
 use Honeybee\Infrastructure\DataAccess\DataAccessServiceInterface;
-use Honeybee\Infrastructure\DataAccess\Query\QueryServiceMap;
 use Honeybee\Infrastructure\Event\Bus\EventBusInterface;
 use Honeybee\Projection\EventHandler\ProjectionUpdater;
 use Honeybee\Projection\ProjectionTypeMap;
@@ -26,7 +25,6 @@ class UserProjectionUpdater extends ProjectionUpdater
         ConfigInterface $config,
         LoggerInterface $logger,
         DataAccessServiceInterface $dataAccessService,
-        QueryServiceMap $queryServiceMap,
         ProjectionTypeMap $projectionTypeMap,
         AggregateRootTypeMap $aggregateRootTypeMap,
         EventBusInterface $eventBus,
@@ -36,7 +34,6 @@ class UserProjectionUpdater extends ProjectionUpdater
             $config,
             $logger,
             $dataAccessService,
-            $queryServiceMap,
             $projectionTypeMap,
             $aggregateRootTypeMap,
             $eventBus

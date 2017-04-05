@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -23,15 +24,19 @@ class LoginController
 
     protected $userProvider;
 
+    protected $passwordEncoder;
+
     protected $userManager;
 
     public function __construct(
         FormFactoryInterface $formFactory,
         UserProviderInterface $userProvider,
+        PasswordEncoderInterface $passwordEncoder,
         UserManager $userManager
     ) {
         $this->formFactory = $formFactory;
         $this->userProvider = $userProvider;
+        $this->passwordEncoder = $passwordEncoder;
         $this->userManager = $userManager;
     }
 
@@ -53,7 +58,7 @@ class LoginController
         $password = $request->request->get('password');
 
         $user = $this->userProvider->loadUserByUsername($username);
-        if (!$this->userProvider->isPasswordValid($user->getPassword(), $password, $user->getSalt())) {
+        if (!$this->passwordEncoder->isPasswordValid($user->getPassword(), $password, $user->getSalt())) {
             throw new BadCredentialsException;
         }
 
