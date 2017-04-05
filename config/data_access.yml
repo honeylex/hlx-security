@@ -3,11 +3,11 @@
 ---
 storage_writers:
   hlx.security::version_list::event_source::writer:
-    class: Honeybee\Infrastructure\DataAccess\Storage\CouchDb\StructureVersionList\StructureVersionListWriter
+    class: Honeybee\CouchDb\Storage\StructureVersionList\StructureVersionListWriter
     connection: hlx.security.event_source
 
   hlx.security::version_list::view_store::writer:
-    class: Honeybee\Infrastructure\DataAccess\Storage\Elasticsearch\StructureVersionList\StructureVersionListWriter
+    class: Honeybee\Elasticsearch2\Storage\StructureVersionList\StructureVersionListWriter
     connection: honeybee.view_store
     settings:
       index: ${project.database.prefix}.hlx-security
@@ -15,11 +15,11 @@ storage_writers:
 
 storage_readers:
   hlx.security::version_list::event_source::reader:
-    class: Honeybee\Infrastructure\DataAccess\Storage\CouchDb\StructureVersionList\StructureVersionListReader
+    class: Honeybee\CouchDb\Storage\StructureVersionList\StructureVersionListReader
     connection: hlx.security.event_source
 
   hlx.security::version_list::view_store::reader:
-    class: Honeybee\Infrastructure\DataAccess\Storage\Elasticsearch\StructureVersionList\StructureVersionListReader
+    class: Honeybee\Elasticsearch2\Storage\StructureVersionList\StructureVersionListReader
     connection: honeybee.view_store
     settings:
       index: ${project.database.prefix}.hlx-security

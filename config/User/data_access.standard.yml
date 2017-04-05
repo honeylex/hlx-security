@@ -3,7 +3,7 @@
 ---
 storage_writers:
   hlx.security.user::projection.standard::view_store::writer:
-    class: Honeybee\Infrastructure\DataAccess\Storage\Elasticsearch\Projection\ProjectionWriter
+    class: Honeybee\Elasticsearch2\Storage\Projection\ProjectionWriter
     connection: honeybee.view_store
     settings:
       index: ${project.database.prefix}.hlx-security
@@ -16,7 +16,7 @@ storage_writers:
 
 storage_readers:
   hlx.security.user::projection.standard::view_store::reader:
-    class: Honeybee\Infrastructure\DataAccess\Storage\Elasticsearch\Projection\ProjectionReader
+    class: Honeybee\Elasticsearch2\Storage\Projection\ProjectionReader
     connection: honeybee.view_store
     settings:
       index: ${project.database.prefix}.hlx-security
@@ -24,7 +24,7 @@ storage_readers:
 
 finders:
   hlx.security.user::projection.standard::view_store::finder:
-    class: Honeybee\Infrastructure\DataAccess\Finder\Elasticsearch\Projection\ProjectionFinder
+    class: Honeybee\Elasticsearch2\Finder\Projection\ProjectionFinder
     connection: honeybee.view_store
     settings:
       index: ${project.database.prefix}.hlx-security
@@ -38,7 +38,7 @@ query_services:
       default:
         finder: hlx.security.user::projection.standard::view_store::finder
         query_translation:
-          class: Honeybee\Infrastructure\DataAccess\Finder\Elasticsearch\CriteriaQueryTranslation
+          class: Honeybee\Elasticsearch2\Finder\CriteriaQueryTranslation
           settings:
             multi_fields:
               - username

@@ -2,7 +2,7 @@
 
 namespace Hlx\Security\Migration\CouchDb;
 
-use Honeybee\Infrastructure\Migration\CouchDbMigration;
+use Honeybee\CouchDb\Migration\CouchDbMigration;
 use Honeybee\Infrastructure\Migration\MigrationTargetInterface;
 use Honeybee\Infrastructure\Migration\MigrationInterface;
 

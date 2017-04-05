@@ -3,18 +3,18 @@
 ---
 storage_writers:
   hlx.security.user::domain_event::event_source::writer:
-    class: Honeybee\Infrastructure\DataAccess\Storage\CouchDb\EventStream\EventStreamAppender
+    class: Honeybee\CouchDb\Storage\EventStream\EventStreamAppender
     connection: hlx.security.event_source
 
 storage_readers:
   hlx.security.user::event_stream::event_source::reader:
-    class: Honeybee\Infrastructure\DataAccess\Storage\CouchDb\EventStream\EventStreamReader
+    class: Honeybee\CouchDb\Storage\EventStream\EventStreamReader
     connection: hlx.security.event_source
     settings:
       design_doc: hlx-security-user
 
   hlx.security.user::domain_event::event_source::reader:
-    class: Honeybee\Infrastructure\DataAccess\Storage\CouchDb\DomainEvent\DomainEventReader
+    class: Honeybee\CouchDb\Storage\DomainEvent\DomainEventReader
     connection: hlx.security.event_source
     settings:
       design_doc: hlx-security-user

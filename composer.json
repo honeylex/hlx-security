@@ -5,10 +5,10 @@
     "license": "MPL-2.0",
     "prefer-stable": true,
     "require": {
-        "symfony/security": "^2.7|^3.1",
         "gigablah/silex-oauth": "^2.0@dev",
+        "google/recaptcha": "^1.1",
         "pagerfanta/pagerfanta": "^1.0",
-        "google/recaptcha": "^1.1"
+        "symfony/security": "^3.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.5",
